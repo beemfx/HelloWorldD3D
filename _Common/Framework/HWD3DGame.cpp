@@ -1,3 +1,5 @@
+// D3D Hello World
+
 #include "HWD3DGame.h"
 
 void HWD3DGame::Release()

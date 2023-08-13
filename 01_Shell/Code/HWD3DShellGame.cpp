@@ -1,4 +1,4 @@
-//
+// D3D Hello World
 
 #include "HWD3DShellGame.h"
 

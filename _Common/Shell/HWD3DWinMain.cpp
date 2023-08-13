@@ -1,5 +1,4 @@
-// D3D_3.cpp : Defines the entry point for the application.
-//
+// D3D Hello World
 
 #include "HWD3DGame.h"
 

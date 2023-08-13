@@ -1,4 +1,4 @@
-//
+// D3D Hello World
 
 #include "HWD3DGame_DX3.h"
 #include "d3dmacs.h"

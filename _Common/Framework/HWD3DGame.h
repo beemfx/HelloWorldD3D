@@ -1,3 +1,5 @@
+// D3D Hello World
+
 #pragma once
 
 #include "HWD3DTypes.h"
