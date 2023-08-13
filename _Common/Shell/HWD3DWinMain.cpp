@@ -89,7 +89,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	while (bGameStillRunning)
 	{
 		const float GameDeltaTime = GetRawTimeElapsedSec( FrameStartTime , FrameEndTime );
-		CumulativeDelta += GameDeltaTime;
+		const float TotalDelta = GameDeltaTime + CumulativeDelta;
+		CumulativeDelta = TotalDelta;
 
 		// Pump Messages
 		MSG msg = { };
