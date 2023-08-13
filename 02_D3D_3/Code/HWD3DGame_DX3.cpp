@@ -210,7 +210,9 @@ void HWD3DGame_DX3::Init(HWND TargetWnd)
 		m_D3DDevice->CreateMatrix(&m_MatrixView);
 		m_D3DDevice->CreateMatrix(&m_MatrixWorld);
 
-		D3DMATRIX Proj = DHWG_Proj;
+		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(ScreenWidth)/ScreenHeight), .1f , 1000.f );
+
+		D3DMATRIX Proj = *reinterpret_cast<const D3DMATRIX*>(&ProjMatrix);
 		D3DMATRIX View = DHWG_View;
 		D3DMATRIX World = DHWG_Ident;
 
@@ -263,6 +265,7 @@ void HWD3DGame_DX3::Init(HWND TargetWnd)
 
 		D3DMATERIAL MaterialDesc = {};
 		MaterialDesc.dwSize = sizeof(MaterialDesc);
+		// Bluish color
 		MaterialDesc.diffuse.r = .4f;
 		MaterialDesc.diffuse.g = .4f;
 		MaterialDesc.diffuse.b = 1.f;

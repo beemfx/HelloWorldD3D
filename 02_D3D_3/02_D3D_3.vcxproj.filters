@@ -28,6 +28,9 @@
     <ClCompile Include="..\_Common\Shell\HWD3DWinMain.cpp">
       <Filter>Common\Shell</Filter>
     </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DMatrix.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\HWD3DGame_DX3.h">
@@ -47,6 +50,9 @@
     </ClInclude>
     <ClInclude Include="..\_Common\Res\targetver.h">
       <Filter>Common\Res</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DMatrix.h">
+      <Filter>Common\Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

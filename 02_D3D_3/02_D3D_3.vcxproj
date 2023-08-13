@@ -20,11 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\_Common\Framework\HWD3DGame.cpp" />
+    <ClCompile Include="..\_Common\Framework\HWD3DMatrix.cpp" />
     <ClCompile Include="..\_Common\Shell\HWD3DWinMain.cpp" />
     <ClCompile Include="Code\HWD3DGame_DX3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\_Common\Framework\HWD3DGame.h" />
+    <ClInclude Include="..\_Common\Framework\HWD3DMatrix.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTypes.h" />
     <ClInclude Include="..\_Common\Res\resource.h" />
     <ClInclude Include="..\_Common\Res\targetver.h" />
