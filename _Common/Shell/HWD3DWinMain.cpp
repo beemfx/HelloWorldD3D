@@ -14,6 +14,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	const POINT DisplayRes = { 800 , 600 }; // TODO: Command Line Parameter
+	const float GameUpdateRate = 1.f/60.f;
+	const int MaxUpatesPerFrameThreshold = 10;
 
 	HWND MainWnd = NULL;
 	RECT MainWnd_ClientRect = { };
@@ -67,8 +69,29 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	HWD3DGame* Game = HWD3DGame::CreateGame(MainWnd);
 	bool bGameStillRunning = true;
+
+	LARGE_INTEGER PerfFreq = { };
+	QueryPerformanceFrequency( &PerfFreq );
+	auto GetRawTimeElapsedSec =[&PerfFreq]( const LARGE_INTEGER& Start , const LARGE_INTEGER& End ) -> float
+	{
+		assert( Start.QuadPart <= End.QuadPart );
+		const LONGLONG Diff = End.QuadPart - Start.QuadPart;
+		const double TimeMs = (Diff * 1000.) / PerfFreq.QuadPart;
+		const float TimeSec = static_cast<float>(TimeMs) / 1000.f;
+		return TimeSec;
+	};
+
+	LARGE_INTEGER FrameStartTime = { };
+	LARGE_INTEGER FrameEndTime = { };
+	QueryPerformanceCounter( &FrameStartTime );
+	FrameEndTime = FrameStartTime;
+	float CumulativeDelta = 0.f;
+
 	while (bGameStillRunning)
 	{
+		const float GameDeltaTime = GetRawTimeElapsedSec( FrameStartTime , FrameEndTime );
+		CumulativeDelta += GameDeltaTime;
+
 		// Pump Messages
 		MSG msg = { };
 		while (PeekMessageW(&msg, nullptr, 0 , 0, PM_NOREMOVE))
@@ -88,9 +111,24 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 		if (bGameStillRunning)
 		{
-			Game->Update(1.f/60.f);
+			int NumUpdatesThisFrame = 0;
+			while( CumulativeDelta >= GameUpdateRate )
+			{
+				Game->Update(GameUpdateRate);
+				CumulativeDelta -= GameUpdateRate;
+				NumUpdatesThisFrame++;
+
+				if( NumUpdatesThisFrame >= MaxUpatesPerFrameThreshold )
+				{
+					CumulativeDelta = 0.f;
+					break;
+				}
+			}
 			Game->Render();
 		}
+
+		FrameStartTime = FrameEndTime;
+		QueryPerformanceCounter( &FrameEndTime );
 	}
 
 	Game->Release();
