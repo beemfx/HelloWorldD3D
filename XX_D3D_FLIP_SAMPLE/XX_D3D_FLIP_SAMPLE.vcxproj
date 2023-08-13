@@ -19,125 +19,54 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\SDK\samples\flipcube\flipcube.c" />
-    <ClCompile Include="..\SDK\samples\misc\d3dapp.c" />
-    <ClCompile Include="..\SDK\samples\misc\d3dcalls.c" />
-    <ClCompile Include="..\SDK\samples\misc\d3dmain.cpp" />
-    <ClCompile Include="..\SDK\samples\misc\d3dmath.c" />
-    <ClCompile Include="..\SDK\samples\misc\d3dsphr.c" />
-    <ClCompile Include="..\SDK\samples\misc\ddcalls.c" />
-    <ClCompile Include="..\SDK\samples\misc\ddutil.cpp" />
-    <ClCompile Include="..\SDK\samples\misc\dsutil.c" />
-    <ClCompile Include="..\SDK\samples\misc\lbprintf.c" />
-    <ClCompile Include="..\SDK\samples\misc\lclib.c" />
-    <ClCompile Include="..\SDK\samples\misc\misc.c" />
-    <ClCompile Include="..\SDK\samples\misc\rmerror.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\rmfull.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\rmmain.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\rmstats.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\stats.cpp" />
-    <ClCompile Include="..\SDK\samples\misc\texture.c" />
-    <ClCompile Include="Code\D3DHelloWorldGame.cpp" />
+    <ClCompile Include="Code\flipcube.c" />
+    <ClCompile Include="misc\d3dapp.c" />
+    <ClCompile Include="misc\d3dcalls.c" />
+    <ClCompile Include="misc\d3dmain.cpp" />
+    <ClCompile Include="misc\d3dmath.c" />
+    <ClCompile Include="misc\d3dsphr.c" />
+    <ClCompile Include="misc\ddcalls.c" />
+    <ClCompile Include="misc\ddutil.cpp" />
+    <ClCompile Include="misc\dsutil.c" />
+    <ClCompile Include="misc\lbprintf.c" />
+    <ClCompile Include="misc\lclib.c" />
+    <ClCompile Include="misc\misc.c" />
+    <ClCompile Include="misc\rmerror.c" />
+    <ClCompile Include="misc\rmfull.cpp" />
+    <ClCompile Include="misc\rmmain.cpp" />
+    <ClCompile Include="misc\rmstats.cpp" />
+    <ClCompile Include="misc\stats.cpp" />
+    <ClCompile Include="misc\texture.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\SDK\samples\misc\d3dapp.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3dappi.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3ddemo.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3dmacs.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3dmain.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3dmath.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3dres.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3dsphr.h" />
-    <ClInclude Include="..\SDK\samples\misc\ddutil.h" />
-    <ClInclude Include="..\SDK\samples\misc\dsutil.h" />
-    <ClInclude Include="..\SDK\samples\misc\lbprintf.h" />
-    <ClInclude Include="..\SDK\samples\misc\lclib.h" />
-    <ClInclude Include="..\SDK\samples\misc\rmdemo.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\SDK\samples\misc\rmerror.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\SDK\samples\misc\rmfull.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\SDK\samples\misc\rmfullrc.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\SDK\samples\misc\rmmain.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="Code\D3DHelloWorldGame.h" />
-    <ClInclude Include="Res\Resource.h" />
-    <ClInclude Include="Res\targetver.h" />
+    <Image Include="misc\d3d.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\SDK\samples\misc\d3d.ico" />
-    <Image Include="Res\D3D_3.ico" />
-    <Image Include="Res\small.ico" />
+    <ClInclude Include="misc\d3dapp.h" />
+    <ClInclude Include="misc\d3dappi.h" />
+    <ClInclude Include="misc\d3ddemo.h" />
+    <ClInclude Include="misc\d3dmacs.h" />
+    <ClInclude Include="misc\d3dmain.h" />
+    <ClInclude Include="misc\d3dmath.h" />
+    <ClInclude Include="misc\d3dres.h" />
+    <ClInclude Include="misc\d3dsphr.h" />
+    <ClInclude Include="misc\ddutil.h" />
+    <ClInclude Include="misc\dsutil.h" />
+    <ClInclude Include="misc\lbprintf.h" />
+    <ClInclude Include="misc\lclib.h" />
+    <ClInclude Include="misc\rmdemo.h" />
+    <ClInclude Include="misc\rmerror.h" />
+    <ClInclude Include="misc\rmfull.h" />
+    <ClInclude Include="misc\rmfullrc.h" />
+    <ClInclude Include="misc\rmmain.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\SDK\samples\misc\d3dmain.rc">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ResourceCompile>
-    <ResourceCompile Include="..\SDK\samples\misc\rmfull.rc">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ResourceCompile>
-    <ResourceCompile Include="..\SDK\samples\misc\rmmain.rc">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ResourceCompile>
-    <ResourceCompile Include="Res\D3D_3.rc" />
+    <ResourceCompile Include="misc\d3dmain.rc" />
+    <ResourceCompile Include="misc\rmfull.rc" />
+    <ResourceCompile Include="misc\rmmain.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Res\D3D_3.APS" />
-    <None Include="Res\RCa39412" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\SDK\samples\misc\readme.txt" />
+    <Text Include="misc\readme.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -217,7 +146,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Res/;Code/;Lib/Inc/;../SDK/samples/misc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../_SDK/DX3/inc;misc;code;</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
     </ClCompile>
@@ -235,7 +164,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Res/;Code/;Lib/Inc/;../SDK/samples/misc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../_SDK/DX3/inc;misc;code;</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
     </ClCompile>
@@ -253,7 +182,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Res/;Code/;Lib/Inc/;../SDK/samples/misc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../_SDK/DX3/inc;misc;code;</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
     </ClCompile>
@@ -271,7 +200,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Res/;Code/;Lib/Inc/;../SDK/samples/misc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../_SDK/DX3/inc;misc;code;</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
     </ClCompile>

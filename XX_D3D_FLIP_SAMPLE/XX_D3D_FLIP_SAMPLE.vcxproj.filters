@@ -5,123 +5,138 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Res">
-      <UniqueIdentifier>{a092b92d-6f17-420f-b5a5-99006ba9edd4}</UniqueIdentifier>
+    <Filter Include="misc">
+      <UniqueIdentifier>{5477e7b0-8b95-45a0-a741-02e02c6988e6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Code\D3DHelloWorldGame.cpp">
+    <ClCompile Include="Code\flipcube.c">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\flipcube\flipcube.c">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\d3dapp.c">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\d3dmain.cpp">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\d3dcalls.c">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\d3dmath.c">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\d3dmain.cpp">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\d3dapp.c">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\d3dmath.c">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\d3dcalls.c">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\d3dsphr.c">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\ddcalls.c">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\ddcalls.c">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\texture.c">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\ddutil.cpp">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\misc.c">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\dsutil.c">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\d3dsphr.c">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\lbprintf.c">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\ddutil.cpp">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\lclib.c">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\dsutil.c">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\misc.c">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\lbprintf.c">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\rmerror.c">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\lclib.c">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\rmfull.cpp">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\rmerror.c">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\rmmain.cpp">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\rmfull.cpp">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\rmstats.cpp">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\rmmain.cpp">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\stats.cpp">
+      <Filter>misc</Filter>
     </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\rmstats.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SDK\samples\misc\stats.cpp">
-      <Filter>Code</Filter>
+    <ClCompile Include="misc\texture.c">
+      <Filter>misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Code\D3DHelloWorldGame.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Res\Resource.h">
-      <Filter>Res</Filter>
-    </ClInclude>
-    <ClInclude Include="Res\targetver.h">
-      <Filter>Res</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SDK\samples\misc\d3dapp.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3dappi.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3ddemo.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3dmacs.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3dmain.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3dmath.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3dres.h" />
-    <ClInclude Include="..\SDK\samples\misc\d3dsphr.h" />
-    <ClInclude Include="..\SDK\samples\misc\ddutil.h" />
-    <ClInclude Include="..\SDK\samples\misc\dsutil.h" />
-    <ClInclude Include="..\SDK\samples\misc\lbprintf.h" />
-    <ClInclude Include="..\SDK\samples\misc\lclib.h" />
-    <ClInclude Include="..\SDK\samples\misc\rmdemo.h" />
-    <ClInclude Include="..\SDK\samples\misc\rmerror.h" />
-    <ClInclude Include="..\SDK\samples\misc\rmfull.h" />
-    <ClInclude Include="..\SDK\samples\misc\rmfullrc.h" />
-    <ClInclude Include="..\SDK\samples\misc\rmmain.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Res\D3D_3.ico">
-      <Filter>Res</Filter>
+    <Image Include="misc\d3d.ico">
+      <Filter>misc</Filter>
     </Image>
-    <Image Include="Res\small.ico">
-      <Filter>Res</Filter>
-    </Image>
-    <Image Include="..\SDK\samples\misc\d3d.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Res\D3D_3.rc">
-      <Filter>Res</Filter>
+    <ClInclude Include="misc\d3dapp.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3dappi.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3ddemo.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3dmacs.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3dmain.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3dmath.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3dres.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3dsphr.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\ddutil.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\dsutil.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\lbprintf.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\lclib.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\rmdemo.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\rmerror.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\rmfull.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\rmfullrc.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\rmmain.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="misc\d3dmain.rc">
+      <Filter>misc</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="..\SDK\samples\misc\d3dmain.rc" />
-    <ResourceCompile Include="..\SDK\samples\misc\rmfull.rc" />
-    <ResourceCompile Include="..\SDK\samples\misc\rmmain.rc" />
+    <ResourceCompile Include="misc\rmfull.rc">
+      <Filter>misc</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="misc\rmmain.rc">
+      <Filter>misc</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Res\D3D_3.APS">
-      <Filter>Res</Filter>
-    </None>
-    <None Include="Res\RCa39412">
-      <Filter>Res</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\SDK\samples\misc\readme.txt" />
+    <Text Include="misc\readme.txt">
+      <Filter>misc</Filter>
+    </Text>
   </ItemGroup>
 </Project>
