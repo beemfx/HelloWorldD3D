@@ -25,6 +25,14 @@ static const D3DMATRIX DHWG_Proj =
 	D3DVAL(0.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0)
 };
 
+static const D3DMATRIX DHWG_Proj_Ortho =
+{
+	D3DVAL(2.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0),
+	D3DVAL(0.0), D3DVAL(2.0), D3DVAL(0.0), D3DVAL(0.0),
+	D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0/(100.f - -100.f)), D3DVAL(0.f),
+	D3DVAL(0.0), D3DVAL(0.0), D3DVAL(-100.f/(-100.f - 100.f)), D3DVAL(1.f)
+};
+
 static const D3DMATRIX DHWG_View =
 {
 	D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0),
@@ -284,6 +292,14 @@ void HWD3DGame_DX3::Render()
 	{
 		if( SUCCEEDED(m_D3DDevice->BeginScene()) )
 		{
+			D3DMATRIX& Proj = const_cast<D3DMATRIX&>(DHWG_Proj);
+			D3DMATRIX& View = const_cast<D3DMATRIX&>(DHWG_View);
+			D3DMATRIX& World = const_cast<D3DMATRIX&>(DHWG_Ident);
+
+			m_D3DDevice->SetMatrix( m_MatrixProj , &Proj );
+			m_D3DDevice->SetMatrix( m_MatrixView , &View );
+			m_D3DDevice->SetMatrix( m_MatrixWorld , &World );
+
 			const HRESULT ExecRes = m_D3DDevice->Execute(m_ExecBuffer, m_Viewport, D3DEXECUTE_CLIPPED );
 			assert(SUCCEEDED(ExecRes));
 

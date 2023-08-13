@@ -24,23 +24,6 @@ void ConcatenateXRotation(LPD3DMATRIX lpM, float Degrees);
 void ConcatenateYRotation(LPD3DMATRIX lpM, float Degrees);
 void ConcatenateZRotation(LPD3DMATRIX lpM, float Degrees);
 
-//*** Cube colors - one RGB color per material
-const D3DCOLOR MaterialColors[6][2] =
-{
-	RGBA_MAKE(240, 20, 20, 255),    // Unsaturated Red
-	RGB_MAKE(240, 20, 20),         // Unsaturated Red
-	RGBA_MAKE(20, 240, 20, 255),    // Unsaturated Green
-	RGB_MAKE(20, 240, 20),         // Unsaturated Green
-	RGBA_MAKE(20, 20, 240, 255),    // Unsaturated Blue  
-	RGB_MAKE(20, 20, 240),         // Unsaturated Blue
-	RGBA_MAKE(128, 64, 0, 255),    // Brown
-	RGB_MAKE(128, 64, 0),         // Brown
-	RGBA_MAKE(240, 20, 240, 255),    // Unsaturated Magenta
-	RGB_MAKE(240, 20, 240),         // Unsaturated Magenta
-	RGBA_MAKE(240, 240, 20, 255),    // Unsaturated Yellow
-	RGB_MAKE(240, 240, 20),         // Unsaturated Yellow
-};
-
 //*** Lighting
 const D3DCOLOR AmbientColor = RGBA_MAKE(20, 20, 20, 20);
 LPDIRECT3DLIGHT lpD3DLight;
@@ -81,8 +64,6 @@ static POINT       Last;
  */
 
 LPDIRECT3DMATERIAL lpBackgroundMaterial;
-LPDIRECT3DMATERIAL lpD3DMaterial[6];
-D3DMATERIALHANDLE  D3DMaterialHandle[6];
 /* Cube vertices, normals, shades, and modeling transform */
 int NumVertices = 24;
 static D3DVERTEX CubeVertices[] = {
@@ -229,16 +210,12 @@ ReleaseScene(void)
 void
 ReleaseView(LPDIRECT3DVIEWPORT lpView)
 {
-	int i;
 	if (lpView)
 		lpView->lpVtbl->DeleteLight(lpView, lpD3DLight);
 	RELEASE(lpD3DLight);
 	RELEASE(lpD3DExBuf);
 
 	RELEASE(lpBackgroundMaterial);
-	for (i = 0; i < 6; i++) {
-		RELEASE(lpD3DMaterial[i]);
-	}
 }
 
 /*
@@ -252,34 +229,9 @@ InitView(LPDIRECTDRAW lpDD, LPDIRECT3D lpD3D, LPDIRECT3DDEVICE lpDev,
 	D3DMATERIAL MaterialDesc;
 	D3DMATERIALHANDLE BackgroundHandle;
 	D3DLIGHT LightDesc;
-	LPDIRECT3DEXECUTEBUFFER lpD3DExCmdBuf;
 	LPVOID lpBufStart, lpInsStart, lpPointer;
-	DWORD size;
 	int i;
 
-	for (i = 0; i < 6; i++) {
-		if (lpD3D->lpVtbl->CreateMaterial(lpD3D, &lpD3DMaterial[i], NULL) != D3D_OK)
-			return FALSE;
-		memset(&MaterialDesc, 0, sizeof(D3DMATERIAL));
-		MaterialDesc.dwSize = sizeof(D3DMATERIAL);
-		MaterialDesc.diffuse.r = (D3DVALUE)(RGBA_GETRED(MaterialColors[i][0]) / 255.0);
-		MaterialDesc.diffuse.g = (D3DVALUE)(RGBA_GETGREEN(MaterialColors[i][0]) / 255.0);
-		MaterialDesc.diffuse.b = (D3DVALUE)(RGBA_GETBLUE(MaterialColors[i][0]) / 255.0);
-		MaterialDesc.diffuse.a = (D3DVALUE)(RGBA_GETALPHA(MaterialColors[i][0]) / 255.0);
-		MaterialDesc.ambient.r = (D3DVALUE)(RGBA_GETALPHA(MaterialColors[i][1]) / 255.0);
-		MaterialDesc.ambient.g = (D3DVALUE)(RGBA_GETALPHA(MaterialColors[i][1]) / 255.0);
-		MaterialDesc.ambient.b = (D3DVALUE)(RGBA_GETALPHA(MaterialColors[i][1]) / 255.0);
-		MaterialDesc.ambient.a = (D3DVALUE)(RGBA_GETALPHA(MaterialColors[i][1]) / 255.0);
-		MaterialDesc.specular.r = (D3DVALUE)1.0;
-		MaterialDesc.specular.g = (D3DVALUE)1.0;
-		MaterialDesc.specular.b = (D3DVALUE)1.0;
-		MaterialDesc.power = (float)20.0;
-		MaterialDesc.dwRampSize = 16;
-		MaterialDesc.hTexture = TextureHandle[1];
-		lpD3DMaterial[i]->lpVtbl->SetMaterial(lpD3DMaterial[i], &MaterialDesc);
-		lpD3DMaterial[i]->lpVtbl->GetHandle(lpD3DMaterial[i], lpDev,
-			&D3DMaterialHandle[i]);
-	}
 	/*
 	 * Set background to black material
 	 */
@@ -328,83 +280,35 @@ InitView(LPDIRECTDRAW lpDD, LPDIRECT3D lpD3D, LPDIRECT3DDEVICE lpDev,
 	MAKE_MATRIX(lpDev, hView, view);
 	MAKE_MATRIX(lpDev, hProj, proj);
 	MAKE_MATRIX(lpDev, hWorld, world);
-	size = 0;
-	size += sizeof(D3DINSTRUCTION) * 3;
-	size += sizeof(D3DSTATE) * 4;
-	memset(&debDesc, 0, sizeof(D3DEXECUTEBUFFERDESC));
-	debDesc.dwSize = sizeof(D3DEXECUTEBUFFERDESC);
-	debDesc.dwFlags = D3DDEB_BUFSIZE;
-	debDesc.dwBufferSize = size;
-	if (lpDev->lpVtbl->CreateExecuteBuffer(lpDev, &debDesc, &lpD3DExCmdBuf,
-		NULL) != D3D_OK)
-		return FALSE;
 
-	/*
-	 * lock it so it can be filled
-	 */
-	if (lpD3DExCmdBuf->lpVtbl->Lock(lpD3DExCmdBuf, &debDesc) != D3D_OK)
-		return FALSE;
-	lpBufStart = debDesc.lpData;
-	memset(lpBufStart, 0, size);
-	lpPointer = lpBufStart;
-
-	lpInsStart = lpPointer;
-	OP_STATE_TRANSFORM(3, lpPointer);
-	STATE_DATA(D3DTRANSFORMSTATE_PROJECTION, hProj, lpPointer);
-	STATE_DATA(D3DTRANSFORMSTATE_VIEW, hView, lpPointer);
-	STATE_DATA(D3DTRANSFORMSTATE_WORLD, hWorld, lpPointer);
-	OP_STATE_LIGHT(1, lpPointer);
-	STATE_DATA(D3DLIGHTSTATE_AMBIENT, AmbientColor, lpPointer);
-	OP_EXIT(lpPointer);
-
-	/*
-	 * Setup the execute data describing the buffer
-	 */
-	lpD3DExCmdBuf->lpVtbl->Unlock(lpD3DExCmdBuf);
-	memset(&d3dExData, 0, sizeof(D3DEXECUTEDATA));
-	d3dExData.dwSize = sizeof(D3DEXECUTEDATA);
-	d3dExData.dwInstructionOffset = (ULONG)0;
-	d3dExData.dwInstructionLength = (ULONG)((char*)lpPointer - (char*)lpInsStart);
-	lpD3DExCmdBuf->lpVtbl->SetExecuteData(lpD3DExCmdBuf, &d3dExData);
-	lpDev->lpVtbl->BeginScene(lpDev);
-	lpDev->lpVtbl->Execute(lpDev, lpD3DExCmdBuf, lpView, D3DEXECUTE_UNCLIPPED);
-	lpDev->lpVtbl->EndScene(lpDev);
-
-	/*
-	 * We are done with the command buffer.
-	 */
-	lpD3DExCmdBuf->lpVtbl->Release(lpD3DExCmdBuf);
 	/*
 	 * Create an execute buffer
 	 */
-	 // calculate the size of the buffer
-	size = sizeof(D3DVERTEX) * NumVertices;
-	size += sizeof(D3DSTATUS) * 1;
-	size += sizeof(D3DPROCESSVERTICES) * 6;
-	size += sizeof(D3DINSTRUCTION) * 17;
-	size += sizeof(D3DSTATE) * 9;
-	size += sizeof(D3DTRIANGLE) * NumTri;
 	// Create an execute buffer
 	memset(&debDesc, 0, sizeof(D3DEXECUTEBUFFERDESC));
 	debDesc.dwSize = sizeof(D3DEXECUTEBUFFERDESC);
 	debDesc.dwFlags = D3DDEB_BUFSIZE;
-	debDesc.dwBufferSize = size;
+	debDesc.dwBufferSize = 1024*1024;
 	if (lpDev->lpVtbl->CreateExecuteBuffer(lpDev, &debDesc, &lpD3DExBuf, NULL)
 		!= D3D_OK)
 		return FALSE;
 	if (lpD3DExBuf->lpVtbl->Lock(lpD3DExBuf, &debDesc) != D3D_OK)
 		return FALSE;
 	lpBufStart = debDesc.lpData;
-	memset(lpBufStart, 0, size);
+	memset(lpBufStart, 0, debDesc.dwBufferSize);
 	lpPointer = lpBufStart;
 
 	VERTEX_DATA(&CubeVertices[0], NumVertices, lpPointer);
 
 	lpInsStart = lpPointer;
 	OP_SET_STATUS(D3DSETSTATUS_ALL, D3DSTATUS_DEFAULT, 2048, 2048, 0, 0, lpPointer);
+
+	OP_STATE_TRANSFORM(3, lpPointer);
+	STATE_DATA(D3DTRANSFORMSTATE_PROJECTION, hProj, lpPointer);
+	STATE_DATA(D3DTRANSFORMSTATE_VIEW, hView, lpPointer);
+	STATE_DATA(D3DTRANSFORMSTATE_WORLD, hWorld, lpPointer);
+
 	for (i = 0; i < 6; i++) {
-		OP_STATE_LIGHT(1, lpPointer);
-		STATE_DATA(D3DLIGHTSTATE_MATERIAL, D3DMaterialHandle[i], lpPointer);
 		OP_PROCESS_VERTICES(1, lpPointer);
 		PROCESSVERTICES_DATA(D3DPROCESSVERTICES_TRANSFORMLIGHT, i * 4, 4, lpPointer);
 	}
