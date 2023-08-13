@@ -46,7 +46,7 @@ typedef struct tagd3dmainglobals {
     LPDIRECTDRAWSURFACE lpInfoBuffer;      /* window info surface */
 } d3dmainglobals;
 
-void __cdecl Msg( LPSTR fmt, ... );
+void __cdecl Msg( LPCSTR fmt, ... );
 /*
  * STATS.CPP FUNCTION PROTOTYPES
  */

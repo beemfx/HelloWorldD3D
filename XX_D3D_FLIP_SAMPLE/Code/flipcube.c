@@ -9,6 +9,8 @@
  *
  ***************************************************************************/
 
+ #pragma comment(lib, "ddraw.lib")
+
 #include <windows.h>
 #include <windowsx.h>
 #include <math.h>

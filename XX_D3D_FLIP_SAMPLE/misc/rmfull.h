@@ -64,7 +64,7 @@ typedef struct tagrmfullglobals {
     LPDIRECTDRAWSURFACE lpInfoBuffer;      /* window info surface */
 } rmfullglobals;
 
-void __cdecl Msg( LPSTR fmt, ... );
+void __cdecl Msg( LPCSTR fmt, ... );
 /*
  * STATS.CPP FUNCTION PROTOTYPES
  */

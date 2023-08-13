@@ -31,10 +31,30 @@
     <ClCompile Include="misc\lbprintf.c" />
     <ClCompile Include="misc\lclib.c" />
     <ClCompile Include="misc\misc.c" />
-    <ClCompile Include="misc\rmerror.c" />
-    <ClCompile Include="misc\rmfull.cpp" />
-    <ClCompile Include="misc\rmmain.cpp" />
-    <ClCompile Include="misc\rmstats.cpp" />
+    <ClCompile Include="misc\rmerror.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="misc\rmfull.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="misc\rmmain.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="misc\rmstats.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="misc\stats.cpp" />
     <ClCompile Include="misc\texture.c" />
   </ItemGroup>
@@ -54,19 +74,122 @@
     <ClInclude Include="misc\dsutil.h" />
     <ClInclude Include="misc\lbprintf.h" />
     <ClInclude Include="misc\lclib.h" />
-    <ClInclude Include="misc\rmdemo.h" />
-    <ClInclude Include="misc\rmerror.h" />
-    <ClInclude Include="misc\rmfull.h" />
-    <ClInclude Include="misc\rmfullrc.h" />
-    <ClInclude Include="misc\rmmain.h" />
+    <ClInclude Include="misc\rmdemo.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="misc\rmerror.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="misc\rmfull.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="misc\rmfullrc.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="misc\rmmain.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="misc\d3dmain.rc" />
-    <ResourceCompile Include="misc\rmfull.rc" />
-    <ResourceCompile Include="misc\rmmain.rc" />
+    <ResourceCompile Include="misc\rmfull.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ResourceCompile>
+    <ResourceCompile Include="misc\rmmain.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="misc\readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="media\banana.ppm" />
+    <None Include="media\bigship1.x" />
+    <None Include="media\camera.x" />
+    <None Include="media\checker.ppm" />
+    <None Include="media\cherry.x" />
+    <None Include="media\cube.x" />
+    <None Include="media\dropship.x" />
+    <None Include="media\egg.x" />
+    <None Include="media\lake.ppm" />
+    <None Include="media\land4.x" />
+    <None Include="media\mslogo.x" />
+    <None Include="media\multi.x" />
+    <None Include="media\ncube.x" />
+    <None Include="media\rmlogo.x" />
+    <None Include="media\sphere0.x" />
+    <None Include="media\sphere1.x" />
+    <None Include="media\sphere2.x" />
+    <None Include="media\sphere3.x" />
+    <None Include="media\sphere4.x" />
+    <None Include="media\teapot.x" />
+    <None Include="media\tex1.ppm" />
+    <None Include="media\tex2.ppm" />
+    <None Include="media\tex3.ppm" />
+    <None Include="media\tex4.ppm" />
+    <None Include="media\tex5.ppm" />
+    <None Include="media\tex6.ppm" />
+    <None Include="media\tex7.ppm" />
+    <None Include="media\torus.x" />
+    <None Include="media\tpot0.x" />
+    <None Include="media\tpot1.x" />
+    <None Include="media\tpot2.x" />
+    <None Include="media\tpot3.x" />
+    <None Include="media\tree.x" />
+    <None Include="media\win95.ppm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="media\bang.wav" />
+    <Media Include="media\bangbang.wav" />
+    <Media Include="media\blow1.wav" />
+    <Media Include="media\blow2.wav" />
+    <Media Include="media\bounce.wav" />
+    <Media Include="media\chainsw.wav" />
+    <Media Include="media\c_bang.wav" />
+    <Media Include="media\d_bang.wav" />
+    <Media Include="media\gunfire.wav" />
+    <Media Include="media\hum.wav" />
+    <Media Include="media\jump.wav" />
+    <Media Include="media\level.wav" />
+    <Media Include="media\miss01.wav" />
+    <Media Include="media\miss02.wav" />
+    <Media Include="media\nyuk.wav" />
+    <Media Include="media\piehit2.wav" />
+    <Media Include="media\plane.wav" />
+    <Media Include="media\p_bang.wav" />
+    <Media Include="media\rev.wav" />
+    <Media Include="media\run.wav" />
+    <Media Include="media\shield.wav" />
+    <Media Include="media\skid.wav" />
+    <Media Include="media\stop.wav" />
+    <Media Include="media\strike01.wav" />
+    <Media Include="media\strike02.wav" />
+    <Media Include="media\stunned.wav" />
+    <Media Include="media\s_bang.wav" />
+    <Media Include="media\throw.wav" />
+    <Media Include="media\walk.wav" />
+    <Media Include="media\woob.wav" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

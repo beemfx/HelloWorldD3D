@@ -1227,7 +1227,7 @@ ReportD3DAppError(void)
  * Message output for error notification.
  */
 void __cdecl
-Msg( LPSTR fmt, ... )
+Msg( LPCSTR fmt, ... )
 {
     char buff[256];
 
