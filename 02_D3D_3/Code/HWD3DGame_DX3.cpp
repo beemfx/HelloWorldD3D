@@ -1,10 +1,21 @@
 //
 
-#include "D3DHelloWorldGame.h"
+#include "HWD3DGame_DX3.h"
 #include "d3dmacs.h"
 
 // #pragma comment(lib, "ddraw.lib")
 #pragma comment(lib, "dxguid.lib")
+
+HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
+{
+	HWD3DGame* Out = new HWD3DGame_DX3;
+	if( Out )
+	{
+		Out->Init(InMainWnd);
+	}
+
+	return Out;
+}
 
 static const D3DMATRIX DHWG_Proj =
 {
@@ -75,9 +86,14 @@ static const int CubeTri[] = {
 	20, 21, 22, 20, 22, 23
 };
 
-void D3DHelloWorldGame::Init( HWND TargetWnd , const int ScreenWidth , const int ScreenHeight )
+void HWD3DGame_DX3::Init(HWND TargetWnd)
 {
 	m_TargetWnd = TargetWnd;
+
+	RECT TargetWndRc = { };
+	GetClientRect (m_TargetWnd, &TargetWndRc);
+	const int ScreenWidth = TargetWndRc.left - TargetWndRc.right;
+	const int ScreenHeight = TargetWndRc.bottom - TargetWndRc.top;
 
 	HRESULT CoInitRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 	// CoCreateInstance(CLSID_Direct3D, NULL, CLSCTX_ALL, IID_IDirect3D, reinterpret_cast<LPVOID*>(&D3D)); 
@@ -213,7 +229,7 @@ void D3DHelloWorldGame::Init( HWND TargetWnd , const int ScreenWidth , const int
 	}
 }
 
-void D3DHelloWorldGame::Deinit()
+void HWD3DGame_DX3::Deinit()
 {
 	if( m_BackBuffer )
 	{
@@ -246,12 +262,12 @@ void D3DHelloWorldGame::Deinit()
 	}
 }
 
-void D3DHelloWorldGame::Update(float DeltaTime)
+void HWD3DGame_DX3::Update(float DeltaTime)
 {
 	m_Frame++;
 }
 
-void D3DHelloWorldGame::Render()
+void HWD3DGame_DX3::Render()
 {
 	if( m_Viewport )
 	{
@@ -320,7 +336,7 @@ void D3DHelloWorldGame::Render()
 	}
 }
 
-void D3DHelloWorldGame::CreateExecBuffer()
+void HWD3DGame_DX3::CreateExecBuffer()
 {
 	m_ExecBufferDesc.dwSize = sizeof(m_ExecBufferDesc);
 	m_ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
@@ -477,9 +493,9 @@ void D3DHelloWorldGame::CreateExecBuffer()
 	}
 }
 
-HRESULT FAR PASCAL D3DHelloWorldGame::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context)
+HRESULT FAR PASCAL HWD3DGame_DX3::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context)
 {
-	D3DHelloWorldGame* _this = reinterpret_cast<D3DHelloWorldGame*>(Context);
+	HWD3DGame_DX3* _this = reinterpret_cast<HWD3DGame_DX3*>(Context);
 
 	D3DDEVICEDESC d1 = *DevDesc1;
 	D3DDEVICEDESC d2 = *DevDesc2;

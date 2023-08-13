@@ -19,26 +19,24 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Code\D3DHelloWorldGame.cpp" />
-    <ClCompile Include="Code\WinMain.cpp" />
+    <ClCompile Include="..\_Common\Framework\HWD3DGame.cpp" />
+    <ClCompile Include="..\_Common\Shell\HWD3DWinMain.cpp" />
+    <ClCompile Include="Code\HWD3DGame_DX3.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Code\D3DHelloWorldGame.h" />
+    <ClInclude Include="..\_Common\Framework\HWD3DGame.h" />
+    <ClInclude Include="..\_Common\Framework\HWD3DTypes.h" />
+    <ClInclude Include="..\_Common\Res\resource.h" />
+    <ClInclude Include="..\_Common\Res\targetver.h" />
+    <ClInclude Include="Code\HWD3DGame_DX3.h" />
     <ClInclude Include="Code\d3dmacs.h" />
-    <ClInclude Include="Code\framework.h" />
-    <ClInclude Include="Res\Resource.h" />
-    <ClInclude Include="Res\targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Res\D3D_3.ico" />
-    <Image Include="Res\small.ico" />
+    <Image Include="..\_Common\Res\D3D_3.ico" />
+    <Image Include="..\_Common\Res\small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Res\D3D_3.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Res\D3D_3.APS" />
-    <None Include="Res\RCa39412" />
+    <ResourceCompile Include="..\_Common\Res\D3D_3.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -118,7 +116,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Res/;Code/;Lib/Inc/;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -134,7 +132,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Res/;Code/;Lib/Inc/;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,7 +148,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Res/;Code/;Lib/Inc/;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -166,7 +164,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Res/;Code/;Lib/Inc/;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

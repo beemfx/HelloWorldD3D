@@ -1,5 +1,7 @@
 //
 
+#include "HWD3DGame.h"
+
 #include <d3d.h>
 #include <ddraw.h>
 // #include <ddrawex.h>
@@ -8,7 +10,7 @@
 #include <guiddef.h>
 #include <cassert>
 
-class D3DHelloWorldGame
+class HWD3DGame_DX3 : public HWD3DGame
 {
 private:
 	
@@ -44,11 +46,11 @@ private:
 
 public:
 
-	void Init( HWND TargetWnd , const int ScreenWidth , const int ScreenHeight );
-	void Deinit();
+	virtual void Init( HWND TargetWnd) override;
+	virtual void Deinit() override;
 
-	void Update(float DeltaTime);
-	void Render();
+	virtual void Update(float DeltaTime) override;
+	virtual void Render() override;
 
 	void CreateExecBuffer();
 
