@@ -11,3 +11,8 @@
 #include <memory.h>
 #include <tchar.h>
 
+#include <vector>
+#include <string>
+#include <guiddef.h>
+#include <cassert>
+

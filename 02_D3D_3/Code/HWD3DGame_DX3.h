@@ -5,10 +5,6 @@
 #include <d3d.h>
 #include <ddraw.h>
 // #include <ddrawex.h>
-#include <vector>
-#include <string>
-#include <guiddef.h>
-#include <cassert>
 
 class HWD3DGame_DX3 : public HWD3DGame
 {

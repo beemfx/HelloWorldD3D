@@ -92,7 +92,7 @@ void HWD3DGame_DX3::Init(HWND TargetWnd)
 
 	RECT TargetWndRc = { };
 	GetClientRect (m_TargetWnd, &TargetWndRc);
-	const int ScreenWidth = TargetWndRc.left - TargetWndRc.right;
+	const int ScreenWidth = TargetWndRc.right - TargetWndRc.left;
 	const int ScreenHeight = TargetWndRc.bottom - TargetWndRc.top;
 
 	HRESULT CoInitRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
@@ -133,7 +133,8 @@ void HWD3DGame_DX3::Init(HWND TargetWnd)
 			BbSd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN|DDSCAPS_3DDEVICE|DDSCAPS_VIDEOMEMORY;
 			BbSd.dwWidth = ScreenWidth;
 			BbSd.dwHeight = ScreenHeight;
-			m_DDraw->CreateSurface( &BbSd , &m_BackBuffer , 0 );
+			HRESULT CreateBbRes = m_DDraw->CreateSurface( &BbSd , &m_BackBuffer , 0 );
+			assert(SUCCEEDED(CreateBbRes));
 		}
 		// HRESULT Res = m_DDraw->SetDisplayMode(640, 480, 32);
 		// Res = Res;
