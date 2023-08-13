@@ -24,10 +24,6 @@ void ConcatenateXRotation(LPD3DMATRIX lpM, float Degrees);
 void ConcatenateYRotation(LPD3DMATRIX lpM, float Degrees);
 void ConcatenateZRotation(LPD3DMATRIX lpM, float Degrees);
 
-//*** Lighting
-const D3DCOLOR AmbientColor = RGBA_MAKE(20, 20, 20, 20);
-LPDIRECT3DLIGHT lpD3DLight;
-
 //*** Viewing and perspective
 D3DMATRIXHANDLE hProj, hView, hWorld;
 D3DMATRIX proj = {
@@ -210,11 +206,7 @@ ReleaseScene(void)
 void
 ReleaseView(LPDIRECT3DVIEWPORT lpView)
 {
-	if (lpView)
-		lpView->lpVtbl->DeleteLight(lpView, lpD3DLight);
-	RELEASE(lpD3DLight);
 	RELEASE(lpD3DExBuf);
-
 	RELEASE(lpBackgroundMaterial);
 }
 
@@ -228,7 +220,6 @@ InitView(LPDIRECTDRAW lpDD, LPDIRECT3D lpD3D, LPDIRECT3DDEVICE lpDev,
 {
 	D3DMATERIAL MaterialDesc;
 	D3DMATERIALHANDLE BackgroundHandle;
-	D3DLIGHT LightDesc;
 	LPVOID lpBufStart, lpInsStart, lpPointer;
 	int i;
 
@@ -244,34 +235,6 @@ InitView(LPDIRECTDRAW lpDD, LPDIRECT3D lpD3D, LPDIRECT3DDEVICE lpDev,
 	lpBackgroundMaterial->lpVtbl->GetHandle(lpBackgroundMaterial, lpDev,
 		&BackgroundHandle);
 	lpView->lpVtbl->SetBackground(lpView, BackgroundHandle);
-	/*
-	 * Add one directional light.
-	 */
-	memset(&LightDesc, 0, sizeof(D3DLIGHT));
-	LightDesc.dwSize = sizeof(D3DLIGHT);
-	LightDesc.dltType = D3DLIGHT_POINT;
-	LightDesc.dcvColor.r = D3DVAL(0.9);
-	LightDesc.dcvColor.g = D3DVAL(0.9);
-	LightDesc.dcvColor.b = D3DVAL(0.9);
-	LightDesc.dcvColor.a = D3DVAL(1.0);
-	LightDesc.dvPosition.x = D3DVALP(0.0, 12);
-	LightDesc.dvPosition.y = D3DVALP(0.0, 12);
-	LightDesc.dvPosition.z = D3DVALP(-12.0, 12);
-	LightDesc.dvAttenuation0 = D3DVAL(1.0);
-	LightDesc.dvAttenuation1 = D3DVAL(0.0);
-	LightDesc.dvAttenuation2 = D3DVAL(0.0);
-
-	//    LightDesc.type = D3DLIGHT_DIRECTIONAL;
-	LightDesc.dvDirection.x = D3DVALP(0.0, 12);
-	LightDesc.dvDirection.y = D3DVALP(0.0, 12);
-	LightDesc.dvDirection.z = D3DVALP(1.0, 12);
-
-	if (lpD3D->lpVtbl->CreateLight(lpD3D, &lpD3DLight, NULL) != D3D_OK)
-		return FALSE;
-	if (lpD3DLight->lpVtbl->SetLight(lpD3DLight, &LightDesc) != D3D_OK)
-		return FALSE;
-	if (lpView->lpVtbl->AddLight(lpView, lpD3DLight) != D3D_OK)
-		return FALSE;
 
 	/*
 	 * Set the view, world and projection matrices
