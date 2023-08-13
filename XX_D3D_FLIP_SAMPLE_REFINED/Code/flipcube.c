@@ -117,6 +117,7 @@ OverrideDefaults(Defaults* defaults)
 BOOL
 TickScene()
 {
+	/*
 	if (GetAsyncKeyState(VK_LBUTTON) < 0) {
 		if (Move.x || Move.y) {
 			D3DMATRIX Movement;
@@ -130,6 +131,8 @@ TickScene()
 	else {
 		MultiplyD3DMATRIX(&world, &spin, &world);
 	}
+	*/
+	world = identity;
 	return TRUE;
 }
 

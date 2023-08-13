@@ -161,8 +161,18 @@ void HWD3DGame_DX3::Init(HWND TargetWnd)
 		// CoCreateInstance(FindDev.guid, NULL, CLSCTX_ALL, IID_IDirect3DDevice, reinterpret_cast<LPVOID*>(&m_D3DDevice));
 		HRESULT QueryForDevRes = m_BackBuffer->QueryInterface(FindDev.guid, reinterpret_cast<LPVOID*>(&m_D3DDevice));
 		assert(SUCCEEDED(QueryForDevRes) && m_D3DDevice);
-		
-		CreateExecBuffer();
+
+		m_D3DDevice->CreateMatrix( &m_MatrixProj );
+		m_D3DDevice->CreateMatrix( &m_MatrixView );
+		m_D3DDevice->CreateMatrix( &m_MatrixWorld );
+
+		D3DMATRIX Proj = DHWG_Proj;
+		D3DMATRIX View = DHWG_View;
+		D3DMATRIX World = DHWG_Ident;
+
+		m_D3DDevice->SetMatrix( m_MatrixProj , &Proj );
+		m_D3DDevice->SetMatrix( m_MatrixView , &View );
+		m_D3DDevice->SetMatrix( m_MatrixWorld , &World );
 
 		m_D3D->CreateViewport( &m_Viewport , nullptr );
 		m_D3DDevice->AddViewport( m_Viewport );
@@ -177,18 +187,6 @@ void HWD3DGame_DX3::Init(HWND TargetWnd)
 		Vp.dvMaxY = D3DVAL(Vp.dwHeight) / D3DVAL(2.f * Vp.dvScaleY);
 		Vp.dvMaxZ = 1.f;
 		m_Viewport->SetViewport( &Vp );
-
-		m_D3DDevice->CreateMatrix( &m_MatrixProj );
-		m_D3DDevice->CreateMatrix( &m_MatrixView );
-		m_D3DDevice->CreateMatrix( &m_MatrixWorld );
-
-		D3DMATRIX& Proj = const_cast<D3DMATRIX&>(DHWG_Proj);
-		D3DMATRIX& View = const_cast<D3DMATRIX&>(DHWG_View);
-		D3DMATRIX& World = const_cast<D3DMATRIX&>(DHWG_Ident);
-
-		m_D3DDevice->SetMatrix( m_MatrixProj , &Proj );
-		m_D3DDevice->SetMatrix( m_MatrixView , &View );
-		m_D3DDevice->SetMatrix( m_MatrixWorld , &World );
 
 		{
 			m_D3D->CreateMaterial( &m_Material , nullptr );
@@ -235,6 +233,8 @@ void HWD3DGame_DX3::Init(HWND TargetWnd)
 			m_Material->SetMaterial(&MaterialDesc);
 			m_Material->GetHandle(m_D3DDevice, &m_BgMaterialHandle);
 		}
+
+		CreateExecBuffer();
 	}
 }
 
@@ -283,7 +283,7 @@ void HWD3DGame_DX3::Render()
 		D3DVIEWPORT Vp = { };
 		Vp.dwSize = sizeof(Vp);
 		m_Viewport->GetViewport( &Vp );
-		D3DRECT ClearRect = { 0 , 0 , Vp.dwWidth , Vp.dwHeight };
+		D3DRECT ClearRect = { 0 , 0 , static_cast<LONG>(Vp.dwWidth) , static_cast<LONG>(Vp.dwHeight) };
 		m_Viewport->SetBackground( m_BgMaterialHandle );
 		m_Viewport->Clear( 1 , &ClearRect , D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER );
 	}
@@ -292,13 +292,13 @@ void HWD3DGame_DX3::Render()
 	{
 		if( SUCCEEDED(m_D3DDevice->BeginScene()) )
 		{
-			D3DMATRIX& Proj = const_cast<D3DMATRIX&>(DHWG_Proj);
-			D3DMATRIX& View = const_cast<D3DMATRIX&>(DHWG_View);
-			D3DMATRIX& World = const_cast<D3DMATRIX&>(DHWG_Ident);
-
-			m_D3DDevice->SetMatrix( m_MatrixProj , &Proj );
-			m_D3DDevice->SetMatrix( m_MatrixView , &View );
-			m_D3DDevice->SetMatrix( m_MatrixWorld , &World );
+			// D3DMATRIX& Proj = const_cast<D3DMATRIX&>(DHWG_Proj);
+			// D3DMATRIX& View = const_cast<D3DMATRIX&>(DHWG_View);
+			// D3DMATRIX& World = const_cast<D3DMATRIX&>(DHWG_Ident);
+			// 
+			// m_D3DDevice->SetMatrix( m_MatrixProj , &Proj );
+			// m_D3DDevice->SetMatrix( m_MatrixView , &View );
+			// m_D3DDevice->SetMatrix( m_MatrixWorld , &World );
 
 			const HRESULT ExecRes = m_D3DDevice->Execute(m_ExecBuffer, m_Viewport, D3DEXECUTE_CLIPPED );
 			assert(SUCCEEDED(ExecRes));
@@ -315,14 +315,6 @@ void HWD3DGame_DX3::Render()
 
 	if (m_DDraw && m_BackBuffer)
 	{
-		if( false )
-		{
-			DDBLTFX ddbltfx = { };
-			ddbltfx.dwSize = sizeof(ddbltfx);
-			ddbltfx.dwFillColor = RGB(0, static_cast<BYTE>(m_Frame%256), static_cast<BYTE>(m_Frame%256));
-			m_BackBuffer->Blt(NULL, NULL, NULL, DDBLT_COLORFILL, &ddbltfx);
-		}
-
 		{
 			DDSURFACEDESC desc = { };
 			desc.dwSize = sizeof(desc);
@@ -358,17 +350,16 @@ void HWD3DGame_DX3::CreateExecBuffer()
 	m_ExecBufferDesc.dwSize = sizeof(m_ExecBufferDesc);
 	m_ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
 	m_ExecBufferDesc.dwBufferSize = 1024*1024;
-	HRESULT CreateExecBufferRes = m_D3DDevice->CreateExecuteBuffer( &m_ExecBufferDesc , &m_ExecBuffer , nullptr );
+	const HRESULT CreateExecBufferRes = m_D3DDevice->CreateExecuteBuffer( &m_ExecBufferDesc , &m_ExecBuffer , nullptr );
 	assert(SUCCEEDED(CreateExecBufferRes));
 
 	if( m_ExecBuffer )
 	{
-#if 1
 		if( SUCCEEDED(m_ExecBuffer->Lock( &m_ExecBufferDesc )) )
 		{
 			LPVOID lpBufStart = m_ExecBufferDesc.lpData;
 
-			memset( lpBufStart , 0 , m_ExecBufferDesc.dwSize );
+			memset( lpBufStart , 0 , m_ExecBufferDesc.dwBufferSize );
 			LPVOID lpPointer = lpBufStart;
 
 			VERTEX_DATA(&CubeVertices[0], NumVertices, lpPointer);
@@ -380,30 +371,20 @@ void HWD3DGame_DX3::CreateExecBuffer()
 			STATE_DATA(D3DTRANSFORMSTATE_VIEW, m_MatrixView, lpPointer);
 			STATE_DATA(D3DTRANSFORMSTATE_WORLD, m_MatrixWorld, lpPointer);
 
-			OP_STATE_RENDER(17, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_SHADEMODE, D3DSHADE_FLAT, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREPERSPECTIVE, TRUE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_ZENABLE, FALSE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_ZWRITEENABLE, FALSE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_ZFUNC, D3DCMP_LESSEQUAL, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_LINEAR,lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_LINEAR,lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREMAPBLEND, D3DTBLEND_MODULATE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_FILLMODE, D3DFILL_SOLID, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_DITHERENABLE, TRUE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_SPECULARENABLE, FALSE,lpPointer);
-			STATE_DATA(D3DRENDERSTATE_ANTIALIAS, FALSE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_FOGENABLE, FALSE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_FOGCOLOR, RGB_MAKE(255, 255, 255), lpPointer);
+			OP_SET_STATUS(D3DSETSTATUS_ALL, D3DSTATUS_DEFAULT, 2048, 2048, 0, 0, lpPointer);
+
+			// OP_PROCESS_VERTICES(1, lpPointer);
+			// PROCESSVERTICES_DATA(D3DPROCESSVERTICES_TRANSFORMLIGHT, 0, NumVertices, lpPointer);
+
+			for (int i = 0; i < 6; i++) {
+				OP_PROCESS_VERTICES(1, lpPointer);
+				PROCESSVERTICES_DATA(D3DPROCESSVERTICES_TRANSFORMLIGHT, i * 4, 4, lpPointer);
+			}
+
+			OP_STATE_RENDER(3, lpPointer);
 			STATE_DATA(D3DRENDERSTATE_TEXTUREHANDLE, 0, lpPointer);
 			STATE_DATA(D3DRENDERSTATE_WRAPU, FALSE, lpPointer);
 			STATE_DATA(D3DRENDERSTATE_WRAPV, FALSE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_BLENDENABLE, FALSE , lpPointer);
-
-			OP_SET_STATUS(D3DSETSTATUS_ALL, D3DSTATUS_DEFAULT, 2048, 2048, 0, 0, lpPointer);
-
-			OP_PROCESS_VERTICES(1, lpPointer);
-			PROCESSVERTICES_DATA(D3DPROCESSVERTICES_TRANSFORMLIGHT, 0, NumVertices, lpPointer);
 			/*
 			* Make sure that the triangle data (not OP) will be QWORD aligned
 			*/
@@ -417,14 +398,12 @@ void HWD3DGame_DX3::CreateExecBuffer()
 				((LPD3DTRIANGLE)lpPointer)->v2 = CubeTri[i*3 + 1];
 				((LPD3DTRIANGLE)lpPointer)->v3 = CubeTri[i*3 + 2];
 				((LPD3DTRIANGLE)lpPointer)->wFlags = D3DTRIFLAG_EDGEENABLETRIANGLE;
-				// ((LPD3DTRIANGLE)lpPointer)++;
-				lpPointer = reinterpret_cast<BYTE*>(lpPointer) + sizeof(D3DTRIANGLE);
+
+				lpPointer = (void *)(((LPD3DTRIANGLE) lpPointer) + 1);
 			}
+
 			OP_EXIT(lpPointer);
 
-			/*
-			* Setup the execute data describing the buffer
-			*/
 			m_ExecBuffer->Unlock();
 			D3DEXECUTEDATA ExecData = { };
 			ExecData.dwSize = sizeof(ExecData);
@@ -434,79 +413,6 @@ void HWD3DGame_DX3::CreateExecBuffer()
 			const HRESULT SetDataRes = m_ExecBuffer->SetExecuteData(&ExecData);
 			assert(SUCCEEDED(SetDataRes));
 		}
-#else
-		LPVOID lpBufStart, lpInsStart, lpPointer;
-
-		/*
-		* Create an execute buffer
-		*/
-		// calculate the size of the buffer
-		// Create an execute buffer
-		m_ExecBuffer->Lock(&m_ExecBufferDesc);
-
-		lpBufStart = m_ExecBufferDesc.lpData;
-		memset(lpBufStart, 0, m_ExecBufferDesc.dwBufferSize);
-		lpPointer = lpBufStart;
-
-		VERTEX_DATA(&CubeVertices[0], NumVertices, lpPointer);
-
-		lpInsStart = lpPointer;
-
-		{
-			/*
-			* Set render state
-			*/
-			OP_STATE_RENDER(17, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_SHADEMODE, D3DSHADE_FLAT, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREPERSPECTIVE, TRUE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_ZENABLE, TRUE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_ZWRITEENABLE, TRUE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_ZFUNC, D3DCMP_LESSEQUAL, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_LINEAR,lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_LINEAR,lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREMAPBLEND, D3DTBLEND_MODULATE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_FILLMODE, D3DFILL_SOLID, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_DITHERENABLE, TRUE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_SPECULARENABLE, FALSE,lpPointer);
-			STATE_DATA(D3DRENDERSTATE_ANTIALIAS, FALSE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_FOGENABLE, FALSE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_FOGCOLOR, RGB_MAKE(255, 255, 255, 255), lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREHANDLE, 0 /*TextureHandle[3]*/, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_WRAPU, FALSE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_WRAPV, FALSE, lpPointer);
-		}
-
-		OP_SET_STATUS(D3DSETSTATUS_ALL, D3DSTATUS_DEFAULT, 2048, 2048, 0, 0, lpPointer);
-
-		OP_PROCESS_VERTICES(1, lpPointer);
-		PROCESSVERTICES_DATA(D3DPROCESSVERTICES_TRANSFORMLIGHT, 0, NumVertices, lpPointer);
-		/*
-		* Make sure that the triangle data (not OP) will be QWORD aligned
-		*/
-		if (QWORD_ALIGNED(lpPointer)) {
-			OP_NOP(lpPointer);
-		}
-		OP_TRIANGLE_LIST(NumTri, lpPointer);
-		for (int i = 0; i < NumTri; i++) {
-			((LPD3DTRIANGLE)lpPointer)->v1 = CubeTri[i*3];
-			((LPD3DTRIANGLE)lpPointer)->v2 = CubeTri[i*3 + 1];
-			((LPD3DTRIANGLE)lpPointer)->v3 = CubeTri[i*3 + 2];
-			((LPD3DTRIANGLE)lpPointer)->wFlags = D3DTRIFLAG_EDGEENABLETRIANGLE;
-			lpPointer = (BYTE*)(lpPointer) + sizeof(D3DTRIANGLE);
-		}
-		OP_EXIT(lpPointer);
-		/*
-		* Setup the execute data describing the buffer
-		*/
-		m_ExecBuffer->Unlock();
-		D3DEXECUTEDATA ExecData = { };
-		memset(&ExecData, 0, sizeof(D3DEXECUTEDATA));
-		ExecData.dwSize = sizeof(D3DEXECUTEDATA);
-		ExecData.dwVertexCount = NumVertices;
-		ExecData.dwInstructionOffset = (ULONG)((char*)lpInsStart - (char*)lpBufStart);
-		ExecData.dwInstructionLength = (ULONG)((char*)lpPointer - (char*)lpInsStart);
-		m_ExecBuffer->SetExecuteData(&ExecData);
-#endif
 	}
 }
 
