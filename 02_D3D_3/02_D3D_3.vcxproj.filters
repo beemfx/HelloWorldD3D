@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Res">
+      <UniqueIdentifier>{a092b92d-6f17-420f-b5a5-99006ba9edd4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\D3DHelloWorldGame.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\WinMain.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\D3DHelloWorldGame.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\framework.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Res\Resource.h">
+      <Filter>Res</Filter>
+    </ClInclude>
+    <ClInclude Include="Res\targetver.h">
+      <Filter>Res</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\d3dmacs.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Res\D3D_3.ico">
+      <Filter>Res</Filter>
+    </Image>
+    <Image Include="Res\small.ico">
+      <Filter>Res</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Res\D3D_3.rc">
+      <Filter>Res</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Res\D3D_3.APS">
+      <Filter>Res</Filter>
+    </None>
+    <None Include="Res\RCa39412">
+      <Filter>Res</Filter>
+    </None>
+  </ItemGroup>
+</Project>
