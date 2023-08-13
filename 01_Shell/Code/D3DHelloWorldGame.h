@@ -1,10 +1,12 @@
 //
 
+#include "HWD3DTypes.h"
+
 class D3DHelloWorldGame
 {
 public:
 
-	void Init();
+	void Init(HWND InMainWnd);
 	void Deinit();
 
 	void Update(float DeltaTime);

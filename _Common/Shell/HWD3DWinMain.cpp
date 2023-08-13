@@ -1,8 +1,6 @@
 // D3D_3.cpp : Defines the entry point for the application.
 //
 
-#include "framework.h"
-#include "resource.h"
 #include "D3DHelloWorldGame.h"
 
 static const int MAX_LOADSTRING = 100;
@@ -35,6 +33,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	{
 		return FALSE;
 	}
+
+	RECT RcSize = { 0 , 0 , 800 , 600 };
+	const LONG Style = GetWindowLongW( MainWnd , GWL_STYLE );
+	const LONG ExStyle = GetWindowLongW( MainWnd , GWL_EXSTYLE );
+	AdjustWindowRectEx( &RcSize , Style , TRUE , ExStyle );
+	SetWindowPos( MainWnd , NULL , 0 , 0 , RcSize.right - RcSize.left , RcSize.bottom - RcSize.top , SWP_NOREPOSITION|SWP_NOMOVE );
+
+	RECT RcClient = { };
+	GetClientRect( MainWnd , &RcClient );
 
 	const HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_D3D3));
 
@@ -98,8 +105,7 @@ static HWND InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // Store instance handle in our global variable
 
-	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
 	if (!hWnd)
 	{

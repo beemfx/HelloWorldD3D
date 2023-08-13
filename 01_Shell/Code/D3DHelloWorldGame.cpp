@@ -2,7 +2,7 @@
 
 #include "D3DHelloWorldGame.h"
 
-void D3DHelloWorldGame::Init()
+void D3DHelloWorldGame::Init(HWND InMainWnd)
 {
 
 }

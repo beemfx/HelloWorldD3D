@@ -19,25 +19,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\_Common\Shell\HWD3DWinMain.cpp" />
     <ClCompile Include="Code\D3DHelloWorldGame.cpp" />
-    <ClCompile Include="Code\WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\_Common\Framework\HWD3DTypes.h" />
+    <ClInclude Include="..\_Common\Res\Resource.h" />
+    <ClInclude Include="..\_Common\Res\targetver.h" />
     <ClInclude Include="Code\D3DHelloWorldGame.h" />
-    <ClInclude Include="Code\framework.h" />
-    <ClInclude Include="Res\Resource.h" />
-    <ClInclude Include="Res\targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Res\D3D_3.ico" />
-    <Image Include="Res\small.ico" />
+    <Image Include="..\_Common\Res\D3D_3.ico" />
+    <Image Include="..\_Common\Res\small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Res\D3D_3.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Res\D3D_3.APS" />
-    <None Include="Res\RCa39412" />
+    <ResourceCompile Include="..\_Common\Res\D3D_3.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -115,9 +111,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HWD3D_SAMPLE=0;_HWD3D_SAMPLE_SHELL;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Res/;Code/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -130,9 +126,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HWD3D_SAMPLE=0;_HWD3D_SAMPLE_SHELL;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Res/;Code/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,9 +141,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HWD3D_SAMPLE=0;_HWD3D_SAMPLE_SHELL;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Res/;Code/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -160,9 +156,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HWD3D_SAMPLE=0;_HWD3D_SAMPLE_SHELL;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>Res/;Code/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

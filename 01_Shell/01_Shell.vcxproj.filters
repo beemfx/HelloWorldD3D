@@ -5,51 +5,52 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Res">
-      <UniqueIdentifier>{a092b92d-6f17-420f-b5a5-99006ba9edd4}</UniqueIdentifier>
+    <Filter Include="Common">
+      <UniqueIdentifier>{8b9e74ef-92cc-4b06-bcd2-edfb6344e39a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Shell">
+      <UniqueIdentifier>{a2a980f6-ada6-4e32-82f5-5dae958d9b28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Framework">
+      <UniqueIdentifier>{952fb31e-8b0e-4912-bebe-30178b99752a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Res">
+      <UniqueIdentifier>{1b12fa2d-f3a4-49b0-9960-eefb47d1ac65}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\D3DHelloWorldGame.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Code\WinMain.cpp">
-      <Filter>Code</Filter>
+    <ClCompile Include="..\_Common\Shell\HWD3DWinMain.cpp">
+      <Filter>Common\Shell</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\D3DHelloWorldGame.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="Code\framework.h">
-      <Filter>Code</Filter>
+    <ClInclude Include="..\_Common\Framework\HWD3DTypes.h">
+      <Filter>Common\Framework</Filter>
     </ClInclude>
-    <ClInclude Include="Res\Resource.h">
-      <Filter>Res</Filter>
+    <ClInclude Include="..\_Common\Res\Resource.h">
+      <Filter>Common\Res</Filter>
     </ClInclude>
-    <ClInclude Include="Res\targetver.h">
-      <Filter>Res</Filter>
+    <ClInclude Include="..\_Common\Res\targetver.h">
+      <Filter>Common\Res</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Res\D3D_3.ico">
-      <Filter>Res</Filter>
+    <Image Include="..\_Common\Res\D3D_3.ico">
+      <Filter>Common\Res</Filter>
     </Image>
-    <Image Include="Res\small.ico">
-      <Filter>Res</Filter>
+    <Image Include="..\_Common\Res\small.ico">
+      <Filter>Common\Res</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Res\D3D_3.rc">
-      <Filter>Res</Filter>
+    <ResourceCompile Include="..\_Common\Res\D3D_3.rc">
+      <Filter>Common\Res</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Res\D3D_3.APS">
-      <Filter>Res</Filter>
-    </None>
-    <None Include="Res\RCa39412">
-      <Filter>Res</Filter>
-    </None>
   </ItemGroup>
 </Project>
