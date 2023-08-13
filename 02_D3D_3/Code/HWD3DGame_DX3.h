@@ -4,7 +4,6 @@
 
 #include <d3d.h>
 #include <ddraw.h>
-// #include <ddrawex.h>
 
 class HWD3DGame_DX3 : public HWD3DGame
 {
@@ -20,8 +19,6 @@ private:
 	D3DEXECUTEBUFFERDESC m_ExecBufferDesc = { };
 	IDirect3DExecuteBuffer* m_ExecBuffer = nullptr;
 	IDirect3DViewport* m_Viewport = nullptr;
-	IDirect3DMaterial* m_Material = nullptr;
-	D3DMATERIALHANDLE m_MaterialHandle = 0;
 
 	IDirect3DMaterial* m_BgMaterial = nullptr;
 	D3DMATERIALHANDLE m_BgMaterialHandle = 0;
@@ -48,7 +45,7 @@ public:
 	virtual void Update(float DeltaTime) override;
 	virtual void Render() override;
 
-	void CreateExecBuffer();
+	bool CreateExecBuffer();
 
 	static HRESULT FAR PASCAL D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context);
 };
