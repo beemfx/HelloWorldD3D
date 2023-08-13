@@ -1,0 +1,308 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="misc">
+      <UniqueIdentifier>{5477e7b0-8b95-45a0-a741-02e02c6988e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="media">
+      <UniqueIdentifier>{efede05f-d52a-4339-888e-90820edc41a1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\flipcube.c">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\d3dapp.c">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\d3dcalls.c">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\d3dmain.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\d3dmath.c">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\d3dsphr.c">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\ddcalls.c">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\ddutil.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\dsutil.c">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\lbprintf.c">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\lclib.c">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\misc.c">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\stats.cpp">
+      <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\texture.c">
+      <Filter>misc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="misc\d3d.ico">
+      <Filter>misc</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="misc\d3dapp.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3dappi.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3ddemo.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3dmacs.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3dmain.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3dmath.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3dres.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\d3dsphr.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\ddutil.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\dsutil.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\lbprintf.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\lclib.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="misc\d3dmain.rc">
+      <Filter>misc</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="misc\readme.txt">
+      <Filter>misc</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="media\banana.ppm">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\bigship1.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\camera.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\checker.ppm">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\cherry.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\cube.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\dropship.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\egg.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\lake.ppm">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\land4.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\mslogo.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\multi.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\ncube.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\rmlogo.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\sphere0.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\sphere1.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\sphere2.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\sphere3.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\sphere4.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\teapot.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\tex1.ppm">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\tex2.ppm">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\tex3.ppm">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\tex4.ppm">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\tex5.ppm">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\tex6.ppm">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\tex7.ppm">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\torus.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\tpot0.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\tpot1.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\tpot2.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\tpot3.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\tree.x">
+      <Filter>media</Filter>
+    </None>
+    <None Include="media\win95.ppm">
+      <Filter>media</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="media\bang.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\bangbang.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\blow1.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\blow2.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\bounce.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\c_bang.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\chainsw.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\d_bang.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\gunfire.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\hum.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\jump.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\level.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\miss01.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\miss02.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\nyuk.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\p_bang.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\piehit2.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\plane.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\rev.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\run.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\s_bang.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\shield.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\skid.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\stop.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\strike01.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\strike02.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\stunned.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\throw.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\walk.wav">
+      <Filter>media</Filter>
+    </Media>
+    <Media Include="media\woob.wav">
+      <Filter>media</Filter>
+    </Media>
+  </ItemGroup>
+</Project>

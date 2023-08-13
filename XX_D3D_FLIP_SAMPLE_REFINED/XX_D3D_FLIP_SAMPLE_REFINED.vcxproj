@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\flipcube.c" />
+    <ClCompile Include="misc\d3dapp.c" />
+    <ClCompile Include="misc\d3dcalls.c" />
+    <ClCompile Include="misc\d3dmain.cpp" />
+    <ClCompile Include="misc\d3dmath.c" />
+    <ClCompile Include="misc\d3dsphr.c" />
+    <ClCompile Include="misc\ddcalls.c" />
+    <ClCompile Include="misc\ddutil.cpp" />
+    <ClCompile Include="misc\dsutil.c" />
+    <ClCompile Include="misc\lbprintf.c" />
+    <ClCompile Include="misc\lclib.c" />
+    <ClCompile Include="misc\misc.c" />
+    <ClCompile Include="misc\stats.cpp" />
+    <ClCompile Include="misc\texture.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="misc\d3d.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="misc\d3dapp.h" />
+    <ClInclude Include="misc\d3dappi.h" />
+    <ClInclude Include="misc\d3ddemo.h" />
+    <ClInclude Include="misc\d3dmacs.h" />
+    <ClInclude Include="misc\d3dmain.h" />
+    <ClInclude Include="misc\d3dmath.h" />
+    <ClInclude Include="misc\d3dres.h" />
+    <ClInclude Include="misc\d3dsphr.h" />
+    <ClInclude Include="misc\ddutil.h" />
+    <ClInclude Include="misc\dsutil.h" />
+    <ClInclude Include="misc\lbprintf.h" />
+    <ClInclude Include="misc\lclib.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="misc\d3dmain.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="misc\readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="media\banana.ppm" />
+    <None Include="media\bigship1.x" />
+    <None Include="media\camera.x" />
+    <None Include="media\checker.ppm" />
+    <None Include="media\cherry.x" />
+    <None Include="media\cube.x" />
+    <None Include="media\dropship.x" />
+    <None Include="media\egg.x" />
+    <None Include="media\lake.ppm" />
+    <None Include="media\land4.x" />
+    <None Include="media\mslogo.x" />
+    <None Include="media\multi.x" />
+    <None Include="media\ncube.x" />
+    <None Include="media\rmlogo.x" />
+    <None Include="media\sphere0.x" />
+    <None Include="media\sphere1.x" />
+    <None Include="media\sphere2.x" />
+    <None Include="media\sphere3.x" />
+    <None Include="media\sphere4.x" />
+    <None Include="media\teapot.x" />
+    <None Include="media\tex1.ppm" />
+    <None Include="media\tex2.ppm" />
+    <None Include="media\tex3.ppm" />
+    <None Include="media\tex4.ppm" />
+    <None Include="media\tex5.ppm" />
+    <None Include="media\tex6.ppm" />
+    <None Include="media\tex7.ppm" />
+    <None Include="media\torus.x" />
+    <None Include="media\tpot0.x" />
+    <None Include="media\tpot1.x" />
+    <None Include="media\tpot2.x" />
+    <None Include="media\tpot3.x" />
+    <None Include="media\tree.x" />
+    <None Include="media\win95.ppm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="media\bang.wav" />
+    <Media Include="media\bangbang.wav" />
+    <Media Include="media\blow1.wav" />
+    <Media Include="media\blow2.wav" />
+    <Media Include="media\bounce.wav" />
+    <Media Include="media\chainsw.wav" />
+    <Media Include="media\c_bang.wav" />
+    <Media Include="media\d_bang.wav" />
+    <Media Include="media\gunfire.wav" />
+    <Media Include="media\hum.wav" />
+    <Media Include="media\jump.wav" />
+    <Media Include="media\level.wav" />
+    <Media Include="media\miss01.wav" />
+    <Media Include="media\miss02.wav" />
+    <Media Include="media\nyuk.wav" />
+    <Media Include="media\piehit2.wav" />
+    <Media Include="media\plane.wav" />
+    <Media Include="media\p_bang.wav" />
+    <Media Include="media\rev.wav" />
+    <Media Include="media\run.wav" />
+    <Media Include="media\shield.wav" />
+    <Media Include="media\skid.wav" />
+    <Media Include="media\stop.wav" />
+    <Media Include="media\strike01.wav" />
+    <Media Include="media\strike02.wav" />
+    <Media Include="media\stunned.wav" />
+    <Media Include="media\s_bang.wav" />
+    <Media Include="media\throw.wav" />
+    <Media Include="media\walk.wav" />
+    <Media Include="media\woob.wav" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{EEB17BAA-295A-4C20-B590-2184930C4F48}</ProjectGuid>
+    <RootNamespace>D3D3</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)\Build\$(ProjectName)\$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)\Int\</IntDir>
+    <TargetName>$(ProjectName)_$(Platform)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)\Build\$(ProjectName)\$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)\Int\</IntDir>
+    <TargetName>$(ProjectName)_$(Platform)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)\Build\$(ProjectName)\$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)\Int\</IntDir>
+    <TargetName>$(ProjectName)_$(Platform)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)\Build\$(ProjectName)\$(Platform)_$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)\Int\</IntDir>
+    <TargetName>$(ProjectName)_$(Platform)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../_SDK/DX3/inc;misc;code;</AdditionalIncludeDirectories>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>Lib/Bin/;</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../_SDK/DX3/inc;misc;code;</AdditionalIncludeDirectories>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>Lib/Bin/;</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../_SDK/DX3/inc;misc;code;</AdditionalIncludeDirectories>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>Lib/Bin/;</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../_SDK/DX3/inc;misc;code;</AdditionalIncludeDirectories>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>Lib/Bin/;</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
