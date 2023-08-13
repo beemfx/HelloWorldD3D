@@ -19,14 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\_Common\Framework\HWD3DGame.cpp" />
     <ClCompile Include="..\_Common\Shell\HWD3DWinMain.cpp" />
-    <ClCompile Include="Code\D3DHelloWorldGame.cpp" />
+    <ClCompile Include="Code\HWD3DShellGame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\_Common\Framework\HWD3DGame.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTypes.h" />
     <ClInclude Include="..\_Common\Res\Resource.h" />
     <ClInclude Include="..\_Common\Res\targetver.h" />
-    <ClInclude Include="Code\D3DHelloWorldGame.h" />
+    <ClInclude Include="Code\HWD3DShellGame.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\_Common\Res\D3D_3.ico" />

@@ -1,7 +1,7 @@
 // D3D_3.cpp : Defines the entry point for the application.
 //
 
-#include "D3DHelloWorldGame.h"
+#include "HWD3DGame.h"
 
 static const int MAX_LOADSTRING = 100;
 
@@ -45,8 +45,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	const HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_D3D3));
 
-	D3DHelloWorldGame Game;
-	Game.Init(MainWnd);
+	HWD3DGame* Game = HWD3DGame::CreateGame(MainWnd);
 	bool bGameStillRunning = true;
 	while (bGameStillRunning)
 	{
@@ -69,12 +68,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 		if (bGameStillRunning)
 		{
-			Game.Update(1.f/60.f);
-			Game.Render();
+			Game->Update(1.f/60.f);
+			Game->Render();
 		}
 	}
 
-	Game.Deinit();
+	Game->Release();
 
 	return 0;
 }

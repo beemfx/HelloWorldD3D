@@ -19,15 +19,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Code\D3DHelloWorldGame.cpp">
+    <ClCompile Include="Code\HWD3DShellGame.cpp">
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="..\_Common\Shell\HWD3DWinMain.cpp">
       <Filter>Common\Shell</Filter>
     </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DGame.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Code\D3DHelloWorldGame.h">
+    <ClInclude Include="Code\HWD3DShellGame.h">
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="..\_Common\Framework\HWD3DTypes.h">
@@ -38,6 +41,9 @@
     </ClInclude>
     <ClInclude Include="..\_Common\Res\targetver.h">
       <Filter>Common\Res</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DGame.h">
+      <Filter>Common\Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
