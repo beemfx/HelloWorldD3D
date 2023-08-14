@@ -272,6 +272,8 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 			Deinit();
 			return;
 		}
+
+		m_Viewport->SetBackground(m_BgMaterialHandle);
 	}
 
 	// Mesh
@@ -324,6 +326,17 @@ void HWD3DGame_DX2::Deinit()
 void HWD3DGame_DX2::Update(float DeltaTime)
 {
 	m_Frame++;
+
+	m_MeshRotationTime += DeltaTime;
+	if( m_MeshRotationTime >= m_MeshRotationDuration )
+	{
+		// We should do something like such as m_MeshRotationTime -= m_MeshRotationDuration,
+		// but to keep the code minimal we don't want to deal with situations where the
+		// subtraction wouldn't even occur (large float minus small float), so simply reset to 0.
+		m_MeshRotationTime = 0.f;
+	}
+	
+	m_MeshMatrix = HWD3DMatrix_BuildRotationY((m_MeshRotationTime/m_MeshRotationDuration) * 2.f * HWD3D_PI_CONST);
 }
 
 void HWD3DGame_DX2::Render()
@@ -334,7 +347,6 @@ void HWD3DGame_DX2::Render()
 		Vp.dwSize = sizeof(Vp);
 		m_Viewport->GetViewport(&Vp);
 		D3DRECT ClearRect = { 0, 0, static_cast<LONG>(Vp.dwWidth), static_cast<LONG>(Vp.dwHeight) };
-		m_Viewport->SetBackground(m_BgMaterialHandle);
 		m_Viewport->Clear(1, &ClearRect, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);
 	}
 
@@ -342,10 +354,12 @@ void HWD3DGame_DX2::Render()
 	{
 		if (SUCCEEDED(m_D3DDevice->BeginScene()))
 		{
-			// m_D3DDevice->SetMatrix( m_MatrixWorld , &World );
-
-			const HRESULT ExecRes = m_D3DDevice->Execute(m_ExecBuffer, m_Viewport, D3DEXECUTE_CLIPPED);
-			assert(SUCCEEDED(ExecRes));
+			if (m_ExecBuffer)
+			{
+				m_D3DDevice->SetMatrix(m_MatrixWorld, reinterpret_cast<D3DMATRIX*>(&m_MeshMatrix));
+				const HRESULT ExecRes = m_D3DDevice->Execute(m_ExecBuffer, m_Viewport, D3DEXECUTE_CLIPPED);
+				assert(SUCCEEDED(ExecRes));
+			}
 
 			const HRESULT EndSceneRes = m_D3DDevice->EndScene();
 			assert(SUCCEEDED(EndSceneRes));
@@ -359,29 +373,27 @@ void HWD3DGame_DX2::Render()
 
 	if (m_DDraw && m_BackBuffer)
 	{
+		DDSURFACEDESC desc = {};
+		desc.dwSize = sizeof(desc);
+		desc.dwFlags = DDSD_WIDTH | DDSD_HEIGHT;
+		m_BackBuffer->GetSurfaceDesc(&desc);
+
+		RECT rcSource = {};
+		rcSource.top = rcSource.left = 0;
+		rcSource.bottom = desc.dwHeight;
+		rcSource.right = desc.dwWidth;
+
+		RECT RcWnd = {};
+		GetClientRect(m_TargetWnd, &RcWnd);
+		POINT Offset = {};
+		ClientToScreen(m_TargetWnd, &Offset);
+		OffsetRect(&RcWnd, Offset.x, Offset.y);
+
+		HRESULT Res = m_PrimarySurface->Blt(&RcWnd, m_BackBuffer, &rcSource, DDBLT_WAIT, 0);
+		if (Res == DDERR_SURFACELOST)
 		{
-			DDSURFACEDESC desc = {};
-			desc.dwSize = sizeof(desc);
-			desc.dwFlags = DDSD_WIDTH | DDSD_HEIGHT;
-			m_BackBuffer->GetSurfaceDesc(&desc);
-
-			RECT rcSource = {};
-			rcSource.top = rcSource.left = 0;
-			rcSource.bottom = desc.dwHeight;
-			rcSource.right = desc.dwWidth;
-
-			RECT RcWnd = {};
-			GetClientRect(m_TargetWnd, &RcWnd);
-			POINT Offset = {};
-			ClientToScreen(m_TargetWnd, &Offset);
-			OffsetRect(&RcWnd, Offset.x, Offset.y);
-
-			HRESULT Res = m_PrimarySurface->Blt(&RcWnd, m_BackBuffer, &rcSource, DDBLT_WAIT, 0);
-			if (Res == DDERR_SURFACELOST)
-			{
-				//  Restore();
-				return;
-			}
+			//  Restore();
+			return;
 		}
 	}
 }

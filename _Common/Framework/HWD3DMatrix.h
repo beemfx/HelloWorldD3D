@@ -39,3 +39,7 @@ hwd3d_matrix HWD3DMatrix_Multiply(const hwd3d_matrix& M1, const hwd3d_matrix& M2
 hwd3d_matrix HWD3DMatrix_BuildPerspectiveLH(float ViewWidth, float ViewHeight, float NearZ, float FarZ);
 hwd3d_matrix HWD3DMatrix_BuildPerspectiveFovLH(float FovAngleY, float AspectRatio, float NearZ, float FarZ);
 hwd3d_matrix HWD3DMatrix_BuildLookAtLH(const hwd3d_vec3& EyePos, const hwd3d_vec3& LookAtPos, const hwd3d_vec3& UpDir);
+hwd3d_matrix HWD3DMatrix_BuildTranslation(const hwd3d_vec3& V);
+hwd3d_matrix HWD3DMatrix_BuildRotationX(float A);
+hwd3d_matrix HWD3DMatrix_BuildRotationY(float A);
+hwd3d_matrix HWD3DMatrix_BuildRotationZ(float A);

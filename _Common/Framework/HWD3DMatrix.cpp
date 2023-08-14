@@ -181,3 +181,60 @@ hwd3d_matrix HWD3DMatrix_BuildLookAtLH(const hwd3d_vec3& EyePos, const hwd3d_vec
 	};
 	return M;
 }
+
+hwd3d_matrix HWD3DMatrix_BuildTranslation(const hwd3d_vec3& V)
+{
+	const hwd3d_matrix M =
+	{
+		1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		V.x, V.y, V.z, 1.f,
+	};
+	return M;
+}
+
+hwd3d_matrix HWD3DMatrix_BuildRotationX(float A)
+{
+	const float SinA = sinf(A);
+	const float CosA = cosf(A);
+
+	const hwd3d_matrix M =
+	{
+		1.f, 0.f, 0.f, 0.f,
+		0.f, CosA, -SinA, 0.f,
+		0.f, SinA, CosA, 0.f,
+		0.f, 0.f, 0.f, 1.f,
+	};
+	return M;
+}
+
+hwd3d_matrix HWD3DMatrix_BuildRotationY(float A)
+{
+	const float SinA = sinf(A);
+	const float CosA = cosf(A);
+
+	const hwd3d_matrix M =
+	{
+		CosA, 0.f, SinA, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		-SinA, 0.f, CosA, 0.f,
+		0.f, 0.f, 0.f, 1.f,
+	};
+	return M;
+}
+
+hwd3d_matrix HWD3DMatrix_BuildRotationZ(float A)
+{
+	const float SinA = sinf(A);
+	const float CosA = cosf(A);
+
+	const hwd3d_matrix M =
+	{
+		CosA, -SinA, 0.f, 0.f,
+		SinA, CosA, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f,
+	};
+	return M;
+}
