@@ -1,6 +1,6 @@
 // D3D Hello World
 
-#include "HWD3DGame_DX3.h"
+#include "HWD3DGame_DX2.h"
 #include "d3dmacs.h"
 
 // #pragma comment(lib, "ddraw.lib")
@@ -8,7 +8,9 @@
 
 HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 {
-	HWD3DGame* Out = new HWD3DGame_DX3;
+	SetWindowTextW(InMainWnd, L"Hello World D3D [DX2]");
+
+	HWD3DGame* Out = new HWD3DGame_DX2;
 	if (Out)
 	{
 		Out->Init(InMainWnd);
@@ -86,7 +88,7 @@ static const int CubeTri[] = {
 	20, 21, 22, 20, 22, 23
 };
 
-void HWD3DGame_DX3::Init(HWND TargetWnd)
+void HWD3DGame_DX2::Init(HWND TargetWnd)
 {
 	m_TargetWnd = TargetWnd;
 
@@ -304,7 +306,7 @@ void HWD3DGame_DX3::Init(HWND TargetWnd)
 	}
 }
 
-void HWD3DGame_DX3::Deinit()
+void HWD3DGame_DX2::Deinit()
 {
 	auto SafeRelease = [](auto*& p ) -> void
 	{
@@ -342,12 +344,12 @@ void HWD3DGame_DX3::Deinit()
 	SafeRelease(m_DDraw);
 }
 
-void HWD3DGame_DX3::Update(float DeltaTime)
+void HWD3DGame_DX2::Update(float DeltaTime)
 {
 	m_Frame++;
 }
 
-void HWD3DGame_DX3::Render()
+void HWD3DGame_DX2::Render()
 {
 	if (m_Viewport)
 	{
@@ -407,7 +409,7 @@ void HWD3DGame_DX3::Render()
 	}
 }
 
-bool HWD3DGame_DX3::CreateExecBuffer()
+bool HWD3DGame_DX2::CreateExecBuffer()
 {
 	m_ExecBufferDesc.dwSize = sizeof(m_ExecBufferDesc);
 	m_ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
@@ -488,9 +490,9 @@ bool HWD3DGame_DX3::CreateExecBuffer()
 	return true;
 }
 
-HRESULT FAR PASCAL HWD3DGame_DX3::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context)
+HRESULT FAR PASCAL HWD3DGame_DX2::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context)
 {
-	HWD3DGame_DX3* _this = reinterpret_cast<HWD3DGame_DX3*>(Context);
+	HWD3DGame_DX2* _this = reinterpret_cast<HWD3DGame_DX2*>(Context);
 
 	D3DDEVICEDESC d1 = *DevDesc1;
 	D3DDEVICEDESC d2 = *DevDesc2;

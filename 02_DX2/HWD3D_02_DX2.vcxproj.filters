@@ -19,7 +19,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Code\HWD3DGame_DX3.cpp">
+    <ClCompile Include="Code\HWD3DGame_DX2.cpp">
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="..\_Common\Framework\HWD3DGame.cpp">
@@ -33,7 +33,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Code\HWD3DGame_DX3.h">
+    <ClInclude Include="Code\HWD3DGame_DX2.h">
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\d3dmacs.h">

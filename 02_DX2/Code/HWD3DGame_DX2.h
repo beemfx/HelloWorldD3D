@@ -5,7 +5,7 @@
 #include <d3d.h>
 #include <ddraw.h>
 
-class HWD3DGame_DX3 : public HWD3DGame
+class HWD3DGame_DX2 : public HWD3DGame
 {
 private:
 	

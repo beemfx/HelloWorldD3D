@@ -51,10 +51,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 			return -1;
 		}
 
-
-		ShowWindow(MainWnd, nCmdShow);
-		UpdateWindow(MainWnd);
-
 		// Adjust window to be our resolution size:
 		RECT RcSize = { 0 , 0 , DisplayRes.x , DisplayRes.y };
 		const LONG Style = GetWindowLongW( MainWnd , GWL_STYLE );
@@ -62,6 +58,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		AdjustWindowRectEx( &RcSize , Style , TRUE , ExStyle );
 		SetWindowPos( MainWnd , NULL , 0 , 0 , RcSize.right - RcSize.left , RcSize.bottom - RcSize.top , SWP_NOREPOSITION|SWP_NOMOVE );
 		GetClientRect( MainWnd , &MainWnd_ClientRect );
+
+		ShowWindow(MainWnd, nCmdShow);
+		UpdateWindow(MainWnd);
 	}
 
 	const HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_D3D3));
