@@ -20,51 +20,6 @@ HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 	return Out;
 }
 
-/* Cube vertices, normals, shades, and modeling transform */
-static int NumVertices = 24;
-static D3DVERTEX CubeVertices[] = {
-	{ D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0) },
-	{ D3DVAL(1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(1.0) },
-	{ D3DVAL(1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0) },
-	{ D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0) },
-
-	{ D3DVAL(1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0) },
-	{ D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(1.0) },
-	{ D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(1.0) },
-	{ D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0) },
-
-	{ D3DVAL(1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0) },
-	{ D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(1.0) },
-	{ D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0) },
-	{ D3DVAL(1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0) },
-
-	{ D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0) },
-	{ D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(1.0) },
-	{ D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(1.0) },
-	{ D3DVAL(1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0) },
-
-	{ D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0) },
-	{ D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(1.0) },
-	{ D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0) },
-	{ D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0) },
-
-	{ D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(1.0) },
-	{ D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0) },
-	{ D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0) },
-	{ D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0) }
-};
-
-//*** Cube edges - ordered indices into the vertex array
-static const int NumTri = 12;
-static const int CubeTri[] = {
-	0, 1, 2, 0, 2, 3,
-	4, 5, 6, 4, 6, 7,
-	8, 9, 10, 8, 10, 11,
-	12, 13, 14, 12, 14, 15,
-	16, 17, 18, 16, 18, 19,
-	20, 21, 22, 20, 22, 23
-};
-
 void HWD3DGame_DX2::Init(HWND TargetWnd)
 {
 	m_TargetWnd = TargetWnd;
@@ -190,7 +145,7 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 		m_D3DDevice->CreateMatrix(&m_MatrixWorld);
 
 		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(ScreenWidth)/ScreenHeight), .1f , 1000.f );
-		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(hwd3d_vec3(0.f, 0.f, -10.f), hwd3d_vec3(0.f,0.f,0.f), hwd3d_vec3(0.f,1.f,0.f));
+		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(hwd3d_vec3(0.f, 0.f, -3.f), hwd3d_vec3(0.f,0.f,0.f), hwd3d_vec3(0.f,1.f,0.f));
 
 		D3DMATRIX Proj = *reinterpret_cast<const D3DMATRIX*>(&ProjMatrix);
 		D3DMATRIX View = *reinterpret_cast<const D3DMATRIX*>(&ViewMatrix);
@@ -284,13 +239,6 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 		Deinit();
 		return;
 	}
-
-	const bool bExecBufferCreated = CreateExecBuffer();
-	if (!bExecBufferCreated)
-	{
-		Deinit();
-		return;
-	}
 }
 
 void HWD3DGame_DX2::Deinit()
@@ -313,8 +261,6 @@ void HWD3DGame_DX2::Deinit()
 		}
 
 	};
-
-	SafeRelease(m_ExecBuffer);
 
 	SafeRelease(m_Mesh);
 
@@ -364,11 +310,11 @@ void HWD3DGame_DX2::Render()
 	{
 		if (SUCCEEDED(m_D3DDevice->BeginScene()))
 		{
-			if (m_ExecBuffer)
+			if (m_Mesh)
 			{
 				m_D3DDevice->SetMatrix(m_MatrixWorld, reinterpret_cast<D3DMATRIX*>(&m_MeshMatrix));
-				const HRESULT ExecRes = m_D3DDevice->Execute(m_ExecBuffer, m_Viewport, D3DEXECUTE_CLIPPED);
-				assert(SUCCEEDED(ExecRes));
+				// TODO: Texture
+				m_Mesh->Draw();
 			}
 
 			const HRESULT EndSceneRes = m_D3DDevice->EndScene();
@@ -411,87 +357,6 @@ void HWD3DGame_DX2::Render()
 			return;
 		}
 	}
-}
-
-bool HWD3DGame_DX2::CreateExecBuffer()
-{
-	m_ExecBufferDesc.dwSize = sizeof(m_ExecBufferDesc);
-	m_ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
-	m_ExecBufferDesc.dwBufferSize = 1024 * 1024;
-	const HRESULT CreateExecBufferRes = m_D3DDevice->CreateExecuteBuffer(&m_ExecBufferDesc, &m_ExecBuffer, nullptr);
-	if (FAILED(CreateExecBufferRes) || !m_ExecBuffer)
-	{
-		return false;
-	}
-
-	if (SUCCEEDED(m_ExecBuffer->Lock(&m_ExecBufferDesc)))
-	{
-		memset(m_ExecBufferDesc.lpData, 0, m_ExecBufferDesc.dwBufferSize);
-
-		LPVOID lpBufStart = m_ExecBufferDesc.lpData;
-		LPVOID lpPointer = lpBufStart;
-
-		VERTEX_DATA(&CubeVertices[0], NumVertices, lpPointer);
-
-		LPVOID lpInsStart = lpPointer;
-
-		OP_STATE_TRANSFORM(3, lpPointer);
-		STATE_DATA(D3DTRANSFORMSTATE_PROJECTION, m_MatrixProj, lpPointer);
-		STATE_DATA(D3DTRANSFORMSTATE_VIEW, m_MatrixView, lpPointer);
-		STATE_DATA(D3DTRANSFORMSTATE_WORLD, m_MatrixWorld, lpPointer);
-
-		OP_SET_STATUS(D3DSETSTATUS_ALL, D3DSTATUS_DEFAULT, 2048, 2048, 0, 0, lpPointer);
-
-		OP_PROCESS_VERTICES(1, lpPointer);
-		PROCESSVERTICES_DATA(D3DPROCESSVERTICES_TRANSFORMLIGHT, 0, NumVertices, lpPointer);
-
-		OP_STATE_RENDER(3, lpPointer);
-		STATE_DATA(D3DRENDERSTATE_TEXTUREHANDLE, 0, lpPointer);
-		STATE_DATA(D3DRENDERSTATE_WRAPU, FALSE, lpPointer);
-		STATE_DATA(D3DRENDERSTATE_WRAPV, FALSE, lpPointer);
-
-		// Make sure that the triangle data (not OP) will be QWORD aligned
-		if (QWORD_ALIGNED(lpPointer))
-		{
-			OP_NOP(lpPointer);
-		}
-
-		OP_TRIANGLE_LIST(NumTri, lpPointer);
-		for (int i = 0; i < NumTri; i++)
-		{
-			((LPD3DTRIANGLE)lpPointer)->v1 = CubeTri[i * 3];
-			((LPD3DTRIANGLE)lpPointer)->v2 = CubeTri[i * 3 + 1];
-			((LPD3DTRIANGLE)lpPointer)->v3 = CubeTri[i * 3 + 2];
-			((LPD3DTRIANGLE)lpPointer)->wFlags = D3DTRIFLAG_EDGEENABLETRIANGLE;
-
-			lpPointer = (void*)(((LPD3DTRIANGLE)lpPointer) + 1);
-		}
-
-		OP_EXIT(lpPointer);
-
-		const HRESULT UnlockRes = m_ExecBuffer->Unlock();
-		if (FAILED(UnlockRes))
-		{
-			return false;
-		}
-
-		D3DEXECUTEDATA ExecData = {};
-		ExecData.dwSize = sizeof(ExecData);
-		ExecData.dwInstructionOffset = (ULONG)((char*)lpInsStart - (char*)lpBufStart);
-		ExecData.dwInstructionLength = (ULONG)((char*)lpPointer - (char*)lpInsStart);
-		ExecData.dwVertexCount = NumVertices;
-		const HRESULT SetDataRes = m_ExecBuffer->SetExecuteData(&ExecData);
-		if (FAILED(SetDataRes))
-		{
-			return false;
-		}
-	}
-	else
-	{
-		return false;
-	}
-
-	return true;
 }
 
 HRESULT FAR PASCAL HWD3DGame_DX2::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context)

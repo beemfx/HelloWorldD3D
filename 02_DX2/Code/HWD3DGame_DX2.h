@@ -16,8 +16,6 @@ private:
 	IDirectDrawSurface* m_BackBuffer = nullptr;
 
 	IDirect3DDevice* m_D3DDevice = nullptr;
-	D3DEXECUTEBUFFERDESC m_ExecBufferDesc = { };
-	IDirect3DExecuteBuffer* m_ExecBuffer = nullptr;
 	IDirect3DViewport* m_Viewport = nullptr;
 
 	IDirect3DMaterial* m_BgMaterial = nullptr;
@@ -26,6 +24,7 @@ private:
 	D3DMATRIXHANDLE m_MatrixProj = 0;
 	D3DMATRIXHANDLE m_MatrixView = 0;
 	D3DMATRIXHANDLE m_MatrixWorld = 0;
+	D3DTEXTUREHANDLE m_Texture0 = 0;
 
 	int m_Frame = 0;
 
@@ -51,7 +50,12 @@ public:
 	virtual void Update(float DeltaTime) override;
 	virtual void Render() override;
 
-	bool CreateExecBuffer();
+	IDirect3DDevice* GetDevice() const { return m_D3DDevice; }
+	IDirect3DViewport* GetViewport() const { return m_Viewport; }
+	const D3DMATRIXHANDLE& GetProjMatrixHandle() const { return m_MatrixProj; }
+	const D3DMATRIXHANDLE& GetViewMatrixHandle() const { return m_MatrixView; }
+	const D3DMATRIXHANDLE& GetWorldMatrixHandle() const { return m_MatrixWorld; }
+	const D3DTEXTUREHANDLE& GetTextureHandle() const { return m_Texture0; }
 
 	static HRESULT FAR PASCAL D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context);
 };
