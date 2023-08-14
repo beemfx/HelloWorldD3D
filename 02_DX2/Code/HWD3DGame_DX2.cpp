@@ -364,10 +364,13 @@ void HWD3DGame_DX2::Render()
 			const HRESULT EndSceneRes = m_D3DDevice->EndScene();
 			assert(SUCCEEDED(EndSceneRes));
 
-			D3DEXECUTEDATA ExecData = {};
-			ExecData.dwSize = sizeof(ExecData);
-			const HRESULT GetExecDataRes = m_ExecBuffer->GetExecuteData(&ExecData);
-			assert(SUCCEEDED(GetExecDataRes));
+			// Can use the following to obtain the dirty rectangle, but to keep things simple we
+			// bit the whole back buffer
+			// 
+			// D3DEXECUTEDATA ExecData = {};
+			// ExecData.dwSize = sizeof(ExecData);
+			// const HRESULT GetExecDataRes = m_ExecBuffer->GetExecuteData(&ExecData);
+			// assert(SUCCEEDED(GetExecDataRes));
 		}
 	}
 
@@ -389,10 +392,12 @@ void HWD3DGame_DX2::Render()
 		ClientToScreen(m_TargetWnd, &Offset);
 		OffsetRect(&RcWnd, Offset.x, Offset.y);
 
-		HRESULT Res = m_PrimarySurface->Blt(&RcWnd, m_BackBuffer, &rcSource, DDBLT_WAIT, 0);
+		const HRESULT Res = m_PrimarySurface->Blt(&RcWnd, m_BackBuffer, &rcSource, DDBLT_WAIT, 0);
 		if (Res == DDERR_SURFACELOST)
 		{
-			//  Restore();
+			// If the surface was lost we'd need to attempt to restore it at some point, but
+			// we're keeping things simple (and in windows mode, surfaces don't generally
+			// get lost.
 			return;
 		}
 	}
