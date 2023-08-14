@@ -12,6 +12,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
+#if (_WIN32_WINNT >= 0x0600)
+	{
+		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
+	}
+#endif
+
 	const POINT DisplayRes = { 800 , 600 }; // TODO: Command Line Parameter
 	const float GameUpdateRate = 1.f/60.f;
 	const int MaxUpatesPerFrameThreshold = 10;

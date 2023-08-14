@@ -19,14 +19,6 @@ HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 	return Out;
 }
 
-static const D3DMATRIX DHWG_View =
-{
-	D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0),
-	D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0),
-	D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0),
-	D3DVAL(0.0), D3DVAL(0.0), D3DVAL(10.0), D3DVAL(1.0)
-};
-
 /* Cube vertices, normals, shades, and modeling transform */
 static int NumVertices = 24;
 static D3DVERTEX CubeVertices[] = {
@@ -197,9 +189,10 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 		m_D3DDevice->CreateMatrix(&m_MatrixWorld);
 
 		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(ScreenWidth)/ScreenHeight), .1f , 1000.f );
+		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(hwd3d_vec3(0.f, 0.f, -10.f), hwd3d_vec3(0.f,0.f,0.f), hwd3d_vec3(0.f,1.f,0.f));
 
 		D3DMATRIX Proj = *reinterpret_cast<const D3DMATRIX*>(&ProjMatrix);
-		D3DMATRIX View = DHWG_View;
+		D3DMATRIX View = *reinterpret_cast<const D3DMATRIX*>(&ViewMatrix);
 		D3DMATRIX World = *reinterpret_cast<const D3DMATRIX*>(&HWD3DMatrix_Ident);
 
 		m_D3DDevice->SetMatrix(m_MatrixProj, &Proj);

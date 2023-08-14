@@ -3,6 +3,55 @@
 #include "HWD3DMatrix.h"
 #include <math.h>
 
+const hwd3d_vec3 HWD3DVec3_Zero = { 0.f , 0.f , 0.f };
+const hwd3d_vec3 HWD3DVec3_Ones = { 1.f , 1.f , 1.f };
+
+hwd3d_vec3 HWD3DVec3_Add(const hwd3d_vec3& V1, const hwd3d_vec3& V2)
+{
+	const hwd3d_vec3 Out = { V1.x + V2.x , V1.y + V2.y , V1.z + V2.z };
+	return Out;
+}
+
+hwd3d_vec3 HWD3DVec3_Subtract(const hwd3d_vec3& V1, const hwd3d_vec3& V2)
+{
+	const hwd3d_vec3 Out = { V1.x - V2.x , V1.y - V2.y , V1.z - V2.z };
+	return Out;
+}
+
+float HWD3DVec3_GetMagnitude(const hwd3d_vec3& V)
+{
+	return sqrtf(HWD3DVec3_GetMagnitudeSq(V));
+}
+
+float HWD3DVec3_GetMagnitudeSq(const hwd3d_vec3& V)
+{
+	return HWD3DVec3_Dot(V, V);
+}
+
+hwd3d_vec3 HWD3DVec3_GetNormalized(const hwd3d_vec3& V)
+{
+	const float Mag = HWD3DVec3_GetMagnitude(V);
+	const hwd3d_vec3 Out = { V.x/Mag , V.y/Mag , V.z/Mag };
+	return Out;
+}
+
+hwd3d_vec3 HWD3DVec3_GetNegated(const hwd3d_vec3& V)
+{
+	const hwd3d_vec3 Out = { -V.x , -V.y , -V.z };
+	return Out;
+}
+
+hwd3d_vec3 HWD3DVec3_Cross(const hwd3d_vec3& V1, const hwd3d_vec3& V2)
+{
+	const hwd3d_vec3 Out = { V1.y * V2.z - V2.y * V1.z , V2.x * V1.z - V1.x * V2.z , V1.x * V2.y - V2.x * V1.y };
+	return Out;
+}
+
+float HWD3DVec3_Dot(const hwd3d_vec3& V1, const hwd3d_vec3& V2)
+{
+	return V1.x * V2.x + V1.y * V2.y + V1.z * V2.z;
+}
+
 const hwd3d_matrix HWD3DMatrix_Ident =
 {
 	1.f, 0.f, 0.f, 0.f,
@@ -110,5 +159,25 @@ hwd3d_matrix HWD3DMatrix_BuildPerspectiveFovLH(float FovAngleY, float AspectRati
 	M._42 = 0.0f;
 	M._43 = -fRange * NearZ;
 	M._44 = 0.0f;
+	return M;
+}
+
+hwd3d_matrix HWD3DMatrix_BuildLookAtLH(const hwd3d_vec3& EyePos, const hwd3d_vec3& LookAtPos, const hwd3d_vec3& UpDir)
+{
+	const hwd3d_vec3 ZAxis = HWD3DVec3_GetNormalized(HWD3DVec3_Subtract(LookAtPos, EyePos));
+	const hwd3d_vec3 XAxis = HWD3DVec3_GetNormalized(HWD3DVec3_Cross(UpDir, ZAxis));
+	const hwd3d_vec3 YAxis = HWD3DVec3_Cross(ZAxis, XAxis);
+
+	const float DX = -HWD3DVec3_Dot(XAxis, EyePos);
+	const float DY = -HWD3DVec3_Dot(YAxis, EyePos);
+	const float DZ = -HWD3DVec3_Dot(ZAxis, EyePos);
+
+	const hwd3d_matrix M =
+	{
+		XAxis.x, YAxis.x, ZAxis.x, 0.f,
+		XAxis.y, YAxis.y, ZAxis.y, 0.f,
+		XAxis.z, YAxis.z, ZAxis.z, 0.f,
+		DX, DY, DZ, 1.f,
+	};
 	return M;
 }
