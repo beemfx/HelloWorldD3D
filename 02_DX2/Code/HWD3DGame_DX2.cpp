@@ -1,6 +1,7 @@
 // D3D Hello World
 
 #include "HWD3DGame_DX2.h"
+#include "HWD3DMesh_DX2.h"
 #include "d3dmacs.h"
 
 // #pragma comment(lib, "ddraw.lib")
@@ -277,6 +278,13 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 	}
 
 	// Mesh
+	m_Mesh = HWD3DMesh_DX2::CreateMesh(this, "Media/Teapot.hwd3dmesh");
+	if (!m_Mesh)
+	{
+		Deinit();
+		return;
+	}
+
 	const bool bExecBufferCreated = CreateExecBuffer();
 	if (!bExecBufferCreated)
 	{
@@ -307,6 +315,8 @@ void HWD3DGame_DX2::Deinit()
 	};
 
 	SafeRelease(m_ExecBuffer);
+
+	SafeRelease(m_Mesh);
 
 	SafeRelease(m_BgMaterial);
 	m_BgMaterialHandle = 0;
