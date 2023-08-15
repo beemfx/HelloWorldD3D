@@ -22,6 +22,10 @@ public:
 
 protected:
 	
+	virtual ~HWD3DTexture() { }
+
+protected:
+	
 	void LoadTextureFile(const char* InFilename);
 	void ClearImage();
 };

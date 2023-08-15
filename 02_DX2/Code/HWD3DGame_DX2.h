@@ -51,6 +51,7 @@ public:
 	virtual void Update(float DeltaTime) override;
 	virtual void Render() override;
 
+	IDirectDraw* GetDirectDraw() const { return m_DDraw; }
 	IDirect3DDevice* GetDevice() const { return m_D3DDevice; }
 	IDirect3DViewport* GetViewport() const { return m_Viewport; }
 	const D3DMATRIXHANDLE& GetProjMatrixHandle() const { return m_MatrixProj; }
