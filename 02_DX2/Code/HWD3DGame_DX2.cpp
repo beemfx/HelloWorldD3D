@@ -2,7 +2,7 @@
 
 #include "HWD3DGame_DX2.h"
 #include "HWD3DMesh_DX2.h"
-#include "d3dmacs.h"
+#include "HWD3DTexture.h"
 
 // #pragma comment(lib, "ddraw.lib")
 #pragma comment(lib, "dxguid.lib")
@@ -232,8 +232,16 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 		m_Viewport->SetBackground(m_BgMaterialHandle);
 	}
 
+	// Texture
+	m_Texture = HWD3DTexture::CreateTexture(this, "../_Media/HappyFace.rgba");
+	if (!m_Texture)
+	{
+		Deinit();
+		return;
+	}
+
 	// Mesh
-	m_Mesh = HWD3DMesh_DX2::CreateMesh(this, "Media/Teapot.hwd3dmesh");
+	m_Mesh = HWD3DMesh_DX2::CreateMesh(this, "../_Media/Teapot.hwd3dmesh");
 	if (!m_Mesh)
 	{
 		Deinit();
@@ -263,6 +271,7 @@ void HWD3DGame_DX2::Deinit()
 	};
 
 	SafeRelease(m_Mesh);
+	SafeRelease(m_Texture);
 
 	SafeRelease(m_BgMaterial);
 	m_BgMaterialHandle = 0;
