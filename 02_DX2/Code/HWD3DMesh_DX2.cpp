@@ -94,7 +94,15 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 
 	m_ExecBufferDesc.dwSize = sizeof(m_ExecBufferDesc);
 	m_ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
-	m_ExecBufferDesc.dwBufferSize = 1024 * 1024;
+	static const int NUM_INSTR = 4;
+	static const int NUM_RENDER_STATES = 0;
+	m_ExecBufferDesc.dwBufferSize 
+		= sizeof(D3DVERTEX)*NumVertices
+		+ sizeof(D3DINSTRUCTION)*NUM_INSTR 
+		+ sizeof(D3DSTATE)*NUM_RENDER_STATES 
+		+ sizeof(D3DPROCESSVERTICES)
+		+ sizeof(D3DTRIANGLE)*NumTri;
+
 	const HRESULT CreateExecBufferRes = m_Game->GetDevice()->CreateExecuteBuffer(&m_ExecBufferDesc, &m_ExecBuffer, nullptr);
 	if (FAILED(CreateExecBufferRes) || !m_ExecBuffer)
 	{
@@ -112,7 +120,8 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 
 		LPVOID lpInsStart = lpPointer;
 
-		// If we actaully wanted to obtain the status we might want this: OP_SET_STATUS(D3DSETSTATUS_ALL, D3DSTATUS_DEFAULT, 2048, 2048, 0, 0, lpPointer);
+		// If we actually wanted to obtain the status we might want this:
+		// OP_SET_STATUS(D3DSETSTATUS_ALL, D3DSTATUS_DEFAULT, 2048, 2048, 0, 0, lpPointer);
 
 		OP_PROCESS_VERTICES(1, lpPointer);
 		PROCESSVERTICES_DATA(D3DPROCESSVERTICES_TRANSFORMLIGHT, 0, NumVertices, lpPointer);
@@ -135,6 +144,10 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 		}
 
 		OP_EXIT(lpPointer);
+
+		const ULONG SizeWritten = (ULONG)((char*)lpPointer - (char*)lpBufStart);
+		// Do a sanity check to make sure our math was correct buffer is the right size ( the min subtracts sizeof(D3DINSTRUCTION) because we might not have written the NOP)
+		assert(((m_ExecBufferDesc.dwBufferSize - sizeof(D3DINSTRUCTION)) <= SizeWritten) && (SizeWritten <= m_ExecBufferDesc.dwBufferSize));
 
 		const HRESULT UnlockRes = m_ExecBuffer->Unlock();
 		if (FAILED(UnlockRes))
