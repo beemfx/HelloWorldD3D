@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include "HWD3DTypes.h"
+#include "HWD3DMesh.h"
 #include <d3d.h>
 
-class HWD3DMesh_DX2
+class HWD3DMesh_DX2 : public HWD3DMesh
 {
 private:
 	class HWD3DGame_DX2*const m_Game = nullptr;
@@ -13,14 +13,15 @@ private:
 	IDirect3DExecuteBuffer* m_ExecBuffer = nullptr;
 
 public:
-	static HWD3DMesh_DX2* CreateMesh(class HWD3DGame_DX2* InGame, const char* InFilename);
-	void Release();
 
-	void Draw();
+	virtual void Draw() override;
 
-private:
+public:
+	
 	HWD3DMesh_DX2(class HWD3DGame_DX2* InGame, const char* InFilename);
-	~HWD3DMesh_DX2();
+	virtual ~HWD3DMesh_DX2() override;
 
+protected:
+	
 	bool CreateExecBuffer();
 };

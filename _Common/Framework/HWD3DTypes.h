@@ -33,4 +33,21 @@ struct hwd3d_rgba
 	hwd3d_byte A;
 };
 
+
 #include "HWD3DMatrix.h"
+
+struct hwd3d_vertex
+{
+	hwd3d_vec3 Pos;
+	hwd3d_vec3 Norm;
+	hwd3d_vec2 Tex;
+};
+
+typedef unsigned short hwd3d_graphics_index;
+
+struct hwd3d_triangle
+{
+	hwd3d_graphics_index v1;
+	hwd3d_graphics_index v2;
+	hwd3d_graphics_index v3;
+};

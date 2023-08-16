@@ -1,7 +1,7 @@
 // D3D Hello World
 
 #include "HWD3DGame_DX2.h"
-#include "HWD3DMesh_DX2.h"
+#include "HWD3DMesh.h"
 #include "HWD3DTexture.h"
 #include "d3dmacs.h"
 
@@ -240,7 +240,7 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 	}
 
 	// Mesh
-	m_Mesh = HWD3DMesh_DX2::CreateMesh(this, "../_Media/Teapot.hwd3dmesh");
+	m_Mesh = HWD3DMesh::CreateMesh(this, "../_Media/Teapot.hwd3dmesh");
 	if (!m_Mesh)
 	{
 		Deinit();

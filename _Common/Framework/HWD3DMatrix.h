@@ -2,6 +2,15 @@
 
 #pragma once
 
+struct hwd3d_vec2
+{
+	float x, y;
+
+#if defined(__cplusplus)
+	hwd3d_vec2(float InX, float InY) : x(InX), y(InY) { }
+#endif
+};
+
 struct hwd3d_vec3
 {
 	float x, y, z;

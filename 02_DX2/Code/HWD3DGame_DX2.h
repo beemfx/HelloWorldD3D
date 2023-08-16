@@ -37,7 +37,7 @@ private:
 	std::vector<d3dDeviceData> m_DevicesFound;
 
 	class HWD3DTexture* m_Texture = nullptr;
-	class HWD3DMesh_DX2* m_Mesh = nullptr;
+	class HWD3DMesh* m_Mesh = nullptr;
 
 	hwd3d_matrix m_MeshMatrix = HWD3DMatrix_Ident;
 	float m_MeshRotationTime = 0.f;
