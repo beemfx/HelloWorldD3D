@@ -4,53 +4,6 @@
 #include "HWD3DGame_DX2.h"
 #include "d3dmacs.h"
 
-/* Cube vertices, normals, shades, and modeling transform */
-static int NumVertices = 24;
-static D3DVERTEX CubeVertices[] =
-{
-	{ D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0) },
-	{ D3DVAL(1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(1.0) },
-	{ D3DVAL(1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0) },
-	{ D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0) },
-
-	{ D3DVAL(1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0) },
-	{ D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(1.0) },
-	{ D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(1.0) },
-	{ D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0) },
-
-	{ D3DVAL(1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0) },
-	{ D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(1.0) },
-	{ D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0) },
-	{ D3DVAL(1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0) },
-
-	{ D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0) },
-	{ D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(1.0) },
-	{ D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(1.0) },
-	{ D3DVAL(1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(0.0) },
-
-	{ D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0) },
-	{ D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(1.0) },
-	{ D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0) },
-	{ D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0) },
-
-	{ D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(1.0) },
-	{ D3DVAL(1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(1.0) },
-	{ D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(1.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(0.0), D3DVAL(0.0) },
-	{ D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(-1.0), D3DVAL(0.0), D3DVAL(1.0), D3DVAL(0.0) }
-};
-
-//*** Cube edges - ordered indices into the vertex array
-static const int NumTri = 12;
-static const int CubeTri[] =
-{
-	0, 1, 2, 0, 2, 3,
-	4, 5, 6, 4, 6, 7,
-	8, 9, 10, 8, 10, 11,
-	12, 13, 14, 12, 14, 15,
-	16, 17, 18, 16, 18, 19,
-	20, 21, 22, 20, 22, 23
-};
-
 HWD3DMesh* HWD3DMesh::CreateMesh(class HWD3DGame* InGame, const char* InFilename)
 {
 	return new HWD3DMesh_DX2(dynamic_cast<HWD3DGame_DX2*>(InGame), InFilename);
@@ -68,6 +21,7 @@ void HWD3DMesh_DX2::Draw()
 HWD3DMesh_DX2::HWD3DMesh_DX2(class HWD3DGame_DX2* InGame, const char* InFilename)
 : m_Game(InGame)
 {
+	LoadMeshFile(InFilename);
 	CreateExecBuffer();
 }
 
@@ -92,11 +46,11 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 	static const int NUM_INSTR = 4;
 	static const int NUM_RENDER_STATES = 0;
 	m_ExecBufferDesc.dwBufferSize 
-		= sizeof(D3DVERTEX)*NumVertices
+		= sizeof(D3DVERTEX)*m_Vertices.size()
 		+ sizeof(D3DINSTRUCTION)*NUM_INSTR 
 		+ sizeof(D3DSTATE)*NUM_RENDER_STATES 
 		+ sizeof(D3DPROCESSVERTICES)
-		+ sizeof(D3DTRIANGLE)*NumTri;
+		+ sizeof(D3DTRIANGLE)*m_Triangles.size();
 
 	const HRESULT CreateExecBufferRes = m_Game->GetDevice()->CreateExecuteBuffer(&m_ExecBufferDesc, &m_ExecBuffer, nullptr);
 	if (FAILED(CreateExecBufferRes) || !m_ExecBuffer)
@@ -111,7 +65,7 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 		LPVOID lpBufStart = m_ExecBufferDesc.lpData;
 		LPVOID lpPointer = lpBufStart;
 
-		VERTEX_DATA(&CubeVertices[0], NumVertices, lpPointer);
+		VERTEX_DATA(m_Vertices.data(), m_Vertices.size(), lpPointer); // Out data is directly compatible with D3DVERTEX.
 
 		LPVOID lpInsStart = lpPointer;
 
@@ -119,7 +73,7 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 		// OP_SET_STATUS(D3DSETSTATUS_ALL, D3DSTATUS_DEFAULT, 2048, 2048, 0, 0, lpPointer);
 
 		OP_PROCESS_VERTICES(1, lpPointer);
-		PROCESSVERTICES_DATA(D3DPROCESSVERTICES_TRANSFORMLIGHT, 0, NumVertices, lpPointer);
+		PROCESSVERTICES_DATA(D3DPROCESSVERTICES_TRANSFORMLIGHT, 0, m_Vertices.size(), lpPointer);
 
 		// Make sure that the triangle data (not OP) will be QWORD aligned
 		if (QWORD_ALIGNED(lpPointer))
@@ -127,12 +81,12 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 			OP_NOP(lpPointer);
 		}
 
-		OP_TRIANGLE_LIST(NumTri, lpPointer);
-		for (int i = 0; i < NumTri; i++)
+		OP_TRIANGLE_LIST(m_Triangles.size(), lpPointer);
+		for (int i = 0; i < m_Triangles.size(); i++)
 		{
-			((LPD3DTRIANGLE)lpPointer)->v1 = CubeTri[i * 3];
-			((LPD3DTRIANGLE)lpPointer)->v2 = CubeTri[i * 3 + 1];
-			((LPD3DTRIANGLE)lpPointer)->v3 = CubeTri[i * 3 + 2];
+			((LPD3DTRIANGLE)lpPointer)->v1 = m_Triangles[i].v1;
+			((LPD3DTRIANGLE)lpPointer)->v2 = m_Triangles[i].v2;
+			((LPD3DTRIANGLE)lpPointer)->v3 = m_Triangles[i].v3;
 			((LPD3DTRIANGLE)lpPointer)->wFlags = D3DTRIFLAG_EDGEENABLETRIANGLE;
 
 			lpPointer = (void*)(((LPD3DTRIANGLE)lpPointer) + 1);
@@ -154,7 +108,7 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 		ExecData.dwSize = sizeof(ExecData);
 		ExecData.dwInstructionOffset = (ULONG)((char*)lpInsStart - (char*)lpBufStart);
 		ExecData.dwInstructionLength = (ULONG)((char*)lpPointer - (char*)lpInsStart);
-		ExecData.dwVertexCount = NumVertices;
+		ExecData.dwVertexCount = m_Vertices.size();
 		const HRESULT SetDataRes = m_ExecBuffer->SetExecuteData(&ExecData);
 		if (FAILED(SetDataRes))
 		{
