@@ -28,6 +28,7 @@ protected:
 protected:
 
 	void LoadMeshFile(const char* InFilename);
+	void LoadSampleCube();
 	void ClearMeshFile();
 };
 

@@ -220,7 +220,7 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 	// Set WVP Matrices
 	{
 		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(ScreenWidth)/ScreenHeight), .1f , 1000.f );
-		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(hwd3d_vec3(0.f, 0.f, -3.f), hwd3d_vec3(0.f,0.f,0.f), hwd3d_vec3(0.f,1.f,0.f));
+		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(hwd3d_vec3(0.f, 0.f, -25.f), hwd3d_vec3(0.f,0.f,0.f), hwd3d_vec3(0.f,1.f,0.f));
 
 		D3DMATRIX Proj = *reinterpret_cast<const D3DMATRIX*>(&ProjMatrix);
 		D3DMATRIX View = *reinterpret_cast<const D3DMATRIX*>(&ViewMatrix);
@@ -240,7 +240,7 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 	}
 
 	// Mesh
-	m_Mesh = HWD3DMesh::CreateMesh(this, "../_Media/Teapot.hwd3dmesh");
+	m_Mesh = HWD3DMesh::CreateMesh(this, "../_Media/teapot.hw3d");
 	if (!m_Mesh)
 	{
 		Deinit();
@@ -300,7 +300,8 @@ void HWD3DGame_DX2::Update(float DeltaTime)
 		m_MeshRotationTime = 0.f;
 	}
 	
-	m_MeshMatrix = HWD3DMatrix_BuildRotationY((m_MeshRotationTime/m_MeshRotationDuration) * 2.f * HWD3D_PI_CONST);
+	// Translate down a bit so the teapot appears centered.
+	m_MeshMatrix = HWD3DMatrix_Multiply(HWD3DMatrix_BuildTranslation(hwd3d_vec3(0.f, -5.f, 0.f) ), HWD3DMatrix_BuildRotationY((m_MeshRotationTime/m_MeshRotationDuration) * 2.f * HWD3D_PI_CONST));
 }
 
 void HWD3DGame_DX2::Render()
