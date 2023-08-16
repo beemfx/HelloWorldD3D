@@ -3,6 +3,7 @@
 #include "HWD3DGame_DX2.h"
 #include "HWD3DMesh_DX2.h"
 #include "HWD3DTexture.h"
+#include "d3dmacs.h"
 
 // #pragma comment(lib, "ddraw.lib")
 #pragma comment(lib, "dxguid.lib")
@@ -138,24 +139,6 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 		}
 	}
 
-	// WVP Matrices
-	{
-		m_D3DDevice->CreateMatrix(&m_MatrixProj);
-		m_D3DDevice->CreateMatrix(&m_MatrixView);
-		m_D3DDevice->CreateMatrix(&m_MatrixWorld);
-
-		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(ScreenWidth)/ScreenHeight), .1f , 1000.f );
-		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(hwd3d_vec3(0.f, 0.f, -3.f), hwd3d_vec3(0.f,0.f,0.f), hwd3d_vec3(0.f,1.f,0.f));
-
-		D3DMATRIX Proj = *reinterpret_cast<const D3DMATRIX*>(&ProjMatrix);
-		D3DMATRIX View = *reinterpret_cast<const D3DMATRIX*>(&ViewMatrix);
-		D3DMATRIX World = *reinterpret_cast<const D3DMATRIX*>(&HWD3DMatrix_Ident);
-
-		m_D3DDevice->SetMatrix(m_MatrixProj, &Proj);
-		m_D3DDevice->SetMatrix(m_MatrixView, &View);
-		m_D3DDevice->SetMatrix(m_MatrixWorld, &World);
-	}
-
 	// Viewport
 	{
 		const HRESULT CvpRes = m_D3D->CreateViewport(&m_Viewport, nullptr);
@@ -230,6 +213,22 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 		}
 
 		m_Viewport->SetBackground(m_BgMaterialHandle);
+	}
+
+	InitCommonStates();
+
+	// Set WVP Matrices
+	{
+		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(ScreenWidth)/ScreenHeight), .1f , 1000.f );
+		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(hwd3d_vec3(0.f, 0.f, -3.f), hwd3d_vec3(0.f,0.f,0.f), hwd3d_vec3(0.f,1.f,0.f));
+
+		D3DMATRIX Proj = *reinterpret_cast<const D3DMATRIX*>(&ProjMatrix);
+		D3DMATRIX View = *reinterpret_cast<const D3DMATRIX*>(&ViewMatrix);
+		D3DMATRIX World = *reinterpret_cast<const D3DMATRIX*>(&HWD3DMatrix_Ident);
+
+		m_D3DDevice->SetMatrix(m_MatrixProj, &Proj);
+		m_D3DDevice->SetMatrix(m_MatrixView, &View);
+		m_D3DDevice->SetMatrix(m_MatrixWorld, &World);
 	}
 
 	// Texture
@@ -369,6 +368,79 @@ void HWD3DGame_DX2::Render()
 			return;
 		}
 	}
+}
+
+void HWD3DGame_DX2::InitCommonStates()
+{
+	if (!m_D3D || !m_D3DDevice)
+	{
+		return;
+	}
+
+	assert(!m_MatrixProj && !m_MatrixView && !m_MatrixWorld);
+
+	// WVP Matrices
+	{
+		m_D3DDevice->CreateMatrix(&m_MatrixProj);
+		m_D3DDevice->CreateMatrix(&m_MatrixView);
+		m_D3DDevice->CreateMatrix(&m_MatrixWorld);
+	}
+
+	// This is a one off so we don't keep any pointers.
+
+	D3DEXECUTEBUFFERDESC ExecBufferDesc = { };
+	ExecBufferDesc.dwSize = sizeof(ExecBufferDesc);
+	ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
+	static const int NUM_INSTR = 2;
+	static const int NUM_RENDER_STATES = 3;
+	ExecBufferDesc.dwBufferSize = sizeof(D3DINSTRUCTION)*NUM_INSTR + sizeof(D3DSTATE)*NUM_RENDER_STATES;
+	IDirect3DExecuteBuffer* ExecBuffer = nullptr;
+	const HRESULT CreateExecBufferRes = m_D3DDevice->CreateExecuteBuffer(&ExecBufferDesc, &ExecBuffer, nullptr);
+	if (FAILED(CreateExecBufferRes) || !ExecBuffer)
+	{
+		return;
+	}
+
+	if (SUCCEEDED(ExecBuffer->Lock(&ExecBufferDesc)))
+	{
+		memset(ExecBufferDesc.lpData, 0, ExecBufferDesc.dwBufferSize);
+
+		LPVOID lpBufStart = ExecBufferDesc.lpData;
+		LPVOID lpPointer = lpBufStart;
+		LPVOID lpInsStart = lpPointer;
+
+		// Transform setting could be handled by a one off command buffer, but to keep things simple we do it all here.
+		OP_STATE_TRANSFORM(3, lpPointer);
+		STATE_DATA(D3DTRANSFORMSTATE_PROJECTION, GetProjMatrixHandle(), lpPointer);
+		STATE_DATA(D3DTRANSFORMSTATE_VIEW, GetViewMatrixHandle(), lpPointer);
+		STATE_DATA(D3DTRANSFORMSTATE_WORLD, GetWorldMatrixHandle(), lpPointer);
+		OP_EXIT(lpPointer);
+
+		const HRESULT UnlockRes = ExecBuffer->Unlock();
+		if (FAILED(UnlockRes))
+		{
+			ExecBuffer->Release();
+			return;
+		}
+
+		D3DEXECUTEDATA ExecData = {};
+		ExecData.dwSize = sizeof(ExecData);
+		ExecData.dwInstructionOffset = (ULONG)((char*)lpInsStart - (char*)lpBufStart);
+		ExecData.dwInstructionLength = (ULONG)((char*)lpPointer - (char*)lpInsStart);
+		ExecData.dwVertexCount = 0;
+		const HRESULT SetDataRes = ExecBuffer->SetExecuteData(&ExecData);
+		if (FAILED(SetDataRes))
+		{
+			ExecBuffer->Release();
+			return;
+		}
+
+		m_D3DDevice->BeginScene();
+		m_D3DDevice->Execute(ExecBuffer, m_Viewport, D3DEXECUTE_CLIPPED);
+		m_D3DDevice->EndScene();
+	}
+
+	ExecBuffer->Release();
 }
 
 HRESULT FAR PASCAL HWD3DGame_DX2::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context)

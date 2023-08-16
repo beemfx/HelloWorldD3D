@@ -112,12 +112,6 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 
 		LPVOID lpInsStart = lpPointer;
 
-		// Transform setting could be handled by a one off command buffer, but to keep things simple we do it all here.
-		OP_STATE_TRANSFORM(3, lpPointer);
-		STATE_DATA(D3DTRANSFORMSTATE_PROJECTION, m_Game->GetProjMatrixHandle(), lpPointer);
-		STATE_DATA(D3DTRANSFORMSTATE_VIEW, m_Game->GetViewMatrixHandle(), lpPointer);
-		STATE_DATA(D3DTRANSFORMSTATE_WORLD, m_Game->GetWorldMatrixHandle(), lpPointer);
-
 		// If we actaully wanted to obtain the status we might want this: OP_SET_STATUS(D3DSETSTATUS_ALL, D3DSTATUS_DEFAULT, 2048, 2048, 0, 0, lpPointer);
 
 		OP_PROCESS_VERTICES(1, lpPointer);

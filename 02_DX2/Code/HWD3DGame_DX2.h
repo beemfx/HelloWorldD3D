@@ -59,5 +59,7 @@ public:
 	const D3DMATRIXHANDLE& GetWorldMatrixHandle() const { return m_MatrixWorld; }
 	const D3DTEXTUREHANDLE& GetTextureHandle() const { return m_Texture0; }
 
+	void InitCommonStates();
+
 	static HRESULT FAR PASCAL D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context);
 };
