@@ -14,6 +14,7 @@ private:
 	IDirect3D* m_D3D = nullptr;
 	IDirectDrawSurface* m_PrimarySurface = nullptr;
 	IDirectDrawSurface* m_BackBuffer = nullptr;
+	IDirectDrawSurface* m_ZBuffer = nullptr;
 
 	IDirect3DDevice* m_D3DDevice = nullptr;
 	IDirect3DViewport* m_Viewport = nullptr;

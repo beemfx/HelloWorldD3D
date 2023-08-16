@@ -100,7 +100,7 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 		Clipper = nullptr;
 	}
 
-	//Back Surface
+	// Back Surface
 	{
 		DDSURFACEDESC BbSd = {};
 		BbSd.dwSize = sizeof(BbSd);
@@ -110,6 +110,35 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 		BbSd.dwHeight = ScreenHeight;
 		const HRESULT CreateBbRes = m_DDraw->CreateSurface(&BbSd, &m_BackBuffer, 0);
 		if (FAILED(CreateBbRes) || !m_BackBuffer)
+		{
+			Deinit();
+			return;
+		}
+	}
+
+	// Z Buffer
+	{
+		DDSURFACEDESC ZbSd = {};
+		ZbSd.dwSize = sizeof(ZbSd);
+		ZbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
+		ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
+		ZbSd.dwWidth = ScreenWidth;
+		ZbSd.dwHeight = ScreenHeight;
+
+		DDPIXELFORMAT& Pxf = ZbSd.ddpfPixelFormat;
+		Pxf.dwSize = sizeof(Pxf);
+		Pxf.dwFlags = DDPF_ZBUFFER;
+		Pxf.dwZBufferBitDepth = 24;
+
+		const HRESULT CreateZbRes = m_DDraw->CreateSurface(&ZbSd, &m_ZBuffer, 0);
+		if (FAILED(CreateZbRes) || !m_ZBuffer)
+		{
+			Deinit();
+			return;
+		}
+
+		const HRESULT AddZBufferRes = m_BackBuffer->AddAttachedSurface(m_ZBuffer);
+		if (FAILED(AddZBufferRes))
 		{
 			Deinit();
 			return;
@@ -281,6 +310,7 @@ void HWD3DGame_DX2::Deinit()
 	SafeDeleteMatrix(m_MatrixProj);
 
 	SafeRelease(m_D3DDevice);
+	SafeRelease(m_ZBuffer);
 	SafeRelease(m_BackBuffer);
 	SafeRelease(m_PrimarySurface);
 	SafeRelease(m_D3D);
