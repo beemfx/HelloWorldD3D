@@ -123,11 +123,6 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 		OP_PROCESS_VERTICES(1, lpPointer);
 		PROCESSVERTICES_DATA(D3DPROCESSVERTICES_TRANSFORMLIGHT, 0, NumVertices, lpPointer);
 
-		OP_STATE_RENDER(3, lpPointer);
-		STATE_DATA(D3DRENDERSTATE_TEXTUREHANDLE, m_Game->GetTextureHandle(), lpPointer);
-		STATE_DATA(D3DRENDERSTATE_WRAPU, FALSE, lpPointer);
-		STATE_DATA(D3DRENDERSTATE_WRAPV, FALSE, lpPointer);
-
 		// Make sure that the triangle data (not OP) will be QWORD aligned
 		if (QWORD_ALIGNED(lpPointer))
 		{

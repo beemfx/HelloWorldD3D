@@ -322,7 +322,10 @@ void HWD3DGame_DX2::Render()
 			if (m_Mesh)
 			{
 				m_D3DDevice->SetMatrix(m_MatrixWorld, reinterpret_cast<D3DMATRIX*>(&m_MeshMatrix));
-				// TODO: Texture
+				if (m_Texture)
+				{
+					m_Texture->SetTexture();
+				}
 				m_Mesh->Draw();
 			}
 
@@ -330,7 +333,7 @@ void HWD3DGame_DX2::Render()
 			assert(SUCCEEDED(EndSceneRes));
 
 			// Can use the following to obtain the dirty rectangle, but to keep things simple we
-			// bit the whole back buffer
+			// blit the whole back buffer
 			// 
 			// D3DEXECUTEDATA ExecData = {};
 			// ExecData.dwSize = sizeof(ExecData);

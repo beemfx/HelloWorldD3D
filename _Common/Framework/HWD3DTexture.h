@@ -20,6 +20,8 @@ public:
 	
 	void Release();
 
+	virtual void SetTexture() { }
+
 protected:
 	
 	virtual ~HWD3DTexture() { }

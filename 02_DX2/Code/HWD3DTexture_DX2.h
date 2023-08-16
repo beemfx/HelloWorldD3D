@@ -11,6 +11,9 @@ protected:
 	class HWD3DGame_DX2*const m_Game = nullptr;
 	IDirectDrawSurface* m_Surface = nullptr;
 	IDirect3DTexture* m_Texture = nullptr;
+	D3DTEXTUREHANDLE m_TextureHandle = 0;
+	D3DEXECUTEBUFFERDESC m_ExecBufferDesc = { };
+	IDirect3DExecuteBuffer* m_ExecBuffer = nullptr;
 
 public:
 	HWD3DTexture_DX2(class HWD3DGame_DX2* InGame);
@@ -22,4 +25,5 @@ protected:
 public:
 	
 	void InitTexture();
+	virtual void SetTexture() override;
 };
