@@ -129,7 +129,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 					break;
 				}
 			}
-			Game->Render();
+			Game->DrawScene();
 		}
 
 		FrameStartTime = FrameEndTime;

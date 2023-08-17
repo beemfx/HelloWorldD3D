@@ -27,8 +27,6 @@ private:
 	D3DMATRIXHANDLE m_MatrixWorld = 0;
 	D3DTEXTUREHANDLE m_Texture0 = 0;
 
-	int m_Frame = 0;
-
 	struct d3dDeviceData
 	{
 		std::string Name;
@@ -37,20 +35,17 @@ private:
 
 	std::vector<d3dDeviceData> m_DevicesFound;
 
-	class HWD3DTexture* m_Texture = nullptr;
-	class HWD3DMesh* m_Mesh = nullptr;
-
-	hwd3d_matrix m_MeshMatrix = HWD3DMatrix_Ident;
-	float m_MeshRotationTime = 0.f;
-	const float m_MeshRotationDuration = 5.f;
-
 public:
 
 	virtual void Init( HWND TargetWnd) override;
 	virtual void Deinit() override;
 
-	virtual void Update(float DeltaTime) override;
-	virtual void Render() override;
+	virtual void ClearViewport() override;
+	virtual bool BeginDraw() override;
+	virtual void EndDraw() override;
+	virtual void Present() override;
+
+	virtual void SetWorldMatrix(const hwd3d_matrix& InMatrix) override;
 
 	IDirectDraw* GetDirectDraw() const { return m_DDraw; }
 	IDirect3DDevice* GetDevice() const { return m_D3DDevice; }

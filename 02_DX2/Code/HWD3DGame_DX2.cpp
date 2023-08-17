@@ -317,24 +317,7 @@ void HWD3DGame_DX2::Deinit()
 	SafeRelease(m_DDraw);
 }
 
-void HWD3DGame_DX2::Update(float DeltaTime)
-{
-	m_Frame++;
-
-	m_MeshRotationTime += DeltaTime;
-	if( m_MeshRotationTime >= m_MeshRotationDuration )
-	{
-		// We should do something like such as m_MeshRotationTime -= m_MeshRotationDuration,
-		// but to keep the code minimal we don't want to deal with situations where the
-		// subtraction wouldn't even occur (large float minus small float), so simply reset to 0.
-		m_MeshRotationTime = 0.f;
-	}
-	
-	// Translate down a bit so the teapot appears centered.
-	m_MeshMatrix = HWD3DMatrix_Multiply(HWD3DMatrix_BuildTranslation(hwd3d_vec3(0.f, -5.f, 0.f) ), HWD3DMatrix_BuildRotationY((m_MeshRotationTime/m_MeshRotationDuration) * 2.f * HWD3D_PI_CONST));
-}
-
-void HWD3DGame_DX2::Render()
+void HWD3DGame_DX2::ClearViewport()
 {
 	if (m_Viewport)
 	{
@@ -344,34 +327,40 @@ void HWD3DGame_DX2::Render()
 		D3DRECT ClearRect = { 0, 0, static_cast<LONG>(Vp.dwWidth), static_cast<LONG>(Vp.dwHeight) };
 		m_Viewport->Clear(1, &ClearRect, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);
 	}
+}
 
+bool HWD3DGame_DX2::BeginDraw()
+{
 	if (m_D3DDevice)
 	{
 		if (SUCCEEDED(m_D3DDevice->BeginScene()))
 		{
-			if (m_Mesh)
-			{
-				m_D3DDevice->SetMatrix(m_MatrixWorld, reinterpret_cast<D3DMATRIX*>(&m_MeshMatrix));
-				if (m_Texture)
-				{
-					m_Texture->SetTexture();
-				}
-				m_Mesh->Draw();
-			}
-
-			const HRESULT EndSceneRes = m_D3DDevice->EndScene();
-			assert(SUCCEEDED(EndSceneRes));
-
-			// Can use the following to obtain the dirty rectangle, but to keep things simple we
-			// blit the whole back buffer
-			// 
-			// D3DEXECUTEDATA ExecData = {};
-			// ExecData.dwSize = sizeof(ExecData);
-			// const HRESULT GetExecDataRes = m_ExecBuffer->GetExecuteData(&ExecData);
-			// assert(SUCCEEDED(GetExecDataRes));
+			return true;
 		}
 	}
 
+	return false;
+}
+
+void HWD3DGame_DX2::EndDraw()
+{
+	if (m_D3DDevice)
+	{
+		const HRESULT EndSceneRes = m_D3DDevice->EndScene();
+		assert(SUCCEEDED(EndSceneRes));
+
+		// Can use the following to obtain the dirty rectangle, but to keep things simple we
+		// blit the whole back buffer:
+		// 
+		// D3DEXECUTEDATA ExecData = {};
+		// ExecData.dwSize = sizeof(ExecData);
+		// const HRESULT GetExecDataRes = m_ExecBuffer->GetExecuteData(&ExecData);
+		// assert(SUCCEEDED(GetExecDataRes));
+	}
+}
+
+void HWD3DGame_DX2::Present()
+{
 	if (m_DDraw && m_BackBuffer)
 	{
 		DDSURFACEDESC desc = {};
@@ -398,6 +387,15 @@ void HWD3DGame_DX2::Render()
 			// get lost.
 			return;
 		}
+	}
+}
+
+void HWD3DGame_DX2::SetWorldMatrix(const hwd3d_matrix& InMatrix)
+{
+	if (m_D3DDevice)
+	{
+		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
+		m_D3DDevice->SetMatrix(m_MatrixWorld, &Mat);
 	}
 }
 

@@ -81,8 +81,8 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 			OP_NOP(lpPointer);
 		}
 
-		OP_TRIANGLE_LIST(m_Triangles.size(), lpPointer);
-		for (int i = 0; i < m_Triangles.size(); i++)
+		OP_TRIANGLE_LIST(static_cast<WORD>(m_Triangles.size()), lpPointer);
+		for (int i = 0; i < static_cast<int>(m_Triangles.size()); i++)
 		{
 			((LPD3DTRIANGLE)lpPointer)->v1 = m_Triangles[i].v1;
 			((LPD3DTRIANGLE)lpPointer)->v2 = m_Triangles[i].v2;
