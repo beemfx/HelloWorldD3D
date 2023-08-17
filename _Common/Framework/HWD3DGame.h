@@ -10,7 +10,7 @@ public:
 	
 	static HWD3DGame* CreateGame(HWND InMainWnd);
 
-protected:
+private:
 	
 	int m_Frame = 0;
 
@@ -23,10 +23,18 @@ protected:
 
 public:
 	
-	virtual void Initialize() { }
+	void Release();
 
 	void Update(float DeltaTime);
 	void DrawScene();
+
+protected:
+
+	void CreateScene();
+	void DestroyScene();
+
+	virtual void InitDevice(HWND InMainWnd) { }
+	virtual void DeinitDevice() { }
 
 	virtual void ClearViewport();
 	virtual bool BeginDraw();
@@ -35,11 +43,9 @@ public:
 
 	virtual void SetWorldMatrix(const hwd3d_matrix& InMatrix);
 
-	void Release();
-
 protected:
 
-	virtual void Init(HWND InMainWnd);
-	virtual void Deinit();
+	void Init(HWND InMainWnd);
+	void Deinit();
 };
 

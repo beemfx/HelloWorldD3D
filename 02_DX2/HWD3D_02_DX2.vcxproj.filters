@@ -28,9 +28,6 @@
     <ClCompile Include="..\_Common\Shell\HWD3DWinMain.cpp">
       <Filter>Common\Shell</Filter>
     </ClCompile>
-    <ClCompile Include="..\_Common\Framework\HWD3DMatrix.cpp">
-      <Filter>Common\Framework</Filter>
-    </ClCompile>
     <ClCompile Include="Code\HWD3DMesh_DX2.cpp">
       <Filter>Code</Filter>
     </ClCompile>
@@ -41,6 +38,9 @@
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="..\_Common\Framework\HWD3DMesh.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DTypes.cpp">
       <Filter>Common\Framework</Filter>
     </ClCompile>
   </ItemGroup>
@@ -63,9 +63,6 @@
     <ClInclude Include="..\_Common\Res\targetver.h">
       <Filter>Common\Res</Filter>
     </ClInclude>
-    <ClInclude Include="..\_Common\Framework\HWD3DMatrix.h">
-      <Filter>Common\Framework</Filter>
-    </ClInclude>
     <ClInclude Include="Code\HWD3DMesh_DX2.h">
       <Filter>Code</Filter>
     </ClInclude>
@@ -76,6 +73,9 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="..\_Common\Framework\HWD3DMesh.h">
+      <Filter>Common\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DSysInclude.h">
       <Filter>Common\Framework</Filter>
     </ClInclude>
   </ItemGroup>

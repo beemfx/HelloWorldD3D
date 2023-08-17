@@ -13,12 +13,48 @@ void HWD3DGame::Release()
 
 void HWD3DGame::Init(HWND InMainWnd)
 {
-
+	InitDevice(InMainWnd);
+	CreateScene();
 }
 
 void HWD3DGame::Deinit()
 {
+	DestroyScene();
+	DeinitDevice();
+}
 
+void HWD3DGame::CreateScene()
+{
+	// Texture
+	m_Texture = HWD3DTexture::CreateTexture(this, "../_Media/HappyFace.rgba");
+	if (!m_Texture)
+	{
+		Deinit();
+		return;
+	}
+
+	// Mesh
+	m_Mesh = HWD3DMesh::CreateMesh(this, "../_Media/teapot.hw3d");
+	if (!m_Mesh)
+	{
+		Deinit();
+		return;
+	}
+}
+
+void HWD3DGame::DestroyScene()
+{
+	auto SafeRelease = [](auto*& p ) -> void
+		{
+			if (p)
+			{
+				p->Release();
+				p = nullptr;
+			}
+		};
+
+	SafeRelease(m_Mesh);
+	SafeRelease(m_Texture);
 }
 
 void HWD3DGame::Update(float DeltaTime)

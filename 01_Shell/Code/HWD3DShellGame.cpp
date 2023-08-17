@@ -1,6 +1,8 @@
 // D3D Hello World
 
 #include "HWD3DShellGame.h"
+#include "HWD3DMesh.h"
+#include "HWD3DTexture.h"
 
 HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 {
@@ -13,23 +15,12 @@ HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 	return Out;
 }
 
-
-void HWD3DGame_Shell::Init(HWND InMainWnd)
+HWD3DMesh* HWD3DMesh::CreateMesh(class HWD3DGame* InGame, const char* InFilename)
 {
-	
+	return nullptr;
 }
 
-void HWD3DGame_Shell::Deinit()
+HWD3DTexture* HWD3DTexture::CreateTexture(class HWD3DGame* InGame, const char* InFilename)
 {
-	
-}
-
-void HWD3DGame_Shell::Update(float DeltaTime)
-{
-	
-}
-
-void HWD3DGame_Shell::Render()
-{
-	
+	return nullptr;
 }

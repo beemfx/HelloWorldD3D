@@ -1,6 +1,6 @@
 // D3D Hello World
 
-#include "HWD3DMatrix.h"
+#include "HWD3DTypes.h"
 #include <math.h>
 
 const hwd3d_vec3 HWD3DVec3_Zero = { 0.f , 0.f , 0.f };

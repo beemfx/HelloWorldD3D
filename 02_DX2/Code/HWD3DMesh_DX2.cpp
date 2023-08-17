@@ -19,7 +19,7 @@ void HWD3DMesh_DX2::Draw()
 }
 
 HWD3DMesh_DX2::HWD3DMesh_DX2(class HWD3DGame_DX2* InGame, const char* InFilename)
-: m_Game(InGame)
+	: m_Game(InGame)
 {
 	LoadMeshFile(InFilename);
 	CreateExecBuffer();

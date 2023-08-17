@@ -20,9 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\_Common\Framework\HWD3DGame.cpp" />
-    <ClCompile Include="..\_Common\Framework\HWD3DMatrix.cpp" />
     <ClCompile Include="..\_Common\Framework\HWD3DMesh.cpp" />
     <ClCompile Include="..\_Common\Framework\HWD3DTexture.cpp" />
+    <ClCompile Include="..\_Common\Framework\HWD3DTypes.cpp" />
     <ClCompile Include="..\_Common\Shell\HWD3DWinMain.cpp" />
     <ClCompile Include="Code\HWD3DGame_DX2.cpp" />
     <ClCompile Include="Code\HWD3DMesh_DX2.cpp" />
@@ -30,8 +30,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\_Common\Framework\HWD3DGame.h" />
-    <ClInclude Include="..\_Common\Framework\HWD3DMatrix.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DMesh.h" />
+    <ClInclude Include="..\_Common\Framework\HWD3DSysInclude.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTexture.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTypes.h" />
     <ClInclude Include="..\_Common\Res\resource.h" />

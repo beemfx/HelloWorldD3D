@@ -28,6 +28,15 @@
     <ClCompile Include="..\_Common\Framework\HWD3DGame.cpp">
       <Filter>Common\Framework</Filter>
     </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DMesh.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DTexture.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DTypes.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\HWD3DShellGame.h">
@@ -43,6 +52,15 @@
       <Filter>Common\Res</Filter>
     </ClInclude>
     <ClInclude Include="..\_Common\Framework\HWD3DGame.h">
+      <Filter>Common\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DMesh.h">
+      <Filter>Common\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DTexture.h">
+      <Filter>Common\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DSysInclude.h">
       <Filter>Common\Framework</Filter>
     </ClInclude>
   </ItemGroup>

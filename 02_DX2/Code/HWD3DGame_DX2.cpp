@@ -21,7 +21,7 @@ HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 	return Out;
 }
 
-void HWD3DGame_DX2::Init(HWND TargetWnd)
+void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 {
 	m_TargetWnd = TargetWnd;
 
@@ -259,25 +259,9 @@ void HWD3DGame_DX2::Init(HWND TargetWnd)
 		m_D3DDevice->SetMatrix(m_MatrixView, &View);
 		m_D3DDevice->SetMatrix(m_MatrixWorld, &World);
 	}
-
-	// Texture
-	m_Texture = HWD3DTexture::CreateTexture(this, "../_Media/HappyFace.rgba");
-	if (!m_Texture)
-	{
-		Deinit();
-		return;
-	}
-
-	// Mesh
-	m_Mesh = HWD3DMesh::CreateMesh(this, "../_Media/teapot.hw3d");
-	if (!m_Mesh)
-	{
-		Deinit();
-		return;
-	}
 }
 
-void HWD3DGame_DX2::Deinit()
+void HWD3DGame_DX2::DeinitDevice()
 {
 	auto SafeRelease = [](auto*& p ) -> void
 	{
@@ -297,9 +281,6 @@ void HWD3DGame_DX2::Deinit()
 		}
 
 	};
-
-	SafeRelease(m_Mesh);
-	SafeRelease(m_Texture);
 
 	SafeRelease(m_BgMaterial);
 	m_BgMaterialHandle = 0;

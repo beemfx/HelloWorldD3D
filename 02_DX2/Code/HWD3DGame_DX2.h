@@ -36,17 +36,7 @@ private:
 	std::vector<d3dDeviceData> m_DevicesFound;
 
 public:
-
-	virtual void Init( HWND TargetWnd) override;
-	virtual void Deinit() override;
-
-	virtual void ClearViewport() override;
-	virtual bool BeginDraw() override;
-	virtual void EndDraw() override;
-	virtual void Present() override;
-
-	virtual void SetWorldMatrix(const hwd3d_matrix& InMatrix) override;
-
+	
 	IDirectDraw* GetDirectDraw() const { return m_DDraw; }
 	IDirect3DDevice* GetDevice() const { return m_D3DDevice; }
 	IDirect3DViewport* GetViewport() const { return m_Viewport; }
@@ -54,6 +44,18 @@ public:
 	const D3DMATRIXHANDLE& GetViewMatrixHandle() const { return m_MatrixView; }
 	const D3DMATRIXHANDLE& GetWorldMatrixHandle() const { return m_MatrixWorld; }
 	const D3DTEXTUREHANDLE& GetTextureHandle() const { return m_Texture0; }
+
+private:
+
+	virtual void InitDevice( HWND TargetWnd) override;
+	virtual void DeinitDevice() override;
+
+	virtual void ClearViewport() override;
+	virtual bool BeginDraw() override;
+	virtual void EndDraw() override;
+	virtual void Present() override;
+
+	virtual void SetWorldMatrix(const hwd3d_matrix& InMatrix) override;
 
 	void InitCommonStates();
 
