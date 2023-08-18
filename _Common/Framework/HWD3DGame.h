@@ -19,6 +19,7 @@ private:
 		class HWD3DMesh* Mesh = nullptr;
 		class HWD3DTexture* Texture = nullptr;
 		hwd3d_matrix WorldMatrix = HWD3DMatrix_Ident;
+		hwd3d_vec3 UserTranslation = HWD3DVec3_Zero;
 
 		void Load(HWD3DGame& InGame, const char* InMeshFile, const char* InTextureFile);
 		void Unload();

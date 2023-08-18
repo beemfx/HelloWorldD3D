@@ -25,7 +25,6 @@ void HWD3DGame::Deinit()
 
 void HWD3DGame::CreateScene()
 {
-	// Teapot Mesh and Texture
 	m_Teapot.Load(*this, "../_Media/teapot.hw3d", "../_Media/checkers.rgba");
 	m_Cube.Load(*this, "../_Media/box.hw3d", "../_Media/HappyFace.rgba");
 }
@@ -49,10 +48,13 @@ void HWD3DGame::Update(float DeltaTime)
 		m_MeshRotationTime = 0.f;
 	}
 
+	m_Teapot.UserTranslation = hwd3d_vec3(8.f,-5.f,0.f);
+	m_Cube.UserTranslation = hwd3d_vec3(-8.f,0.f,0.f);
+
 	// Teapot: Apply rotation, and translate down a bit so the teapot appears centered.
-	m_Teapot.WorldMatrix = HWD3DMatrix_Multiply(HWD3DMatrix_BuildRotationY((m_MeshRotationTime/m_MeshRotationDuration) * 2.f * HWD3D_PI_CONST), HWD3DMatrix_BuildTranslation(hwd3d_vec3(8.f, -5.f, 0.f)));
+	m_Teapot.WorldMatrix = HWD3DMatrix_Multiply(HWD3DMatrix_BuildRotationY((m_MeshRotationTime/m_MeshRotationDuration) * 2.f * HWD3D_PI_CONST), HWD3DMatrix_BuildTranslation(m_Teapot.UserTranslation));
 	// Cube: Scale and translate.
-	m_Cube.WorldMatrix = HWD3DMatrix_Multiply(HWD3DMatrix_Multiply(HWD3DMatrix_BuildRotationY(-(m_MeshRotationTime/m_MeshRotationDuration) * 2.f * HWD3D_PI_CONST), HWD3DMatrix_BuildScale(hwd3d_vec3(15.f,15.f,15.f) )), HWD3DMatrix_BuildTranslation(hwd3d_vec3(-8.f, 0.f , 0.f)));
+	m_Cube.WorldMatrix = HWD3DMatrix_Multiply(HWD3DMatrix_Multiply(HWD3DMatrix_BuildRotationY(-(m_MeshRotationTime/m_MeshRotationDuration) * 2.f * HWD3D_PI_CONST), HWD3DMatrix_BuildScale(hwd3d_vec3(15.f,15.f,15.f) )), HWD3DMatrix_BuildTranslation(m_Cube.UserTranslation));
 }
 
 void HWD3DGame::DrawScene()
