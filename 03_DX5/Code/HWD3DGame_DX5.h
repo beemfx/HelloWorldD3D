@@ -5,27 +5,22 @@
 #include <d3d.h>
 #include <ddraw.h>
 
-class HWD3DGame_DX2 : public HWD3DGame
+class HWD3DGame_DX5 : public HWD3DGame
 {
 private:
 	
 	HWND m_TargetWnd = nullptr;
-	IDirectDraw* m_DDraw = nullptr;
-	IDirect3D* m_D3D = nullptr;
+	IDirectDraw2* m_DDraw = nullptr;
+	IDirect3D2* m_D3D = nullptr;
 	IDirectDrawSurface* m_PrimarySurface = nullptr;
 	IDirectDrawSurface* m_BackBuffer = nullptr;
 	IDirectDrawSurface* m_ZBuffer = nullptr;
 
-	IDirect3DDevice* m_D3DDevice = nullptr;
-	IDirect3DViewport* m_Viewport = nullptr;
+	IDirect3DDevice2* m_D3DDevice = nullptr;
+	IDirect3DViewport2* m_Viewport = nullptr;
 
-	IDirect3DMaterial* m_BgMaterial = nullptr;
+	IDirect3DMaterial2* m_BgMaterial = nullptr;
 	D3DMATERIALHANDLE m_BgMaterialHandle = 0;
-
-	D3DMATRIXHANDLE m_MatrixProj = 0;
-	D3DMATRIXHANDLE m_MatrixView = 0;
-	D3DMATRIXHANDLE m_MatrixWorld = 0;
-	D3DTEXTUREHANDLE m_Texture0 = 0;
 
 	struct d3dDeviceData
 	{
@@ -37,13 +32,9 @@ private:
 
 public:
 	
-	IDirectDraw* GetDirectDraw() const { return m_DDraw; }
-	IDirect3DDevice* GetDevice() const { return m_D3DDevice; }
+	IDirectDraw2* GetDirectDraw() const { return m_DDraw; }
+	IDirect3DDevice2* GetDevice() const { return m_D3DDevice; }
 	IDirect3DViewport* GetViewport() const { return m_Viewport; }
-	const D3DMATRIXHANDLE& GetProjMatrixHandle() const { return m_MatrixProj; }
-	const D3DMATRIXHANDLE& GetViewMatrixHandle() const { return m_MatrixView; }
-	const D3DMATRIXHANDLE& GetWorldMatrixHandle() const { return m_MatrixWorld; }
-	const D3DTEXTUREHANDLE& GetTextureHandle() const { return m_Texture0; }
 
 private:
 

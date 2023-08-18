@@ -3,14 +3,14 @@
 #include "HWD3DGame_DX5.h"
 #include "d3dmacs.h"
 
-// #pragma comment(lib, "ddraw.lib")
+#pragma comment(lib, "ddraw.lib")
 #pragma comment(lib, "dxguid.lib")
 
 HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 {
 	SetWindowTextW(InMainWnd, L"Hello World D3D [DX3]");
 
-	HWD3DGame* Out = new HWD3DGame_DX2;
+	HWD3DGame* Out = new HWD3DGame_DX5;
 	if (Out)
 	{
 		Out->Init(InMainWnd);
@@ -19,7 +19,7 @@ HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 	return Out;
 }
 
-void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
+void HWD3DGame_DX5::InitDevice(HWND TargetWnd)
 {
 	m_TargetWnd = TargetWnd;
 
@@ -30,22 +30,20 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 
 	// Init DirectDraw and obtain Direct3D
 	{
-		// Don't actually seem to need this: HRESULT CoInitRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-		const HRESULT CciRes = CoCreateInstance(CLSID_DirectDraw, NULL, CLSCTX_ALL, IID_IDirectDraw, reinterpret_cast<LPVOID*>(&m_DDraw));
+		IDirectDraw* DDraw = nullptr;
+		const HRESULT CciRes = DirectDrawCreate(NULL, &DDraw, NULL);
+		if (DDraw)
+		{
+			DDraw->QueryInterface(IID_IDirectDraw2, reinterpret_cast<LPVOID*>(&m_DDraw));
+			HWD3D_SafeRelease(DDraw);
+		}
 
 		if (FAILED(CciRes) || !m_DDraw)
 		{
 			Deinit();
 			return;
 		}
-
-		const HRESULT InitRes = m_DDraw->Initialize(nullptr);
-		if (FAILED(InitRes))
-		{
-			Deinit();
-			return;
-		}
-	
+		
 		const HRESULT SetCpLvlRes = m_DDraw->SetCooperativeLevel(TargetWnd, DDSCL_NORMAL);
 		if (FAILED(SetCpLvlRes))
 		{
@@ -53,7 +51,7 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 			return;
 		}
 
-		const HRESULT QueryD3DRes = m_DDraw->QueryInterface(IID_IDirect3D, reinterpret_cast<LPVOID*>(&m_D3D));
+		const HRESULT QueryD3DRes = m_DDraw->QueryInterface(IID_IDirect3D2, reinterpret_cast<LPVOID*>(&m_D3D));
 		if (FAILED(QueryD3DRes) || !m_D3D)
 		{
 			Deinit();
@@ -157,8 +155,8 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 			return;
 		}
 
-		const HRESULT QueryForDevRes = m_BackBuffer->QueryInterface(FindDev.guid, reinterpret_cast<LPVOID*>(&m_D3DDevice));
-		if (FAILED(QueryForDevRes) || !m_D3DDevice)
+		const HRESULT CreateDevRes = m_D3D->CreateDevice(FindDev.guid, m_BackBuffer, &m_D3DDevice);
+		if (FAILED(CreateDevRes) || !m_D3DDevice)
 		{
 			Deinit();
 			return;
@@ -180,6 +178,7 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 			return;
 		}
 
+		// TODO: Change to D3DVIEWPORT2
 		D3DVIEWPORT Vp = {};
 		Vp.dwSize = sizeof(Vp);
 		Vp.dwX = Vp.dwY = 0;
@@ -241,8 +240,6 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 		m_Viewport->SetBackground(m_BgMaterialHandle);
 	}
 
-	InitCommonStates();
-
 	// Set WVP Matrices
 	{
 		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(ScreenWidth)/ScreenHeight), .1f , 1000.f );
@@ -252,32 +249,19 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 		D3DMATRIX View = *reinterpret_cast<const D3DMATRIX*>(&ViewMatrix);
 		D3DMATRIX World = *reinterpret_cast<const D3DMATRIX*>(&HWD3DMatrix_Ident);
 
-		m_D3DDevice->SetMatrix(m_MatrixProj, &Proj);
-		m_D3DDevice->SetMatrix(m_MatrixView, &View);
-		m_D3DDevice->SetMatrix(m_MatrixWorld, &World);
+		m_D3DDevice->MultiplyTransform(D3DTRANSFORMSTATE_PROJECTION, &Proj);
+		m_D3DDevice->MultiplyTransform(D3DTRANSFORMSTATE_VIEW, &View);
+		m_D3DDevice->MultiplyTransform(D3DTRANSFORMSTATE_WORLD, &World);
 	}
+
+	InitCommonStates();
 }
 
-void HWD3DGame_DX2::DeinitDevice()
+void HWD3DGame_DX5::DeinitDevice()
 {
-	auto SafeDeleteMatrix = [this](auto& m) -> void
-	{
-		if (m_D3DDevice)
-		{
-			m_D3DDevice->DeleteMatrix(m);
-			m = 0;
-		}
-
-	};
-
 	HWD3D_SafeRelease(m_BgMaterial);
 	m_BgMaterialHandle = 0;
 	HWD3D_SafeRelease(m_Viewport);
-
-	SafeDeleteMatrix(m_MatrixWorld);
-	SafeDeleteMatrix(m_MatrixView);
-	SafeDeleteMatrix(m_MatrixProj);
-
 	HWD3D_SafeRelease(m_D3DDevice);
 	HWD3D_SafeRelease(m_ZBuffer);
 	HWD3D_SafeRelease(m_BackBuffer);
@@ -286,7 +270,7 @@ void HWD3DGame_DX2::DeinitDevice()
 	HWD3D_SafeRelease(m_DDraw);
 }
 
-void HWD3DGame_DX2::ClearViewport()
+void HWD3DGame_DX5::ClearViewport()
 {
 	if (m_Viewport)
 	{
@@ -298,7 +282,7 @@ void HWD3DGame_DX2::ClearViewport()
 	}
 }
 
-bool HWD3DGame_DX2::BeginDraw()
+bool HWD3DGame_DX5::BeginDraw()
 {
 	if (m_D3DDevice)
 	{
@@ -311,24 +295,16 @@ bool HWD3DGame_DX2::BeginDraw()
 	return false;
 }
 
-void HWD3DGame_DX2::EndDraw()
+void HWD3DGame_DX5::EndDraw()
 {
 	if (m_D3DDevice)
 	{
 		const HRESULT EndSceneRes = m_D3DDevice->EndScene();
 		assert(SUCCEEDED(EndSceneRes));
-
-		// Can use the following to obtain the dirty rectangle, but to keep things simple we
-		// blit the whole back buffer:
-		// 
-		// D3DEXECUTEDATA ExecData = {};
-		// ExecData.dwSize = sizeof(ExecData);
-		// const HRESULT GetExecDataRes = m_ExecBuffer->GetExecuteData(&ExecData);
-		// assert(SUCCEEDED(GetExecDataRes));
 	}
 }
 
-void HWD3DGame_DX2::Present()
+void HWD3DGame_DX5::Present()
 {
 	if (m_DDraw && m_BackBuffer)
 	{
@@ -359,91 +335,26 @@ void HWD3DGame_DX2::Present()
 	}
 }
 
-void HWD3DGame_DX2::SetWorldMatrix(const hwd3d_matrix& InMatrix)
+void HWD3DGame_DX5::SetWorldMatrix(const hwd3d_matrix& InMatrix)
 {
 	if (m_D3DDevice)
 	{
 		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
-		m_D3DDevice->SetMatrix(m_MatrixWorld, &Mat);
+		m_D3DDevice->MultiplyTransform(D3DTRANSFORMSTATE_WORLD, &Mat);
 	}
 }
 
-void HWD3DGame_DX2::InitCommonStates()
+void HWD3DGame_DX5::InitCommonStates()
 {
 	if (!m_D3D || !m_D3DDevice)
 	{
 		return;
 	}
-
-	assert(!m_MatrixProj && !m_MatrixView && !m_MatrixWorld);
-
-	// WVP Matrices
-	{
-		m_D3DDevice->CreateMatrix(&m_MatrixProj);
-		m_D3DDevice->CreateMatrix(&m_MatrixView);
-		m_D3DDevice->CreateMatrix(&m_MatrixWorld);
-	}
-
-	// This is a one off so we don't keep any pointers.
-
-	D3DEXECUTEBUFFERDESC ExecBufferDesc = { };
-	ExecBufferDesc.dwSize = sizeof(ExecBufferDesc);
-	ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
-	static const int NUM_INSTR = 2;
-	static const int NUM_RENDER_STATES = 3;
-	ExecBufferDesc.dwBufferSize = sizeof(D3DINSTRUCTION)*NUM_INSTR + sizeof(D3DSTATE)*NUM_RENDER_STATES;
-	IDirect3DExecuteBuffer* ExecBuffer = nullptr;
-	const HRESULT CreateExecBufferRes = m_D3DDevice->CreateExecuteBuffer(&ExecBufferDesc, &ExecBuffer, nullptr);
-	if (FAILED(CreateExecBufferRes) || !ExecBuffer)
-	{
-		return;
-	}
-
-	if (SUCCEEDED(ExecBuffer->Lock(&ExecBufferDesc)))
-	{
-		memset(ExecBufferDesc.lpData, 0, ExecBufferDesc.dwBufferSize);
-
-		LPVOID lpBufStart = ExecBufferDesc.lpData;
-		LPVOID lpPointer = lpBufStart;
-		LPVOID lpInsStart = lpPointer;
-
-		// Transform setting could be handled by a one off command buffer, but to keep things simple we do it all here.
-		OP_STATE_TRANSFORM(3, lpPointer);
-		STATE_DATA(D3DTRANSFORMSTATE_PROJECTION, GetProjMatrixHandle(), lpPointer);
-		STATE_DATA(D3DTRANSFORMSTATE_VIEW, GetViewMatrixHandle(), lpPointer);
-		STATE_DATA(D3DTRANSFORMSTATE_WORLD, GetWorldMatrixHandle(), lpPointer);
-		OP_EXIT(lpPointer);
-
-		const HRESULT UnlockRes = ExecBuffer->Unlock();
-		if (FAILED(UnlockRes))
-		{
-			HWD3D_SafeRelease(ExecBuffer);
-			return;
-		}
-
-		D3DEXECUTEDATA ExecData = {};
-		ExecData.dwSize = sizeof(ExecData);
-		ExecData.dwInstructionOffset = (ULONG)((char*)lpInsStart - (char*)lpBufStart);
-		ExecData.dwInstructionLength = (ULONG)((char*)lpPointer - (char*)lpInsStart);
-		ExecData.dwVertexCount = 0;
-		const HRESULT SetDataRes = ExecBuffer->SetExecuteData(&ExecData);
-		if (FAILED(SetDataRes))
-		{
-			HWD3D_SafeRelease(ExecBuffer);
-			return;
-		}
-
-		m_D3DDevice->BeginScene();
-		m_D3DDevice->Execute(ExecBuffer, m_Viewport, D3DEXECUTE_CLIPPED);
-		m_D3DDevice->EndScene();
-	}
-
-	HWD3D_SafeRelease(ExecBuffer);
 }
 
-HRESULT FAR PASCAL HWD3DGame_DX2::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context)
+HRESULT FAR PASCAL HWD3DGame_DX5::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context)
 {
-	HWD3DGame_DX2* _this = reinterpret_cast<HWD3DGame_DX2*>(Context);
+	HWD3DGame_DX5* _this = reinterpret_cast<HWD3DGame_DX5*>(Context);
 
 	D3DDEVICEDESC d1 = *DevDesc1;
 	D3DDEVICEDESC d2 = *DevDesc2;

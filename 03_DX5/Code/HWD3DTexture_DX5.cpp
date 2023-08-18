@@ -6,7 +6,7 @@
 
 HWD3DTexture* HWD3DTexture::CreateTexture(class HWD3DGame* InGame, const char* InFilename)
 {
-	HWD3DTexture_DX2* Out = new HWD3DTexture_DX2(dynamic_cast<HWD3DGame_DX2*>(InGame));
+	HWD3DTexture_DX5* Out = new HWD3DTexture_DX5(dynamic_cast<HWD3DGame_DX5*>(InGame));
 	if (Out)
 	{
 		Out->LoadTextureFile(InFilename);
@@ -16,22 +16,23 @@ HWD3DTexture* HWD3DTexture::CreateTexture(class HWD3DGame* InGame, const char* I
 	return Out;
 }
 
-HWD3DTexture_DX2::HWD3DTexture_DX2(class HWD3DGame_DX2* InGame)
+HWD3DTexture_DX5::HWD3DTexture_DX5(class HWD3DGame_DX5* InGame)
 	: m_Game(InGame)
 {
 
 }
 
-HWD3DTexture_DX2::~HWD3DTexture_DX2()
+HWD3DTexture_DX5::~HWD3DTexture_DX5()
 {
 	HWD3D_SafeRelease(m_Texture);
 	HWD3D_SafeRelease(m_Surface);
 }
 
-void HWD3DTexture_DX2::InitTexture()
+void HWD3DTexture_DX5::InitTexture()
 {
-	IDirectDraw* DDraw = m_Game ? m_Game->GetDirectDraw() : nullptr;
-	IDirect3DDevice* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+#if 0
+	IDirectDraw2* DDraw = m_Game ? m_Game->GetDirectDraw() : nullptr;
+	IDirect3DDevice2* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!DDraw || !Dev)
 	{
@@ -158,13 +159,16 @@ void HWD3DTexture_DX2::InitTexture()
 			return;
 		}
 	}
+#endif
 }
 
-void HWD3DTexture_DX2::SetTexture()
+void HWD3DTexture_DX5::SetTexture()
 {
+#if 0
 	if (m_ExecBuffer && m_Game && m_Game->GetDevice() && m_Game->GetViewport())
 	{
 		const HRESULT ExecRes = m_Game->GetDevice()->Execute(m_ExecBuffer, m_Game->GetViewport(), D3DEXECUTE_CLIPPED);
 		assert(SUCCEEDED(ExecRes));
 	}
+#endif
 }

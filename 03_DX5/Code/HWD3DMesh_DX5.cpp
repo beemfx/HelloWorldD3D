@@ -6,32 +6,35 @@
 
 HWD3DMesh* HWD3DMesh::CreateMesh(class HWD3DGame* InGame, const char* InFilename)
 {
-	return new HWD3DMesh_DX2(dynamic_cast<HWD3DGame_DX2*>(InGame), InFilename);
+	return new HWD3DMesh_DX5(dynamic_cast<HWD3DGame_DX5*>(InGame), InFilename);
 }
 
-void HWD3DMesh_DX2::Draw()
+void HWD3DMesh_DX5::Draw()
 {
+#if 0
 	if (m_ExecBuffer && m_Game && m_Game->GetDevice() && m_Game->GetViewport())
 	{
 		const HRESULT ExecRes = m_Game->GetDevice()->Execute(m_ExecBuffer, m_Game->GetViewport(), D3DEXECUTE_CLIPPED);
 		assert(SUCCEEDED(ExecRes));
 	}
+#endif
 }
 
-HWD3DMesh_DX2::HWD3DMesh_DX2(class HWD3DGame_DX2* InGame, const char* InFilename)
+HWD3DMesh_DX5::HWD3DMesh_DX5(class HWD3DGame_DX5* InGame, const char* InFilename)
 	: m_Game(InGame)
 {
 	LoadMeshFile(InFilename);
 	CreateExecBuffer();
 }
 
-HWD3DMesh_DX2::~HWD3DMesh_DX2()
+HWD3DMesh_DX5::~HWD3DMesh_DX5()
 {
 	HWD3D_SafeRelease(m_ExecBuffer);
 }
 
-bool HWD3DMesh_DX2::CreateExecBuffer()
+bool HWD3DMesh_DX5::CreateExecBuffer()
 {
+#if 0
 	if (!m_Game || !m_Game->GetDevice())
 	{
 		return false;
@@ -115,6 +118,6 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 	{
 		return false;
 	}
-
+#endif
 	return true;
 }

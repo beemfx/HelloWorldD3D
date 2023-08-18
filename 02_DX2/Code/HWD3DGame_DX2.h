@@ -25,7 +25,6 @@ private:
 	D3DMATRIXHANDLE m_MatrixProj = 0;
 	D3DMATRIXHANDLE m_MatrixView = 0;
 	D3DMATRIXHANDLE m_MatrixWorld = 0;
-	D3DTEXTUREHANDLE m_Texture0 = 0;
 
 	struct d3dDeviceData
 	{
@@ -43,7 +42,6 @@ public:
 	const D3DMATRIXHANDLE& GetProjMatrixHandle() const { return m_MatrixProj; }
 	const D3DMATRIXHANDLE& GetViewMatrixHandle() const { return m_MatrixView; }
 	const D3DMATRIXHANDLE& GetWorldMatrixHandle() const { return m_MatrixWorld; }
-	const D3DTEXTUREHANDLE& GetTextureHandle() const { return m_Texture0; }
 
 private:
 
