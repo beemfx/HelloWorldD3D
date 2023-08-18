@@ -86,6 +86,7 @@ hwd3d_matrix HWD3DMatrix_BuildTranslation(const hwd3d_vec3& V);
 hwd3d_matrix HWD3DMatrix_BuildRotationX(float A);
 hwd3d_matrix HWD3DMatrix_BuildRotationY(float A);
 hwd3d_matrix HWD3DMatrix_BuildRotationZ(float A);
+hwd3d_matrix HWD3DMatrix_BuildScale(const hwd3d_vec3& V);
 
 struct hwd3d_vertex
 {

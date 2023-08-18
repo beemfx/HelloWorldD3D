@@ -238,3 +238,15 @@ hwd3d_matrix HWD3DMatrix_BuildRotationZ(float A)
 	};
 	return M;
 }
+
+hwd3d_matrix HWD3DMatrix_BuildScale(const hwd3d_vec3& V)
+{
+	const hwd3d_matrix M =
+	{
+		V.x, 0.f, 0.f, 0.f,
+		0.f, V.y, 0.f, 0.f,
+		0.f, 0.f, V.z, 0.f,
+		0.f, 0.f, 0.f, 1.f,
+	};
+	return M;
+}

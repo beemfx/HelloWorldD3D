@@ -51,6 +51,8 @@ void HWD3DGame::Update(float DeltaTime)
 
 	// Translate down a bit so the teapot appears centered.
 	m_Teapot.WorldMatrix = HWD3DMatrix_Multiply(HWD3DMatrix_BuildTranslation(hwd3d_vec3(0.f, -5.f, 0.f) ), HWD3DMatrix_BuildRotationY((m_MeshRotationTime/m_MeshRotationDuration) * 2.f * HWD3D_PI_CONST));
+	
+	m_Cube.WorldMatrix = HWD3DMatrix_Multiply(HWD3DMatrix_BuildScale(hwd3d_vec3(15.f,15.f,15.f) ), HWD3DMatrix_BuildTranslation(hwd3d_vec3(-10.f, 0.f , 0.f)));
 }
 
 void HWD3DGame::DrawScene()
