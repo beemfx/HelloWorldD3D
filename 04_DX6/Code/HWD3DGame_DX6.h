@@ -19,9 +19,6 @@ private:
 	IDirect3DDevice3* m_D3DDevice = nullptr;
 	IDirect3DViewport3* m_Viewport = nullptr;
 
-	IDirect3DMaterial3* m_BgMaterial = nullptr;
-	D3DMATERIALHANDLE m_BgMaterialHandle = 0;
-
 	struct d3dDeviceData
 	{
 		std::string Name;
@@ -50,4 +47,5 @@ private:
 	void InitCommonStates();
 
 	static HRESULT FAR PASCAL D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context);
+	static HRESULT WINAPI D3DCb_EnumZBufferFormat( DDPIXELFORMAT* pddpf, VOID* pddpfDesired );
 };

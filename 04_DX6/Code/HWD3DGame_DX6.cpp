@@ -110,37 +110,6 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 		}
 	}
 
-	// Z Buffer
-	if (0)
-	{
-		DDSURFACEDESC2 ZbSd = {};
-		ZbSd.dwSize = sizeof(ZbSd);
-		ZbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-		ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
-		ZbSd.dwWidth = ScreenWidth;
-		ZbSd.dwHeight = ScreenHeight;
-		ZbSd.dwMipMapCount = 1;
-
-		DDPIXELFORMAT& Pxf = ZbSd.ddpfPixelFormat;
-		Pxf.dwSize = sizeof(Pxf);
-		Pxf.dwFlags = DDPF_ZBUFFER;
-		Pxf.dwZBufferBitDepth = 24;
-
-		const HRESULT CreateZbRes = m_DDraw->CreateSurface(&ZbSd, &m_ZBuffer, 0);
-		if (FAILED(CreateZbRes) || !m_ZBuffer)
-		{
-			Deinit();
-			return;
-		}
-
-		const HRESULT AddZBufferRes = m_BackBuffer->AddAttachedSurface(m_ZBuffer);
-		if (FAILED(AddZBufferRes))
-		{
-			Deinit();
-			return;
-		}
-	}
-
 	// Get device from back surface
 	{
 		D3DFINDDEVICERESULT FindDev = {};
@@ -154,6 +123,37 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 		{
 			Deinit();
 			return;
+		}
+
+		// Z Buffer (Should be attached to back buffer before device is created.)
+		{
+			DDPIXELFORMAT ZBufferFormat = { };
+			const HRESULT EnumZBufFormats = m_D3D->EnumZBufferFormats(FindDev.guid, D3DCb_EnumZBufferFormat, reinterpret_cast<VOID*>(&ZBufferFormat) );
+
+			DDSURFACEDESC2 ZbSd = {};
+			ZbSd.dwSize = sizeof(ZbSd);
+			ZbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
+			ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
+			ZbSd.dwWidth = ScreenWidth;
+			ZbSd.dwHeight = ScreenHeight;
+			ZbSd.dwMipMapCount = 1;
+
+			DDPIXELFORMAT& Pxf = ZbSd.ddpfPixelFormat;
+			Pxf = ZBufferFormat;
+
+			const HRESULT CreateZbRes = m_DDraw->CreateSurface(&ZbSd, &m_ZBuffer, 0);
+			if (FAILED(CreateZbRes) || !m_ZBuffer)
+			{
+				Deinit();
+				return;
+			}
+
+			const HRESULT AddZBufferRes = m_BackBuffer->AddAttachedSurface(m_ZBuffer);
+			if (FAILED(AddZBufferRes))
+			{
+				Deinit();
+				return;
+			}
 		}
 
 		const HRESULT CreateDevRes = m_D3D->CreateDevice(FindDev.guid, m_BackBuffer, &m_D3DDevice, NULL);
@@ -208,50 +208,6 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 		}
 	}
 
-	// Background Material
-	if (1)
-	{
-		const HRESULT CmRes = m_D3D->CreateMaterial(&m_BgMaterial, nullptr);
-		if (FAILED(CmRes) || !m_BgMaterial)
-		{
-			Deinit();
-			return;
-		}
-
-		D3DMATERIAL MaterialDesc = {};
-		MaterialDesc.dwSize = sizeof(MaterialDesc);
-		// Bluish color
-		MaterialDesc.diffuse.r = .4f;
-		MaterialDesc.diffuse.g = .4f;
-		MaterialDesc.diffuse.b = 1.f;
-		MaterialDesc.diffuse.a = 1.f;
-		MaterialDesc.ambient.r = 1.f;
-		MaterialDesc.ambient.g = 1.f;
-		MaterialDesc.ambient.b = 1.f;
-		MaterialDesc.ambient.a = 1.f;
-		MaterialDesc.specular.r = 1.f;
-		MaterialDesc.specular.g = 1.f;
-		MaterialDesc.specular.b = 1.f;
-		MaterialDesc.specular.a = 1.f;
-		MaterialDesc.power = 1.f;
-		MaterialDesc.dwRampSize = 1;
-		MaterialDesc.hTexture = 0;
-		const HRESULT SmRes = m_BgMaterial->SetMaterial(&MaterialDesc);
-		if (FAILED(SmRes))
-		{
-			Deinit();
-			return;
-		}
-		const HRESULT GhRes = m_BgMaterial->GetHandle(m_D3DDevice, &m_BgMaterialHandle);
-		if (FAILED(GhRes) || m_BgMaterialHandle == 0)
-		{
-			Deinit();
-			return;
-		}
-
-		m_Viewport->SetBackground(m_BgMaterialHandle);
-	}
-
 	// Set WVP Matrices
 	{
 		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(ScreenWidth)/ScreenHeight), .1f , 1000.f );
@@ -271,8 +227,6 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 
 void HWD3DGame_DX6::DeinitDevice()
 {
-	HWD3D_SafeRelease(m_BgMaterial);
-	m_BgMaterialHandle = 0;
 	HWD3D_SafeRelease(m_Viewport);
 	HWD3D_SafeRelease(m_D3DDevice);
 	HWD3D_SafeRelease(m_ZBuffer);
@@ -290,9 +244,8 @@ void HWD3DGame_DX6::ClearViewport()
 		Vp.dwSize = sizeof(Vp);
 		m_Viewport->GetViewport2(&Vp);
 		D3DRECT ClearRect = { 0, 0, static_cast<LONG>(Vp.dwWidth), static_cast<LONG>(Vp.dwHeight) };
-		m_Viewport->Clear(1, &ClearRect, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL);
-		// const HRESULT Res = m_Viewport->Clear2(1, &ClearRect, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER|D3DCLEAR_STENCIL, RGBA_SETALPHA(RGB_MAKE(102, 102, 255), 255), 1.f, 0);
-		// assert(SUCCEEDED(Res));
+		const HRESULT Res = m_Viewport->Clear2(1, &ClearRect, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, RGBA_SETALPHA(RGB_MAKE(102, 102, 255), 255), 1.f, 0);
+		assert(SUCCEEDED(Res));
 	}
 }
 
@@ -387,4 +340,15 @@ HRESULT FAR PASCAL HWD3DGame_DX6::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDevic
 	}
 
 	return S_FALSE;
+}
+
+HRESULT WINAPI HWD3DGame_DX6::D3DCb_EnumZBufferFormat(DDPIXELFORMAT* pddpf, VOID* pddpfDesired)
+{
+	if( pddpf->dwFlags == (DDPF_ZBUFFER) )
+	{
+		*reinterpret_cast<DDPIXELFORMAT*>(pddpfDesired) = *pddpf;
+		return D3DENUMRET_CANCEL;
+	}
+
+	return D3DENUMRET_OK;
 }
