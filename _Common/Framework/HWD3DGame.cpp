@@ -49,7 +49,28 @@ void HWD3DGame::Update(float DeltaTime)
 	}
 
 	m_Teapot.UserTranslation = hwd3d_vec3(8.f,-5.f,0.f);
-	m_Cube.UserTranslation = hwd3d_vec3(-8.f,0.f,0.f);
+
+	const float MOVE_SPEED = 50.F;
+
+	if ((GetAsyncKeyState(VK_RIGHT)&(~1)) != 0)
+	{
+		m_Cube.UserTranslation.x += DeltaTime * MOVE_SPEED;
+	}
+
+	if ((GetAsyncKeyState(VK_LEFT)&(~1)) != 0)
+	{
+		m_Cube.UserTranslation.x -= DeltaTime * MOVE_SPEED;
+	}
+
+	if ((GetAsyncKeyState(VK_UP)&(~1)) != 0)
+	{
+		m_Cube.UserTranslation.y += DeltaTime * MOVE_SPEED;
+	}
+
+	if ((GetAsyncKeyState(VK_DOWN)&(~1)) != 0)
+	{
+		m_Cube.UserTranslation.y -= DeltaTime * MOVE_SPEED;
+	}
 
 	// Teapot: Apply rotation, and translate down a bit so the teapot appears centered.
 	m_Teapot.WorldMatrix = HWD3DMatrix_Multiply(HWD3DMatrix_BuildRotationY((m_MeshRotationTime/m_MeshRotationDuration) * 2.f * HWD3D_PI_CONST), HWD3DMatrix_BuildTranslation(m_Teapot.UserTranslation));
