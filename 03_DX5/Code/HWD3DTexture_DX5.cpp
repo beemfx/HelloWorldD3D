@@ -30,7 +30,6 @@ HWD3DTexture_DX5::~HWD3DTexture_DX5()
 
 void HWD3DTexture_DX5::InitTexture()
 {
-#if 0
 	IDirectDraw2* DDraw = m_Game ? m_Game->GetDirectDraw() : nullptr;
 	IDirect3DDevice2* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
@@ -97,7 +96,7 @@ void HWD3DTexture_DX5::InitTexture()
 		assert(SUCCEEDED(UnlockSurfRes));
 	}
 
-	const HRESULT QueryTextureRes = m_Surface->QueryInterface(IID_IDirect3DTexture, reinterpret_cast<LPVOID*>(&m_Texture));
+	const HRESULT QueryTextureRes = m_Surface->QueryInterface(IID_IDirect3DTexture2, reinterpret_cast<LPVOID*>(&m_Texture));
 	if (FAILED(QueryTextureRes) || !m_Texture)
 	{
 		return;
@@ -108,67 +107,17 @@ void HWD3DTexture_DX5::InitTexture()
 	{
 		return;
 	}
-
-	// Create Exec Buffer
-	{
-		m_ExecBufferDesc.dwSize = sizeof(m_ExecBufferDesc);
-		m_ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
-		static const int NUM_INSTR = 2;
-		static const int NUM_RENDER_STATES = 3;
-		m_ExecBufferDesc.dwBufferSize = sizeof(D3DINSTRUCTION)*NUM_INSTR + sizeof(D3DSTATE)*NUM_RENDER_STATES;
-		const HRESULT CreateExecBufferRes = Dev->CreateExecuteBuffer(&m_ExecBufferDesc, &m_ExecBuffer, nullptr);
-		if (FAILED(CreateExecBufferRes) || !m_ExecBuffer)
-		{
-			return;
-		}
-
-		if (SUCCEEDED(m_ExecBuffer->Lock(&m_ExecBufferDesc)))
-		{
-			memset(m_ExecBufferDesc.lpData, 0, m_ExecBufferDesc.dwBufferSize);
-
-			LPVOID lpBufStart = m_ExecBufferDesc.lpData;
-			LPVOID lpPointer = lpBufStart;
-			LPVOID lpInsStart = lpPointer;
-
-			OP_STATE_RENDER(NUM_RENDER_STATES, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREHANDLE, m_TextureHandle, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_WRAPU, FALSE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_WRAPV, FALSE, lpPointer);
-
-			OP_EXIT(lpPointer);
-
-			const HRESULT UnlockRes = m_ExecBuffer->Unlock();
-			if (FAILED(UnlockRes))
-			{
-				return;
-			}
-
-			D3DEXECUTEDATA ExecData = {};
-			ExecData.dwSize = sizeof(ExecData);
-			ExecData.dwInstructionOffset = (ULONG)((char*)lpInsStart - (char*)lpBufStart);
-			ExecData.dwInstructionLength = (ULONG)((char*)lpPointer - (char*)lpInsStart);
-			ExecData.dwVertexCount = 0;
-			const HRESULT SetDataRes = m_ExecBuffer->SetExecuteData(&ExecData);
-			if (FAILED(SetDataRes))
-			{
-				return;
-			}
-		}
-		else
-		{
-			return;
-		}
-	}
-#endif
 }
 
 void HWD3DTexture_DX5::SetTexture()
 {
-#if 0
-	if (m_ExecBuffer && m_Game && m_Game->GetDevice() && m_Game->GetViewport())
+	if (m_Game && m_Game->GetDevice())
 	{
-		const HRESULT ExecRes = m_Game->GetDevice()->Execute(m_ExecBuffer, m_Game->GetViewport(), D3DEXECUTE_CLIPPED);
-		assert(SUCCEEDED(ExecRes));
+		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, m_TextureHandle);
+		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
+		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
+		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_WRAPU, FALSE);
+		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_WRAPV, FALSE);
 	}
-#endif
 }

@@ -9,7 +9,7 @@ class HWD3DTexture_DX5 : public HWD3DTexture
 {
 protected:
 	class HWD3DGame_DX5*const m_Game = nullptr;
-	IDirectDrawSurface3* m_Surface = nullptr;
+	IDirectDrawSurface* m_Surface = nullptr;
 	IDirect3DTexture2* m_Texture = nullptr;
 	D3DTEXTUREHANDLE m_TextureHandle = 0;
 	D3DEXECUTEBUFFERDESC m_ExecBufferDesc = { };
