@@ -2,7 +2,6 @@
 
 #include "HWD3DTexture_DX5.h"
 #include "HWD3DGame_DX5.h"
-#include "d3dmacs.h"
 
 HWD3DTexture* HWD3DTexture::CreateTexture(class HWD3DGame* InGame, const char* InFilename)
 {

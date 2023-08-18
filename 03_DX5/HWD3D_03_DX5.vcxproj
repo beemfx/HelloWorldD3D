@@ -36,7 +36,6 @@
     <ClInclude Include="..\_Common\Framework\HWD3DTypes.h" />
     <ClInclude Include="..\_Common\Res\resource.h" />
     <ClInclude Include="..\_Common\Res\targetver.h" />
-    <ClInclude Include="Code\d3dmacs.h" />
     <ClInclude Include="Code\HWD3DGame_DX5.h" />
     <ClInclude Include="Code\HWD3DMesh_DX5.h" />
     <ClInclude Include="Code\HWD3DTexture_DX5.h" />

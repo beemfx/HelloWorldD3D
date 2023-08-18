@@ -2,7 +2,6 @@
 
 #include "HWD3DMesh_DX5.h"
 #include "HWD3DGame_DX5.h"
-#include "d3dmacs.h"
 
 HWD3DMesh* HWD3DMesh::CreateMesh(class HWD3DGame* InGame, const char* InFilename)
 {

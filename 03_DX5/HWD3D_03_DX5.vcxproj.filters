@@ -75,9 +75,6 @@
     <ClInclude Include="Code\HWD3DTexture_DX5.h">
       <Filter>Code</Filter>
     </ClInclude>
-    <ClInclude Include="Code\d3dmacs.h">
-      <Filter>Code</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\_Common\Res\D3D_3.ico">

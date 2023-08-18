@@ -1,7 +1,6 @@
 // D3D Hello World
 
 #include "HWD3DGame_DX5.h"
-#include "d3dmacs.h"
 
 #pragma comment(lib, "ddraw.lib")
 #pragma comment(lib, "dxguid.lib")
