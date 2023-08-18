@@ -11,13 +11,16 @@ HWD3DMesh* HWD3DMesh::CreateMesh(class HWD3DGame* InGame, const char* InFilename
 
 void HWD3DMesh_DX5::Draw()
 {
-#if 0
-	if (m_ExecBuffer && m_Game && m_Game->GetDevice() && m_Game->GetViewport())
+	if (m_Game && m_Game->GetDevice())
 	{
-		const HRESULT ExecRes = m_Game->GetDevice()->Execute(m_ExecBuffer, m_Game->GetViewport(), D3DEXECUTE_CLIPPED);
-		assert(SUCCEEDED(ExecRes));
+		/*
+		const DWORD VertAddr = reinterpret_cast<unsigned long>(m_D3DVertices.data());
+		assert( (VertAddr%2) == 0 );
+		const DWORD IdxAddr = reinterpret_cast<DWORD>(m_D3DIndexes.data());
+		assert( (IdxAddr%2) == 0 );
+		*/
+		m_Game->GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, D3DVT_VERTEX, m_D3DVertices.data(), m_D3DVertices.size(), m_D3DIndexes.data(), m_D3DIndexes.size(), D3DDP_WAIT); 
 	}
-#endif
 }
 
 HWD3DMesh_DX5::HWD3DMesh_DX5(class HWD3DGame_DX5* InGame, const char* InFilename)
@@ -29,95 +32,26 @@ HWD3DMesh_DX5::HWD3DMesh_DX5(class HWD3DGame_DX5* InGame, const char* InFilename
 
 HWD3DMesh_DX5::~HWD3DMesh_DX5()
 {
-	HWD3D_SafeRelease(m_ExecBuffer);
+	
 }
 
 bool HWD3DMesh_DX5::CreateExecBuffer()
 {
-#if 0
-	if (!m_Game || !m_Game->GetDevice())
+	m_D3DIndexes.resize(0);
+	m_D3DVertices.resize(0);
+
+	for (const auto& V : m_Vertices)
 	{
-		return false;
+		D3DVERTEX NewVert = *reinterpret_cast<const D3DVERTEX*>(&V);
+		m_D3DVertices.push_back(NewVert);
 	}
 
-	m_ExecBufferDesc.dwSize = sizeof(m_ExecBufferDesc);
-	m_ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
-	static const int NUM_INSTR = 4;
-	static const int NUM_RENDER_STATES = 0;
-	m_ExecBufferDesc.dwBufferSize 
-		= sizeof(D3DVERTEX)*m_Vertices.size()
-		+ sizeof(D3DINSTRUCTION)*NUM_INSTR 
-		+ sizeof(D3DSTATE)*NUM_RENDER_STATES 
-		+ sizeof(D3DPROCESSVERTICES)
-		+ sizeof(D3DTRIANGLE)*m_Triangles.size();
-
-	const HRESULT CreateExecBufferRes = m_Game->GetDevice()->CreateExecuteBuffer(&m_ExecBufferDesc, &m_ExecBuffer, nullptr);
-	if (FAILED(CreateExecBufferRes) || !m_ExecBuffer)
+	for (const auto& T : m_Triangles)
 	{
-		return false;
+		m_D3DIndexes.push_back(T.v1);
+		m_D3DIndexes.push_back(T.v2);
+		m_D3DIndexes.push_back(T.v3);
 	}
 
-	if (SUCCEEDED(m_ExecBuffer->Lock(&m_ExecBufferDesc)))
-	{
-		memset(m_ExecBufferDesc.lpData, 0, m_ExecBufferDesc.dwBufferSize);
-
-		LPVOID lpBufStart = m_ExecBufferDesc.lpData;
-		LPVOID lpPointer = lpBufStart;
-
-		VERTEX_DATA(m_Vertices.data(), m_Vertices.size(), lpPointer); // Out data is directly compatible with D3DVERTEX.
-
-		LPVOID lpInsStart = lpPointer;
-
-		// If we actually wanted to obtain the status we might want this:
-		// OP_SET_STATUS(D3DSETSTATUS_ALL, D3DSTATUS_DEFAULT, 2048, 2048, 0, 0, lpPointer);
-
-		OP_PROCESS_VERTICES(1, lpPointer);
-		PROCESSVERTICES_DATA(D3DPROCESSVERTICES_TRANSFORMLIGHT, 0, m_Vertices.size(), lpPointer);
-
-		// Make sure that the triangle data (not OP) will be QWORD aligned
-		if (QWORD_ALIGNED(lpPointer))
-		{
-			OP_NOP(lpPointer);
-		}
-
-		OP_TRIANGLE_LIST(static_cast<WORD>(m_Triangles.size()), lpPointer);
-		for (int i = 0; i < static_cast<int>(m_Triangles.size()); i++)
-		{
-			((LPD3DTRIANGLE)lpPointer)->v1 = m_Triangles[i].v1;
-			((LPD3DTRIANGLE)lpPointer)->v2 = m_Triangles[i].v2;
-			((LPD3DTRIANGLE)lpPointer)->v3 = m_Triangles[i].v3;
-			((LPD3DTRIANGLE)lpPointer)->wFlags = D3DTRIFLAG_EDGEENABLETRIANGLE;
-
-			lpPointer = (void*)(((LPD3DTRIANGLE)lpPointer) + 1);
-		}
-
-		OP_EXIT(lpPointer);
-
-		const ULONG SizeWritten = (ULONG)((char*)lpPointer - (char*)lpBufStart);
-		// Do a sanity check to make sure our math was correct buffer is the right size ( the min subtracts sizeof(D3DINSTRUCTION) because we might not have written the NOP)
-		assert(((m_ExecBufferDesc.dwBufferSize - sizeof(D3DINSTRUCTION)) <= SizeWritten) && (SizeWritten <= m_ExecBufferDesc.dwBufferSize));
-
-		const HRESULT UnlockRes = m_ExecBuffer->Unlock();
-		if (FAILED(UnlockRes))
-		{
-			return false;
-		}
-
-		D3DEXECUTEDATA ExecData = {};
-		ExecData.dwSize = sizeof(ExecData);
-		ExecData.dwInstructionOffset = (ULONG)((char*)lpInsStart - (char*)lpBufStart);
-		ExecData.dwInstructionLength = (ULONG)((char*)lpPointer - (char*)lpInsStart);
-		ExecData.dwVertexCount = m_Vertices.size();
-		const HRESULT SetDataRes = m_ExecBuffer->SetExecuteData(&ExecData);
-		if (FAILED(SetDataRes))
-		{
-			return false;
-		}
-	}
-	else
-	{
-		return false;
-	}
-#endif
 	return true;
 }

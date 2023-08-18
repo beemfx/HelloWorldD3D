@@ -9,8 +9,8 @@ class HWD3DMesh_DX5 : public HWD3DMesh
 {
 private:
 	class HWD3DGame_DX5*const m_Game = nullptr;
-	D3DEXECUTEBUFFERDESC m_ExecBufferDesc = { };
-	IDirect3DExecuteBuffer* m_ExecBuffer = nullptr;
+	std::vector<D3DVERTEX> m_D3DVertices;
+	std::vector<WORD> m_D3DIndexes;
 
 public:
 

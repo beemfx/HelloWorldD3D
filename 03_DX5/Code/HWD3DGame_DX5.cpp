@@ -178,18 +178,30 @@ void HWD3DGame_DX5::InitDevice(HWND TargetWnd)
 			return;
 		}
 
-		// TODO: Change to D3DVIEWPORT2
-		D3DVIEWPORT Vp = {};
+		const HRESULT ScvpRes = m_D3DDevice->SetCurrentViewport(m_Viewport);
+		if (FAILED(ScvpRes))
+		{
+			Deinit();
+			return;
+		}
+
+		const float Aspect = static_cast<float>(ScreenWidth)/ScreenHeight;
+
+		// Update Viewport
+		D3DVIEWPORT2 Vp = { };
 		Vp.dwSize = sizeof(Vp);
-		Vp.dwX = Vp.dwY = 0;
+		Vp.dwX = 0UL;
+		Vp.dwY = 0UL;
 		Vp.dwWidth = ScreenWidth;
 		Vp.dwHeight = ScreenHeight;
-		Vp.dvScaleX = Vp.dwWidth / 2.f;
-		Vp.dvScaleY = Vp.dwHeight / 2.f;
-		Vp.dvMaxX = D3DVAL(Vp.dwWidth) / D3DVAL(2.f * Vp.dvScaleX);
-		Vp.dvMaxY = D3DVAL(Vp.dwHeight) / D3DVAL(2.f * Vp.dvScaleY);
-		Vp.dvMaxZ = 1.f;
-		const HRESULT SvpRes = m_Viewport->SetViewport(&Vp);
+		Vp.dvClipX = -1.0f;
+		Vp.dvClipY = Aspect;
+		Vp.dvClipWidth = 2.0f;
+		Vp.dvClipHeight = 2.0f * Aspect;
+		Vp.dvMinZ = 0.0f;
+		Vp.dvMaxZ = 1.0f;
+		
+		const HRESULT SvpRes = m_Viewport->SetViewport2(&Vp);
 		if (FAILED(SvpRes))
 		{
 			Deinit();
@@ -249,9 +261,9 @@ void HWD3DGame_DX5::InitDevice(HWND TargetWnd)
 		D3DMATRIX View = *reinterpret_cast<const D3DMATRIX*>(&ViewMatrix);
 		D3DMATRIX World = *reinterpret_cast<const D3DMATRIX*>(&HWD3DMatrix_Ident);
 
-		m_D3DDevice->MultiplyTransform(D3DTRANSFORMSTATE_PROJECTION, &Proj);
-		m_D3DDevice->MultiplyTransform(D3DTRANSFORMSTATE_VIEW, &View);
-		m_D3DDevice->MultiplyTransform(D3DTRANSFORMSTATE_WORLD, &World);
+		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &Proj);
+		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &View);
+		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &World);
 	}
 
 	InitCommonStates();
@@ -340,7 +352,7 @@ void HWD3DGame_DX5::SetWorldMatrix(const hwd3d_matrix& InMatrix)
 	if (m_D3DDevice)
 	{
 		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
-		m_D3DDevice->MultiplyTransform(D3DTRANSFORMSTATE_WORLD, &Mat);
+		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &Mat);
 	}
 }
 
