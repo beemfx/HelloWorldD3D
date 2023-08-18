@@ -25,36 +25,15 @@ void HWD3DGame::Deinit()
 
 void HWD3DGame::CreateScene()
 {
-	// Texture
-	m_Texture = HWD3DTexture::CreateTexture(this, "../_Media/HappyFace.rgba");
-	if (!m_Texture)
-	{
-		Deinit();
-		return;
-	}
-
-	// Mesh
-	m_Mesh = HWD3DMesh::CreateMesh(this, "../_Media/teapot.hw3d");
-	if (!m_Mesh)
-	{
-		Deinit();
-		return;
-	}
+	// Teapot Mesh and Texture
+	m_Teapot.Load(*this, "../_Media/teapot.hw3d", "../_Media/HappyFace.rgba");
+	m_Cube.Load(*this, "../_Media/box.hw3d", "../_Media/HappyFace.rgba");
 }
 
 void HWD3DGame::DestroyScene()
 {
-	auto SafeRelease = [](auto*& p ) -> void
-		{
-			if (p)
-			{
-				p->Release();
-				p = nullptr;
-			}
-		};
-
-	SafeRelease(m_Mesh);
-	SafeRelease(m_Texture);
+	m_Cube.Unload();
+	m_Teapot.Unload();
 }
 
 void HWD3DGame::Update(float DeltaTime)
@@ -71,7 +50,7 @@ void HWD3DGame::Update(float DeltaTime)
 	}
 
 	// Translate down a bit so the teapot appears centered.
-	m_MeshMatrix = HWD3DMatrix_Multiply(HWD3DMatrix_BuildTranslation(hwd3d_vec3(0.f, -5.f, 0.f) ), HWD3DMatrix_BuildRotationY((m_MeshRotationTime/m_MeshRotationDuration) * 2.f * HWD3D_PI_CONST));
+	m_Teapot.WorldMatrix = HWD3DMatrix_Multiply(HWD3DMatrix_BuildTranslation(hwd3d_vec3(0.f, -5.f, 0.f) ), HWD3DMatrix_BuildRotationY((m_MeshRotationTime/m_MeshRotationDuration) * 2.f * HWD3D_PI_CONST));
 }
 
 void HWD3DGame::DrawScene()
@@ -80,15 +59,8 @@ void HWD3DGame::DrawScene()
 
 	if (BeginDraw())
 	{
-		if (m_Mesh)
-		{
-			SetWorldMatrix(m_MeshMatrix);
-			if (m_Texture)
-			{
-				m_Texture->SetTexture();
-			}
-			m_Mesh->Draw();
-		}
+		m_Teapot.Draw(*this);
+		m_Cube.Draw(*this);
 
 		EndDraw();
 	}
@@ -119,4 +91,29 @@ void HWD3DGame::Present()
 void HWD3DGame::SetWorldMatrix(const hwd3d_matrix& InMatrix)
 {
 
+}
+
+void HWD3DGame::hwd3dMeshSet::Load(HWD3DGame& InGame, const char* InMeshFile, const char* InTextureFile)
+{
+	Mesh = HWD3DMesh::CreateMesh(&InGame, InMeshFile);
+	Texture = HWD3DTexture::CreateTexture(&InGame, InTextureFile);
+}
+
+void HWD3DGame::hwd3dMeshSet::Unload()
+{
+	HWD3D_SafeRelease(Mesh);
+	HWD3D_SafeRelease(Texture);
+}
+
+void HWD3DGame::hwd3dMeshSet::Draw(HWD3DGame& InGame)
+{
+	InGame.SetWorldMatrix(WorldMatrix);
+	if (Texture)
+	{
+		Texture->SetTexture();
+	}
+	if (Mesh)
+	{
+		Mesh->Draw();
+	}
 }

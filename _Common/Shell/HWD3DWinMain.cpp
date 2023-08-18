@@ -136,7 +136,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		QueryPerformanceCounter( &FrameEndTime );
 	}
 
-	Game->Release();
+	HWD3D_SafeRelease(Game);
 
 	return 0;
 }
@@ -163,7 +163,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	{
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
-		// TODO: Add any drawing code that uses hdc here...
 		EndPaint(hWnd, &ps);
 	}
 	break;

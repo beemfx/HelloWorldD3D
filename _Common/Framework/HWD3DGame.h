@@ -14,10 +14,20 @@ private:
 	
 	int m_Frame = 0;
 
-	class HWD3DTexture* m_Texture = nullptr;
-	class HWD3DMesh* m_Mesh = nullptr;
+	struct hwd3dMeshSet
+	{
+		class HWD3DMesh* Mesh = nullptr;
+		class HWD3DTexture* Texture = nullptr;
+		hwd3d_matrix WorldMatrix = HWD3DMatrix_Ident;
 
-	hwd3d_matrix m_MeshMatrix = HWD3DMatrix_Ident;
+		void Load(HWD3DGame& InGame, const char* InMeshFile, const char* InTextureFile);
+		void Unload();
+		void Draw(HWD3DGame& InGame);
+	};
+
+	hwd3dMeshSet m_Teapot;
+	hwd3dMeshSet m_Cube;
+
 	float m_MeshRotationTime = 0.f;
 	const float m_MeshRotationDuration = 5.f;
 

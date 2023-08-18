@@ -4,6 +4,20 @@
 
 #include "HWD3DSysInclude.h"
 
+#if defined(__cplusplus)
+template<typename T>
+void HWD3D_SafeRelease(T& p )
+{
+	if (p)
+	{
+		p->Release();
+		p = nullptr;
+	}
+}
+#else
+	#define HWD3D_SafeRelease(_p) if (_p) { _p->lpVtbl->Release(_p); _p = 0; }
+#endif
+
 static const float HWD3D_PI_CONST = 3.141592654f;
 
 static float HWD3D_ToRad(float d) { return ((d) * (HWD3D_PI_CONST / 180.0f)); }

@@ -27,11 +27,7 @@ HWD3DMesh_DX2::HWD3DMesh_DX2(class HWD3DGame_DX2* InGame, const char* InFilename
 
 HWD3DMesh_DX2::~HWD3DMesh_DX2()
 {
-	if (m_ExecBuffer)
-	{
-		m_ExecBuffer->Release();
-		m_ExecBuffer = nullptr;
-	}
+	HWD3D_SafeRelease(m_ExecBuffer);
 }
 
 bool HWD3DMesh_DX2::CreateExecBuffer()

@@ -24,17 +24,8 @@ HWD3DTexture_DX2::HWD3DTexture_DX2(class HWD3DGame_DX2* InGame)
 
 HWD3DTexture_DX2::~HWD3DTexture_DX2()
 {
-	if (m_Texture)
-	{
-		m_Texture->Release();
-		m_Texture = nullptr;
-	}
-
-	if (m_Surface)
-	{
-		m_Surface->Release();
-		m_Surface = nullptr;
-	}
+	HWD3D_SafeRelease(m_Texture);
+	HWD3D_SafeRelease(m_Surface);
 }
 
 void HWD3DTexture_DX2::InitTexture()

@@ -96,8 +96,7 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 
 		Clipper->SetHWnd(0, TargetWnd);
 		m_PrimarySurface->SetClipper(Clipper);
-		Clipper->Release();
-		Clipper = nullptr;
+		HWD3D_SafeRelease(Clipper);
 	}
 
 	// Back Surface
@@ -263,15 +262,6 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 
 void HWD3DGame_DX2::DeinitDevice()
 {
-	auto SafeRelease = [](auto*& p ) -> void
-	{
-		if (p)
-		{
-			p->Release();
-			p = nullptr;
-		}
-	};
-
 	auto SafeDeleteMatrix = [this](auto& m) -> void
 	{
 		if (m_D3DDevice)
@@ -282,20 +272,20 @@ void HWD3DGame_DX2::DeinitDevice()
 
 	};
 
-	SafeRelease(m_BgMaterial);
+	HWD3D_SafeRelease(m_BgMaterial);
 	m_BgMaterialHandle = 0;
-	SafeRelease(m_Viewport);
+	HWD3D_SafeRelease(m_Viewport);
 
 	SafeDeleteMatrix(m_MatrixWorld);
 	SafeDeleteMatrix(m_MatrixView);
 	SafeDeleteMatrix(m_MatrixProj);
 
-	SafeRelease(m_D3DDevice);
-	SafeRelease(m_ZBuffer);
-	SafeRelease(m_BackBuffer);
-	SafeRelease(m_PrimarySurface);
-	SafeRelease(m_D3D);
-	SafeRelease(m_DDraw);
+	HWD3D_SafeRelease(m_D3DDevice);
+	HWD3D_SafeRelease(m_ZBuffer);
+	HWD3D_SafeRelease(m_BackBuffer);
+	HWD3D_SafeRelease(m_PrimarySurface);
+	HWD3D_SafeRelease(m_D3D);
+	HWD3D_SafeRelease(m_DDraw);
 }
 
 void HWD3DGame_DX2::ClearViewport()
@@ -429,7 +419,7 @@ void HWD3DGame_DX2::InitCommonStates()
 		const HRESULT UnlockRes = ExecBuffer->Unlock();
 		if (FAILED(UnlockRes))
 		{
-			ExecBuffer->Release();
+			HWD3D_SafeRelease(ExecBuffer);
 			return;
 		}
 
@@ -441,7 +431,7 @@ void HWD3DGame_DX2::InitCommonStates()
 		const HRESULT SetDataRes = ExecBuffer->SetExecuteData(&ExecData);
 		if (FAILED(SetDataRes))
 		{
-			ExecBuffer->Release();
+			HWD3D_SafeRelease(ExecBuffer);
 			return;
 		}
 
@@ -450,7 +440,7 @@ void HWD3DGame_DX2::InitCommonStates()
 		m_D3DDevice->EndScene();
 	}
 
-	ExecBuffer->Release();
+	HWD3D_SafeRelease(ExecBuffer);
 }
 
 HRESULT FAR PASCAL HWD3DGame_DX2::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context)
