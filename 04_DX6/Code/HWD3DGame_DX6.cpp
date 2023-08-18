@@ -7,7 +7,7 @@
 
 HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 {
-	SetWindowTextW(InMainWnd, L"Hello World D3D [DX5]");
+	SetWindowTextW(InMainWnd, L"Hello World D3D [DX6]");
 
 	HWD3DGame* Out = new HWD3DGame_DX6;
 	if (Out)
@@ -33,7 +33,7 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 		const HRESULT CciRes = DirectDrawCreate(NULL, &DDraw, NULL);
 		if (DDraw)
 		{
-			DDraw->QueryInterface(IID_IDirectDraw2, reinterpret_cast<LPVOID*>(&m_DDraw));
+			DDraw->QueryInterface(IID_IDirectDraw4, reinterpret_cast<LPVOID*>(&m_DDraw));
 			HWD3D_SafeRelease(DDraw);
 		}
 
@@ -50,7 +50,7 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 			return;
 		}
 
-		const HRESULT QueryD3DRes = m_DDraw->QueryInterface(IID_IDirect3D2, reinterpret_cast<LPVOID*>(&m_D3D));
+		const HRESULT QueryD3DRes = m_DDraw->QueryInterface(IID_IDirect3D3, reinterpret_cast<LPVOID*>(&m_D3D));
 		if (FAILED(QueryD3DRes) || !m_D3D)
 		{
 			Deinit();
@@ -67,7 +67,7 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 
 	// Primary Surface
 	{
-		DDSURFACEDESC BbSd = {};
+		DDSURFACEDESC2 BbSd = {};
 		BbSd.dwSize = sizeof(BbSd);
 		BbSd.dwFlags = DDSD_CAPS;
 		BbSd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
@@ -96,7 +96,7 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 
 	// Back Surface
 	{
-		DDSURFACEDESC BbSd = {};
+		DDSURFACEDESC2 BbSd = {};
 		BbSd.dwSize = sizeof(BbSd);
 		BbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
 		BbSd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_VIDEOMEMORY;
@@ -111,13 +111,15 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 	}
 
 	// Z Buffer
+	if (0)
 	{
-		DDSURFACEDESC ZbSd = {};
+		DDSURFACEDESC2 ZbSd = {};
 		ZbSd.dwSize = sizeof(ZbSd);
 		ZbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
 		ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
 		ZbSd.dwWidth = ScreenWidth;
 		ZbSd.dwHeight = ScreenHeight;
+		ZbSd.dwMipMapCount = 1;
 
 		DDPIXELFORMAT& Pxf = ZbSd.ddpfPixelFormat;
 		Pxf.dwSize = sizeof(Pxf);
@@ -154,7 +156,7 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 			return;
 		}
 
-		const HRESULT CreateDevRes = m_D3D->CreateDevice(FindDev.guid, m_BackBuffer, &m_D3DDevice);
+		const HRESULT CreateDevRes = m_D3D->CreateDevice(FindDev.guid, m_BackBuffer, &m_D3DDevice, NULL);
 		if (FAILED(CreateDevRes) || !m_D3DDevice)
 		{
 			Deinit();
@@ -207,6 +209,7 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 	}
 
 	// Background Material
+	if (1)
 	{
 		const HRESULT CmRes = m_D3D->CreateMaterial(&m_BgMaterial, nullptr);
 		if (FAILED(CmRes) || !m_BgMaterial)
@@ -283,11 +286,13 @@ void HWD3DGame_DX6::ClearViewport()
 {
 	if (m_Viewport)
 	{
-		D3DVIEWPORT Vp = {};
+		D3DVIEWPORT2 Vp = {};
 		Vp.dwSize = sizeof(Vp);
-		m_Viewport->GetViewport(&Vp);
+		m_Viewport->GetViewport2(&Vp);
 		D3DRECT ClearRect = { 0, 0, static_cast<LONG>(Vp.dwWidth), static_cast<LONG>(Vp.dwHeight) };
-		m_Viewport->Clear(1, &ClearRect, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);
+		m_Viewport->Clear(1, &ClearRect, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL);
+		// const HRESULT Res = m_Viewport->Clear2(1, &ClearRect, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER|D3DCLEAR_STENCIL, RGBA_SETALPHA(RGB_MAKE(102, 102, 255), 255), 1.f, 0);
+		// assert(SUCCEEDED(Res));
 	}
 }
 
@@ -317,7 +322,7 @@ void HWD3DGame_DX6::Present()
 {
 	if (m_DDraw && m_BackBuffer)
 	{
-		DDSURFACEDESC desc = {};
+		DDSURFACEDESC2 desc = {};
 		desc.dwSize = sizeof(desc);
 		desc.dwFlags = DDSD_WIDTH | DDSD_HEIGHT;
 		m_BackBuffer->GetSurfaceDesc(&desc);

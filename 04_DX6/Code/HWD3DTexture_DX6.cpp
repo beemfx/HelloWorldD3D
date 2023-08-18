@@ -29,8 +29,8 @@ HWD3DTexture_DX6::~HWD3DTexture_DX6()
 
 void HWD3DTexture_DX6::InitTexture()
 {
-	IDirectDraw2* DDraw = m_Game ? m_Game->GetDirectDraw() : nullptr;
-	IDirect3DDevice2* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	IDirectDraw4* DDraw = m_Game ? m_Game->GetDirectDraw() : nullptr;
+	IDirect3DDevice3* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!DDraw || !Dev)
 	{
@@ -42,7 +42,7 @@ void HWD3DTexture_DX6::InitTexture()
 		return;
 	}
 
-	DDSURFACEDESC SurfDesc = { };
+	DDSURFACEDESC2 SurfDesc = { };
 	SurfDesc.dwSize = sizeof(SurfDesc);
 	SurfDesc.dwFlags = DDSD_CAPS|DDSD_HEIGHT|DDSD_WIDTH|DDSD_PIXELFORMAT;
 	SurfDesc.ddsCaps.dwCaps = DDSCAPS_TEXTURE|DDSCAPS_ALLOCONLOAD|DDSCAPS_VIDEOMEMORY;
@@ -64,7 +64,7 @@ void HWD3DTexture_DX6::InitTexture()
 		return;
 	}
 
-	DDSURFACEDESC Sd = { };
+	DDSURFACEDESC2 Sd = { };
 	Sd.dwSize = sizeof(Sd);
 	Sd.dwFlags =  DDSD_ALL;
 
@@ -100,19 +100,13 @@ void HWD3DTexture_DX6::InitTexture()
 	{
 		return;
 	}
-
-	const HRESULT GetHandleRes = m_Texture->GetHandle(Dev, &m_TextureHandle);
-	if (FAILED(GetHandleRes) || m_TextureHandle == 0)
-	{
-		return;
-	}
 }
 
 void HWD3DTexture_DX6::SetTexture()
 {
 	if (m_Game && m_Game->GetDevice())
 	{
-		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, m_TextureHandle);
+		m_Game->GetDevice()->SetTexture(0, m_Texture);
 		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
 		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);

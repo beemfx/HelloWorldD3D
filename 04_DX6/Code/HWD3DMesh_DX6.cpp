@@ -18,7 +18,7 @@ void HWD3DMesh_DX6::Draw()
 		const DWORD IdxAddr = reinterpret_cast<DWORD>(m_D3DIndexes.data());
 		assert( (IdxAddr%2) == 0 );
 		*/
-		m_Game->GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, D3DVT_VERTEX, m_D3DVertices.data(), m_D3DVertices.size(), m_D3DIndexes.data(), m_D3DIndexes.size(), D3DDP_WAIT); 
+		m_Game->GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_TEX1, m_D3DVertices.data(), m_D3DVertices.size(), m_D3DIndexes.data(), m_D3DIndexes.size(), D3DDP_WAIT); 
 	}
 }
 

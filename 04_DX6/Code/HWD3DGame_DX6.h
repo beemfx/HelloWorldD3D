@@ -10,16 +10,16 @@ class HWD3DGame_DX6 : public HWD3DGame
 private:
 	
 	HWND m_TargetWnd = nullptr;
-	IDirectDraw2* m_DDraw = nullptr;
-	IDirect3D2* m_D3D = nullptr;
-	IDirectDrawSurface* m_PrimarySurface = nullptr;
-	IDirectDrawSurface* m_BackBuffer = nullptr;
-	IDirectDrawSurface* m_ZBuffer = nullptr;
+	IDirectDraw4* m_DDraw = nullptr;
+	IDirect3D3* m_D3D = nullptr;
+	IDirectDrawSurface4* m_PrimarySurface = nullptr;
+	IDirectDrawSurface4* m_BackBuffer = nullptr;
+	IDirectDrawSurface4* m_ZBuffer = nullptr;
 
-	IDirect3DDevice2* m_D3DDevice = nullptr;
-	IDirect3DViewport2* m_Viewport = nullptr;
+	IDirect3DDevice3* m_D3DDevice = nullptr;
+	IDirect3DViewport3* m_Viewport = nullptr;
 
-	IDirect3DMaterial2* m_BgMaterial = nullptr;
+	IDirect3DMaterial3* m_BgMaterial = nullptr;
 	D3DMATERIALHANDLE m_BgMaterialHandle = 0;
 
 	struct d3dDeviceData
@@ -32,9 +32,8 @@ private:
 
 public:
 	
-	IDirectDraw2* GetDirectDraw() const { return m_DDraw; }
-	IDirect3DDevice2* GetDevice() const { return m_D3DDevice; }
-	IDirect3DViewport* GetViewport() const { return m_Viewport; }
+	IDirectDraw4* GetDirectDraw() const { return m_DDraw; }
+	IDirect3DDevice3* GetDevice() const { return m_D3DDevice; }
 
 private:
 
