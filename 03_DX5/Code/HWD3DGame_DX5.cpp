@@ -8,7 +8,7 @@
 
 HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 {
-	SetWindowTextW(InMainWnd, L"Hello World D3D [DX3]");
+	SetWindowTextW(InMainWnd, L"Hello World D3D [DX5]");
 
 	HWD3DGame* Out = new HWD3DGame_DX5;
 	if (Out)
