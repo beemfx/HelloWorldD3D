@@ -177,15 +177,6 @@ void HWD3DGame_DX5::InitDevice(HWND TargetWnd)
 			return;
 		}
 
-		const HRESULT ScvpRes = m_D3DDevice->SetCurrentViewport(m_Viewport);
-		if (FAILED(ScvpRes))
-		{
-			Deinit();
-			return;
-		}
-
-		const float Aspect = static_cast<float>(ScreenWidth)/ScreenHeight;
-
 		// Update Viewport
 		D3DVIEWPORT2 Vp = { };
 		Vp.dwSize = sizeof(Vp);
@@ -193,15 +184,22 @@ void HWD3DGame_DX5::InitDevice(HWND TargetWnd)
 		Vp.dwY = 0UL;
 		Vp.dwWidth = ScreenWidth;
 		Vp.dwHeight = ScreenHeight;
-		Vp.dvClipX = -1.0f;
-		Vp.dvClipY = Aspect;
+		Vp.dvClipX = -1.f;
+		Vp.dvClipY = 1.f;
 		Vp.dvClipWidth = 2.0f;
-		Vp.dvClipHeight = 2.0f * Aspect;
+		Vp.dvClipHeight = 2.0f;
 		Vp.dvMinZ = 0.0f;
 		Vp.dvMaxZ = 1.0f;
 		
 		const HRESULT SvpRes = m_Viewport->SetViewport2(&Vp);
 		if (FAILED(SvpRes))
+		{
+			Deinit();
+			return;
+		}
+
+		const HRESULT ScvpRes = m_D3DDevice->SetCurrentViewport(m_Viewport);
+		if (FAILED(ScvpRes))
 		{
 			Deinit();
 			return;
