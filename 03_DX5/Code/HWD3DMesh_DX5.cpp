@@ -26,7 +26,7 @@ HWD3DMesh_DX5::HWD3DMesh_DX5(class HWD3DGame_DX5* InGame, const char* InFilename
 	: m_Game(InGame)
 {
 	LoadMeshFile(InFilename);
-	CreateExecBuffer();
+	CreateBuffers();
 }
 
 HWD3DMesh_DX5::~HWD3DMesh_DX5()
@@ -34,7 +34,7 @@ HWD3DMesh_DX5::~HWD3DMesh_DX5()
 	
 }
 
-bool HWD3DMesh_DX5::CreateExecBuffer()
+bool HWD3DMesh_DX5::CreateBuffers()
 {
 	m_D3DIndexes.resize(0);
 	m_D3DVertices.resize(0);

@@ -9,7 +9,8 @@ class HWD3DMesh_DX6 : public HWD3DMesh
 {
 private:
 	class HWD3DGame_DX6*const m_Game = nullptr;
-	std::vector<D3DVERTEX> m_D3DVertices;
+	const DWORD m_FVF = D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_TEX1;
+	IDirect3DVertexBuffer* m_VB = nullptr;
 	std::vector<WORD> m_D3DIndexes;
 
 public:
@@ -23,5 +24,5 @@ public:
 
 protected:
 	
-	bool CreateExecBuffer();
+	bool CreateBuffers();
 };

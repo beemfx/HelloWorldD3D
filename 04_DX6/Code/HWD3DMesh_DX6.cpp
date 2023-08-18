@@ -10,15 +10,9 @@ HWD3DMesh* HWD3DMesh::CreateMesh(class HWD3DGame* InGame, const char* InFilename
 
 void HWD3DMesh_DX6::Draw()
 {
-	if (m_Game && m_Game->GetDevice())
-	{
-		/*
-		const DWORD VertAddr = reinterpret_cast<unsigned long>(m_D3DVertices.data());
-		assert( (VertAddr%2) == 0 );
-		const DWORD IdxAddr = reinterpret_cast<DWORD>(m_D3DIndexes.data());
-		assert( (IdxAddr%2) == 0 );
-		*/
-		m_Game->GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_TEX1, m_D3DVertices.data(), m_D3DVertices.size(), m_D3DIndexes.data(), m_D3DIndexes.size(), D3DDP_WAIT); 
+	if (m_Game && m_Game->GetDevice() && m_VB)
+	{ 
+		m_Game->GetDevice()->DrawIndexedPrimitiveVB(D3DPT_TRIANGLELIST, m_VB, m_D3DIndexes.data(), m_D3DIndexes.size(), D3DDP_WAIT);
 	}
 }
 
@@ -26,23 +20,49 @@ HWD3DMesh_DX6::HWD3DMesh_DX6(class HWD3DGame_DX6* InGame, const char* InFilename
 	: m_Game(InGame)
 {
 	LoadMeshFile(InFilename);
-	CreateExecBuffer();
+	CreateBuffers();
 }
 
 HWD3DMesh_DX6::~HWD3DMesh_DX6()
 {
-	
+	HWD3D_SafeRelease(m_VB);
 }
 
-bool HWD3DMesh_DX6::CreateExecBuffer()
+bool HWD3DMesh_DX6::CreateBuffers()
 {
 	m_D3DIndexes.resize(0);
-	m_D3DVertices.resize(0);
 
-	for (const auto& V : m_Vertices)
+	IDirect3D3* D3D = m_Game ? m_Game->GetD3D() : nullptr;
+
+	if (!D3D)
 	{
-		D3DVERTEX NewVert = *reinterpret_cast<const D3DVERTEX*>(&V);
-		m_D3DVertices.push_back(NewVert);
+		return false;
+	}
+
+	D3DVERTEXBUFFERDESC Vbd = { };
+	Vbd.dwSize = sizeof(Vbd);
+	Vbd.dwCaps = 0;
+	Vbd.dwFVF = m_FVF;
+	Vbd.dwNumVertices = m_Vertices.size();
+	const HRESULT CvbRes = D3D->CreateVertexBuffer(&Vbd, &m_VB, 0, NULL);
+	if (FAILED(CvbRes) || !m_VB)
+	{
+		return false;
+	}
+
+	D3DVERTEX* DstVerts = nullptr;
+	DWORD Size = 0;
+	const HRESULT LockRes = m_VB->Lock(0, reinterpret_cast<LPVOID*>(&DstVerts), &Size);
+	if (SUCCEEDED(LockRes) && DstVerts)
+	{
+		for (int i = 0; i < static_cast<int>(m_Vertices.size()); i++)
+		{
+			D3DVERTEX NewVert = *reinterpret_cast<const D3DVERTEX*>(&m_Vertices[i]);
+			D3DVERTEX& Dest = DstVerts[i];
+			Dest = NewVert;
+		}
+
+		m_VB->Unlock();
 	}
 
 	for (const auto& T : m_Triangles)

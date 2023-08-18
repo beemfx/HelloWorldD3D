@@ -30,6 +30,7 @@ private:
 public:
 	
 	IDirectDraw4* GetDirectDraw() const { return m_DDraw; }
+	IDirect3D3* GetD3D() const { return m_D3D; }
 	IDirect3DDevice3* GetDevice() const { return m_D3DDevice; }
 
 private:

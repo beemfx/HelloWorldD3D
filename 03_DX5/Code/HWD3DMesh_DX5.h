@@ -23,5 +23,5 @@ public:
 
 protected:
 	
-	bool CreateExecBuffer();
+	bool CreateBuffers();
 };
