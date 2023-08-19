@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWD3D_03_DX5", "03_DX5\HWD3
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWD3D_04_DX6", "04_DX6\HWD3D_04_DX6.vcxproj", "{D4EAF3FC-419E-47B5-87CC-57A758E38CC8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWD3D_05_DX7", "05_DX7\HWD3D_05_DX7.vcxproj", "{BD6EB6B3-69F9-493B-B0C2-6D1DF4A61AE5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{D4EAF3FC-419E-47B5-87CC-57A758E38CC8}.Release|x64.Build.0 = Release|x64
 		{D4EAF3FC-419E-47B5-87CC-57A758E38CC8}.Release|x86.ActiveCfg = Release|Win32
 		{D4EAF3FC-419E-47B5-87CC-57A758E38CC8}.Release|x86.Build.0 = Release|Win32
+		{BD6EB6B3-69F9-493B-B0C2-6D1DF4A61AE5}.Debug|x64.ActiveCfg = Debug|x64
+		{BD6EB6B3-69F9-493B-B0C2-6D1DF4A61AE5}.Debug|x64.Build.0 = Debug|x64
+		{BD6EB6B3-69F9-493B-B0C2-6D1DF4A61AE5}.Debug|x86.ActiveCfg = Debug|Win32
+		{BD6EB6B3-69F9-493B-B0C2-6D1DF4A61AE5}.Debug|x86.Build.0 = Debug|Win32
+		{BD6EB6B3-69F9-493B-B0C2-6D1DF4A61AE5}.Release|x64.ActiveCfg = Release|x64
+		{BD6EB6B3-69F9-493B-B0C2-6D1DF4A61AE5}.Release|x64.Build.0 = Release|x64
+		{BD6EB6B3-69F9-493B-B0C2-6D1DF4A61AE5}.Release|x86.ActiveCfg = Release|Win32
+		{BD6EB6B3-69F9-493B-B0C2-6D1DF4A61AE5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
