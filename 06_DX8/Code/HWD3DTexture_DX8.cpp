@@ -77,7 +77,7 @@ void HWD3DTexture_DX8::InitTexture()
 
 void HWD3DTexture_DX8::SetTexture()
 {
-	if (m_Game && m_Game->GetDevice())
+	if (m_Game && m_Game->GetDevice() && m_Texture)
 	{
 		m_Game->GetDevice()->SetTexture(0, m_Texture);
 		m_Game->GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
