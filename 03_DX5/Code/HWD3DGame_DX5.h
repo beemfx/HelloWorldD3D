@@ -22,10 +22,13 @@ private:
 	IDirect3DMaterial2* m_BgMaterial = nullptr;
 	D3DMATERIALHANDLE m_BgMaterialHandle = 0;
 
+	DWORD m_MemFlag = 0;
+
 	struct d3dDeviceData
 	{
 		std::string Name;
-		GUID Id;
+		GUID Id = { };
+		bool bUseVideoMem = false;
 	};
 
 	std::vector<d3dDeviceData> m_DevicesFound;
@@ -34,7 +37,7 @@ public:
 	
 	IDirectDraw2* GetDirectDraw() const { return m_DDraw; }
 	IDirect3DDevice2* GetDevice() const { return m_D3DDevice; }
-	IDirect3DViewport* GetViewport() const { return m_Viewport; }
+	DWORD GetMemFlag() const { return m_MemFlag; }
 
 private:
 
