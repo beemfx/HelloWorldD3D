@@ -120,56 +120,43 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 		}
 	}
 
-	// Get device from back surface
+	// Z Buffer (Should be attached to back buffer before device is created.)
 	{
-		D3DFINDDEVICERESULT FindDev = {};
-		FindDev.dwSize = sizeof(FindDev);
-		D3DFINDDEVICESEARCH SearchDev = {};
-		SearchDev.dwSize = sizeof(SearchDev);
-		SearchDev.guid = m_DevicesFound.back().Id;
+		DDPIXELFORMAT ZBufferFormat = { };
+		const HRESULT EnumZBufFormats = m_D3D->EnumZBufferFormats(m_DevicesFound.back().Id, D3DCb_EnumZBufferFormat, reinterpret_cast<VOID*>(&ZBufferFormat) );
 
-		const HRESULT FindDevRes = m_D3D->FindDevice(&SearchDev, &FindDev);
-		if (FAILED(FindDevRes))
+		DDSURFACEDESC2 ZbSd = {};
+		ZbSd.dwSize = sizeof(ZbSd);
+		ZbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
+		ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | GetMemFlag();
+		ZbSd.dwWidth = ScreenWidth;
+		ZbSd.dwHeight = ScreenHeight;
+
+		DDPIXELFORMAT& Pxf = ZbSd.ddpfPixelFormat;
+		// Pxf.dwSize = sizeof(Pxf);
+		// Pxf.dwZBufferBitDepth = 16;
+		// Pxf.dwFlags = DDPF_ZBUFFER;
+		// Pxf.dwZBitMask = 0xFFFF;
+		Pxf = ZBufferFormat;
+
+		const HRESULT CreateZbRes = m_DDraw->CreateSurface(&ZbSd, &m_ZBuffer, 0);
+		if (FAILED(CreateZbRes) || !m_ZBuffer)
 		{
 			Deinit();
 			return;
 		}
 
-		// Z Buffer (Should be attached to back buffer before device is created.)
+		const HRESULT AddZBufferRes = m_BackBuffer->AddAttachedSurface(m_ZBuffer);
+		if (FAILED(AddZBufferRes))
 		{
-			DDPIXELFORMAT ZBufferFormat = { };
-			const HRESULT EnumZBufFormats = m_D3D->EnumZBufferFormats(FindDev.guid, D3DCb_EnumZBufferFormat, reinterpret_cast<VOID*>(&ZBufferFormat) );
-
-			DDSURFACEDESC2 ZbSd = {};
-			ZbSd.dwSize = sizeof(ZbSd);
-			ZbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-			ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | GetMemFlag();
-			ZbSd.dwWidth = ScreenWidth;
-			ZbSd.dwHeight = ScreenHeight;
-
-			DDPIXELFORMAT& Pxf = ZbSd.ddpfPixelFormat;
-			// Pxf.dwSize = sizeof(Pxf);
-			// Pxf.dwZBufferBitDepth = 16;
-			// Pxf.dwFlags = DDPF_ZBUFFER;
-			// Pxf.dwZBitMask = 0xFFFF;
-			Pxf = ZBufferFormat;
-
-			const HRESULT CreateZbRes = m_DDraw->CreateSurface(&ZbSd, &m_ZBuffer, 0);
-			if (FAILED(CreateZbRes) || !m_ZBuffer)
-			{
-				Deinit();
-				return;
-			}
-
-			const HRESULT AddZBufferRes = m_BackBuffer->AddAttachedSurface(m_ZBuffer);
-			if (FAILED(AddZBufferRes))
-			{
-				Deinit();
-				return;
-			}
+			Deinit();
+			return;
 		}
+	}
 
-		const HRESULT CreateDevRes = m_D3D->CreateDevice(FindDev.guid, m_BackBuffer, &m_D3DDevice, NULL);
+	// Get device from back surface
+	{
+		const HRESULT CreateDevRes = m_D3D->CreateDevice(m_DevicesFound.back().Id, m_BackBuffer, &m_D3DDevice, NULL);
 		if (FAILED(CreateDevRes) || !m_D3DDevice)
 		{
 			Deinit();

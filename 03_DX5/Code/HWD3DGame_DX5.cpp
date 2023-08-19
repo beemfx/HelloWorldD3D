@@ -151,20 +151,7 @@ void HWD3DGame_DX5::InitDevice(HWND TargetWnd)
 
 	// Get device from back surface
 	{
-		D3DFINDDEVICERESULT FindDev = {};
-		FindDev.dwSize = sizeof(FindDev);
-		D3DFINDDEVICESEARCH SearchDev = {};
-		SearchDev.dwSize = sizeof(SearchDev);
-		SearchDev.guid = m_DevicesFound.back().Id;
-
-		const HRESULT FindDevRes = m_D3D->FindDevice(&SearchDev, &FindDev);
-		if (FAILED(FindDevRes))
-		{
-			Deinit();
-			return;
-		}
-
-		const HRESULT CreateDevRes = m_D3D->CreateDevice(FindDev.guid, m_BackBuffer, &m_D3DDevice);
+		const HRESULT CreateDevRes = m_D3D->CreateDevice(m_DevicesFound.back().Id, m_BackBuffer, &m_D3DDevice);
 		if (FAILED(CreateDevRes) || !m_D3DDevice)
 		{
 			Deinit();

@@ -113,39 +113,39 @@ void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 		}
 	}
 
-	// Get device from back surface
+	// Z Buffer (Should be attached to back buffer before device is created.)
 	{
-		// Z Buffer (Should be attached to back buffer before device is created.)
+		DDPIXELFORMAT ZBufferFormat = { };
+		const HRESULT EnumZBufFormats = m_D3D->EnumZBufferFormats(m_DevicesFound.back().Desc.deviceGUID, D3DCb_EnumZBufferFormat, reinterpret_cast<VOID*>(&ZBufferFormat) );
+
+		DDSURFACEDESC2 ZbSd = {};
+		ZbSd.dwSize = sizeof(ZbSd);
+		ZbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
+		ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | GetMemFlag();
+		ZbSd.dwWidth = ScreenWidth;
+		ZbSd.dwHeight = ScreenHeight;
+		ZbSd.dwMipMapCount = 1;
+
+		DDPIXELFORMAT& Pxf = ZbSd.ddpfPixelFormat;
+		Pxf = ZBufferFormat;
+
+		const HRESULT CreateZbRes = m_DDraw->CreateSurface(&ZbSd, &m_ZBuffer, 0);
+		if (FAILED(CreateZbRes) || !m_ZBuffer)
 		{
-			DDPIXELFORMAT ZBufferFormat = { };
-			const HRESULT EnumZBufFormats = m_D3D->EnumZBufferFormats(m_DevicesFound.back().Desc.deviceGUID, D3DCb_EnumZBufferFormat, reinterpret_cast<VOID*>(&ZBufferFormat) );
-
-			DDSURFACEDESC2 ZbSd = {};
-			ZbSd.dwSize = sizeof(ZbSd);
-			ZbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-			ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | GetMemFlag();
-			ZbSd.dwWidth = ScreenWidth;
-			ZbSd.dwHeight = ScreenHeight;
-			ZbSd.dwMipMapCount = 1;
-
-			DDPIXELFORMAT& Pxf = ZbSd.ddpfPixelFormat;
-			Pxf = ZBufferFormat;
-
-			const HRESULT CreateZbRes = m_DDraw->CreateSurface(&ZbSd, &m_ZBuffer, 0);
-			if (FAILED(CreateZbRes) || !m_ZBuffer)
-			{
-				Deinit();
-				return;
-			}
-
-			const HRESULT AddZBufferRes = m_BackBuffer->AddAttachedSurface(m_ZBuffer);
-			if (FAILED(AddZBufferRes))
-			{
-				Deinit();
-				return;
-			}
+			Deinit();
+			return;
 		}
 
+		const HRESULT AddZBufferRes = m_BackBuffer->AddAttachedSurface(m_ZBuffer);
+		if (FAILED(AddZBufferRes))
+		{
+			Deinit();
+			return;
+		}
+	}
+
+	// Get device from back surface
+	{
 		const HRESULT CreateDevRes = m_D3D->CreateDevice(m_DevicesFound.back().Desc.deviceGUID, m_BackBuffer, &m_D3DDevice);
 		if (FAILED(CreateDevRes) || !m_D3DDevice)
 		{
