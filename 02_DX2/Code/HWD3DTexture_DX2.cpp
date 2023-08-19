@@ -46,7 +46,7 @@ void HWD3DTexture_DX2::InitTexture()
 	DDSURFACEDESC SurfDesc = { };
 	SurfDesc.dwSize = sizeof(SurfDesc);
 	SurfDesc.dwFlags = DDSD_CAPS|DDSD_HEIGHT|DDSD_WIDTH|DDSD_PIXELFORMAT;
-	SurfDesc.ddsCaps.dwCaps = DDSCAPS_TEXTURE|DDSCAPS_ALLOCONLOAD|DDSCAPS_VIDEOMEMORY;
+	SurfDesc.ddsCaps.dwCaps = DDSCAPS_TEXTURE|DDSCAPS_ALLOCONLOAD|m_Game->GetMemFlag();
 	SurfDesc.dwWidth = m_Width;
 	SurfDesc.dwHeight = m_Height;
 

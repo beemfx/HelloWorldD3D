@@ -24,6 +24,7 @@ HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 {
 	m_TargetWnd = TargetWnd;
+	m_MemFlag = 0;
 
 	RECT TargetWndRc = {};
 	GetClientRect(m_TargetWnd, &TargetWndRc);
@@ -68,6 +69,15 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 			Deinit();
 			return;
 		}
+
+		if (m_DevicesFound.back().bUseVideoMem)
+		{
+			m_MemFlag = DDSCAPS_VIDEOMEMORY;
+		}
+		else
+		{
+			m_MemFlag = DDSCAPS_SYSTEMMEMORY;
+		}
 	}
 
 	// Primary Surface
@@ -104,7 +114,7 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 		DDSURFACEDESC BbSd = {};
 		BbSd.dwSize = sizeof(BbSd);
 		BbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
-		BbSd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_VIDEOMEMORY;
+		BbSd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | GetMemFlag();
 		BbSd.dwWidth = ScreenWidth;
 		BbSd.dwHeight = ScreenHeight;
 		const HRESULT CreateBbRes = m_DDraw->CreateSurface(&BbSd, &m_BackBuffer, 0);
@@ -120,14 +130,14 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 		DDSURFACEDESC ZbSd = {};
 		ZbSd.dwSize = sizeof(ZbSd);
 		ZbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-		ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
+		ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | GetMemFlag();
 		ZbSd.dwWidth = ScreenWidth;
 		ZbSd.dwHeight = ScreenHeight;
 
 		DDPIXELFORMAT& Pxf = ZbSd.ddpfPixelFormat;
 		Pxf.dwSize = sizeof(Pxf);
 		Pxf.dwFlags = DDPF_ZBUFFER;
-		Pxf.dwZBufferBitDepth = 24;
+		Pxf.dwZBufferBitDepth = 16;
 
 		const HRESULT CreateZbRes = m_DDraw->CreateSurface(&ZbSd, &m_ZBuffer, 0);
 		if (FAILED(CreateZbRes) || !m_ZBuffer)
@@ -450,16 +460,18 @@ HRESULT FAR PASCAL HWD3DGame_DX2::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDevic
 	D3DDEVICEDESC d1 = *DevDesc1;
 	D3DDEVICEDESC d2 = *DevDesc2;
 
+	const DWORD WantedCaps = D3DDEVCAPS_EXECUTEVIDEOMEMORY | D3DDEVCAPS_TLVERTEXVIDEOMEMORY | D3DDEVCAPS_TEXTUREVIDEOMEMORY;
+
 	d3dDeviceData NewData;
 	NewData.Name = lpDeviceName;
 	NewData.Id = *lpGuid;
+	NewData.bUseVideoMem = (d1.dwDevCaps & WantedCaps) == WantedCaps;
 
 	_this->m_DevicesFound.push_back(NewData);
 
-	const DWORD WantedCaps = D3DDEVCAPS_EXECUTEVIDEOMEMORY | D3DDEVCAPS_TLVERTEXVIDEOMEMORY | D3DDEVCAPS_TEXTUREVIDEOMEMORY;
 
-	if ((d1.dwDevCaps & WantedCaps) == WantedCaps)
-	{
+	if (NewData.bUseVideoMem)
+	{	
 		return S_OK;
 	}
 

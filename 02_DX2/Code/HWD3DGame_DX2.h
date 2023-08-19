@@ -26,10 +26,13 @@ private:
 	D3DMATRIXHANDLE m_MatrixView = 0;
 	D3DMATRIXHANDLE m_MatrixWorld = 0;
 
+	DWORD m_MemFlag = 0;
+
 	struct d3dDeviceData
 	{
 		std::string Name;
-		GUID Id;
+		GUID Id = { };
+		bool bUseVideoMem = false;
 	};
 
 	std::vector<d3dDeviceData> m_DevicesFound;
@@ -39,6 +42,7 @@ public:
 	IDirectDraw* GetDirectDraw() const { return m_DDraw; }
 	IDirect3DDevice* GetDevice() const { return m_D3DDevice; }
 	IDirect3DViewport* GetViewport() const { return m_Viewport; }
+	DWORD GetMemFlag() const { return m_MemFlag; }
 	const D3DMATRIXHANDLE& GetProjMatrixHandle() const { return m_MatrixProj; }
 	const D3DMATRIXHANDLE& GetViewMatrixHandle() const { return m_MatrixView; }
 	const D3DMATRIXHANDLE& GetWorldMatrixHandle() const { return m_MatrixWorld; }
