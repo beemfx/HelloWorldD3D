@@ -148,6 +148,10 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 			ZbSd.dwHeight = ScreenHeight;
 
 			DDPIXELFORMAT& Pxf = ZbSd.ddpfPixelFormat;
+			// Pxf.dwSize = sizeof(Pxf);
+			// Pxf.dwZBufferBitDepth = 16;
+			// Pxf.dwFlags = DDPF_ZBUFFER;
+			// Pxf.dwZBitMask = 0xFFFF;
 			Pxf = ZBufferFormat;
 
 			const HRESULT CreateZbRes = m_DDraw->CreateSurface(&ZbSd, &m_ZBuffer, 0);
