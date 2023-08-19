@@ -2,12 +2,11 @@
 
 #include "HWD3DGame_DX8.h"
 
-#pragma comment(lib, "ddraw.lib")
-#pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "d3d8.lib")
 
 HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 {
-	SetWindowTextW(InMainWnd, L"Hello World D3D [DX7]");
+	SetWindowTextW(InMainWnd, L"Hello World D3D [DX8]");
 
 	HWD3DGame* Out = new HWD3DGame_DX8;
 	if (Out)
@@ -21,7 +20,6 @@ HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 void HWD3DGame_DX8::InitDevice(HWND TargetWnd)
 {
 	m_TargetWnd = TargetWnd;
-	m_MemFlag = 0;
 
 	RECT TargetWndRc = {};
 	GetClientRect(m_TargetWnd, &TargetWndRc);
@@ -30,140 +28,48 @@ void HWD3DGame_DX8::InitDevice(HWND TargetWnd)
 
 	// Init DirectDraw and obtain Direct3D
 	{
-		const HRESULT CciRes = DirectDrawCreateEx(NULL, reinterpret_cast<LPVOID*>(&m_DDraw), IID_IDirectDraw7, NULL);
-		if (FAILED(CciRes) || !m_DDraw)
-		{
-			Deinit();
-			return;
-		}
-		
-		const HRESULT SetCpLvlRes = m_DDraw->SetCooperativeLevel(TargetWnd, DDSCL_NORMAL);
-		if (FAILED(SetCpLvlRes))
+		m_D3D = Direct3DCreate8(D3D_SDK_VERSION);
+		if (!m_D3D)
 		{
 			Deinit();
 			return;
 		}
 
-		const HRESULT QueryD3DRes = m_DDraw->QueryInterface(IID_IDirect3D7, reinterpret_cast<LPVOID*>(&m_D3D));
-		if (FAILED(QueryD3DRes) || !m_D3D)
+		m_DevType = D3DDEVTYPE_HAL;
+
+		m_PP.BackBufferWidth = ScreenWidth;
+		m_PP.BackBufferHeight = ScreenHeight;
+		m_PP.BackBufferCount = 1;
+		m_PP.BackBufferFormat = D3DFMT_X8R8G8B8; // Same as desktop since we're windowed.
+		m_PP.EnableAutoDepthStencil = TRUE;
+		m_PP.AutoDepthStencilFormat = D3DFMT_D16;
+		m_PP.SwapEffect = D3DSWAPEFFECT_COPY;
+		m_PP.Windowed = TRUE;
+		m_PP.hDeviceWindow = m_TargetWnd;
+
+		const HRESULT CreateHalRes = m_D3D->CreateDevice(D3DADAPTER_DEFAULT, m_DevType, m_TargetWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &m_PP, &m_D3DDevice);
+		if (FAILED(CreateHalRes) || !m_D3DDevice)
 		{
-			Deinit();
-			return;
-		}
-
-		const HRESULT EnumDevRes = m_D3D->EnumDevices(&D3DCb_EnumDevices, this);
-		if (FAILED(EnumDevRes) || m_DevicesFound.size() == 0)
-		{
-			Deinit();
-			return;
-		}
-
-		if ((m_DevicesFound.back().Desc.dwDevCaps&D3DDEVCAPS_TEXTUREVIDEOMEMORY) != 0)
-		{
-			m_MemFlag = DDSCAPS_VIDEOMEMORY;
-		}
-		else
-		{
-			m_MemFlag = DDSCAPS_SYSTEMMEMORY;
-		}
-	}
-
-	// Primary Surface
-	{
-		DDSURFACEDESC2 BbSd = {};
-		BbSd.dwSize = sizeof(BbSd);
-		BbSd.dwFlags = DDSD_CAPS;
-		BbSd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-		const HRESULT CreateBbRes = m_DDraw->CreateSurface(&BbSd, &m_PrimarySurface, nullptr);
-		if (FAILED(CreateBbRes) || !m_PrimarySurface)
-		{
-			Deinit();
-			return;
-		}
-	}
-
-	// Clipper
-	{
-		IDirectDrawClipper* Clipper = nullptr;
-		const HRESULT CreateCRes = m_DDraw->CreateClipper(0, &Clipper, 0);
-		if (FAILED(CreateCRes) || !Clipper)
-		{
-			Deinit();
-			return;
-		}
-
-		Clipper->SetHWnd(0, TargetWnd);
-		m_PrimarySurface->SetClipper(Clipper);
-		HWD3D_SafeRelease(Clipper);
-	}
-
-	// Back Surface
-	{
-		DDSURFACEDESC2 BbSd = {};
-		BbSd.dwSize = sizeof(BbSd);
-		BbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
-		BbSd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | GetMemFlag();
-		BbSd.dwWidth = ScreenWidth;
-		BbSd.dwHeight = ScreenHeight;
-		const HRESULT CreateBbRes = m_DDraw->CreateSurface(&BbSd, &m_BackBuffer, 0);
-		if (FAILED(CreateBbRes) || !m_BackBuffer)
-		{
-			Deinit();
-			return;
-		}
-	}
-
-	// Z Buffer (Should be attached to back buffer before device is created.)
-	{
-		DDPIXELFORMAT ZBufferFormat = { };
-		const HRESULT EnumZBufFormats = m_D3D->EnumZBufferFormats(m_DevicesFound.back().Desc.deviceGUID, D3DCb_EnumZBufferFormat, reinterpret_cast<VOID*>(&ZBufferFormat) );
-
-		DDSURFACEDESC2 ZbSd = {};
-		ZbSd.dwSize = sizeof(ZbSd);
-		ZbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-		ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | GetMemFlag();
-		ZbSd.dwWidth = ScreenWidth;
-		ZbSd.dwHeight = ScreenHeight;
-		ZbSd.dwMipMapCount = 1;
-
-		DDPIXELFORMAT& Pxf = ZbSd.ddpfPixelFormat;
-		Pxf = ZBufferFormat;
-
-		const HRESULT CreateZbRes = m_DDraw->CreateSurface(&ZbSd, &m_ZBuffer, 0);
-		if (FAILED(CreateZbRes) || !m_ZBuffer)
-		{
-			Deinit();
-			return;
-		}
-
-		const HRESULT AddZBufferRes = m_BackBuffer->AddAttachedSurface(m_ZBuffer);
-		if (FAILED(AddZBufferRes))
-		{
-			Deinit();
-			return;
-		}
-	}
-
-	// Get device from back surface
-	{
-		const HRESULT CreateDevRes = m_D3D->CreateDevice(m_DevicesFound.back().Desc.deviceGUID, m_BackBuffer, &m_D3DDevice);
-		if (FAILED(CreateDevRes) || !m_D3DDevice)
-		{
-			Deinit();
-			return;
+			m_DevType = D3DDEVTYPE_REF;
+			const HRESULT CreateRefRes = m_D3D->CreateDevice(D3DADAPTER_DEFAULT, m_DevType, m_TargetWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_PP, &m_D3DDevice);
+			if (FAILED(CreateRefRes) || !m_D3DDevice)
+			{
+				Deinit();
+				return;
+			}
 		}
 	}
 
 	// Viewport
 	{
 		// Update Viewport
-		D3DVIEWPORT7 Vp = { };
-		Vp.dwX = 0UL;
-		Vp.dwY = 0UL;
-		Vp.dwWidth = ScreenWidth;
-		Vp.dwHeight = ScreenHeight;
-		Vp.dvMinZ = 0.0f;
-		Vp.dvMaxZ = 1.0f;
+		D3DVIEWPORT8 Vp = { };
+		Vp.X = 0UL;
+		Vp.Y = 0UL;
+		Vp.Width = ScreenWidth;
+		Vp.Height = ScreenHeight;
+		Vp.MinZ = 0.0f;
+		Vp.MaxZ = 1.0f;
 
 		const HRESULT ScvpRes = m_D3DDevice->SetViewport(&Vp);
 		if (FAILED(ScvpRes))
@@ -182,9 +88,9 @@ void HWD3DGame_DX8::InitDevice(HWND TargetWnd)
 		D3DMATRIX View = *reinterpret_cast<const D3DMATRIX*>(&ViewMatrix);
 		D3DMATRIX World = *reinterpret_cast<const D3DMATRIX*>(&HWD3DMatrix_Ident);
 
-		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &Proj);
-		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &View);
-		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &World);
+		m_D3DDevice->SetTransform(D3DTS_PROJECTION, &Proj);
+		m_D3DDevice->SetTransform(D3DTS_VIEW, &View);
+		m_D3DDevice->SetTransform(D3DTS_WORLD, &World);
 	}
 
 	InitCommonStates();
@@ -197,17 +103,16 @@ void HWD3DGame_DX8::DeinitDevice()
 	HWD3D_SafeRelease(m_BackBuffer);
 	HWD3D_SafeRelease(m_PrimarySurface);
 	HWD3D_SafeRelease(m_D3D);
-	HWD3D_SafeRelease(m_DDraw);
 }
 
 void HWD3DGame_DX8::ClearViewport()
 {
 	if (m_D3DDevice)
 	{
-		D3DVIEWPORT7 Vp = { };
+		D3DVIEWPORT8 Vp = { };
 		m_D3DDevice->GetViewport(&Vp);
-		D3DRECT ClearRect = { 0, 0, static_cast<LONG>(Vp.dwWidth), static_cast<LONG>(Vp.dwHeight) };
-		const HRESULT Res = m_D3DDevice->Clear(1, &ClearRect, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, RGBA_SETALPHA(RGB_MAKE(102, 102, 255), 255), 1.f, 0);
+		D3DRECT ClearRect = { 0, 0, static_cast<LONG>(Vp.Width), static_cast<LONG>(Vp.Height) };
+		const HRESULT Res = m_D3DDevice->Clear(1, &ClearRect, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 0xFF6666FF, 1.f, 0);
 		assert(SUCCEEDED(Res));
 	}
 }
@@ -236,32 +141,9 @@ void HWD3DGame_DX8::EndDraw()
 
 void HWD3DGame_DX8::Present()
 {
-	if (m_DDraw && m_BackBuffer)
+	if (m_D3DDevice)
 	{
-		DDSURFACEDESC2 desc = {};
-		desc.dwSize = sizeof(desc);
-		desc.dwFlags = DDSD_WIDTH | DDSD_HEIGHT;
-		m_BackBuffer->GetSurfaceDesc(&desc);
-
-		RECT rcSource = {};
-		rcSource.top = rcSource.left = 0;
-		rcSource.bottom = desc.dwHeight;
-		rcSource.right = desc.dwWidth;
-
-		RECT RcWnd = {};
-		GetClientRect(m_TargetWnd, &RcWnd);
-		POINT Offset = {};
-		ClientToScreen(m_TargetWnd, &Offset);
-		OffsetRect(&RcWnd, Offset.x, Offset.y);
-
-		const HRESULT Res = m_PrimarySurface->Blt(&RcWnd, m_BackBuffer, &rcSource, DDBLT_WAIT, 0);
-		if (Res == DDERR_SURFACELOST)
-		{
-			// If the surface was lost we'd need to attempt to restore it at some point, but
-			// we're keeping things simple (and in windows mode, surfaces don't generally
-			// get lost.
-			return;
-		}
+		m_D3DDevice->Present(NULL, NULL, NULL, NULL);
 	}
 }
 
@@ -270,7 +152,7 @@ void HWD3DGame_DX8::SetWorldMatrix(const hwd3d_matrix& InMatrix)
 	if (m_D3DDevice)
 	{
 		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
-		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &Mat);
+		m_D3DDevice->SetTransform(D3DTS_WORLD, &Mat);
 	}
 }
 
@@ -280,34 +162,4 @@ void HWD3DGame_DX8::InitCommonStates()
 	{
 		return;
 	}
-}
-
-HRESULT CALLBACK HWD3DGame_DX8::D3DCb_EnumDevices(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpContext)
-{
-	HWD3DGame_DX8* _this = reinterpret_cast<HWD3DGame_DX8*>(lpContext);
-
-	d3dDeviceData NewData;
-	NewData.Desc = *lpD3DDeviceDesc;
-
-	_this->m_DevicesFound.push_back(NewData);
-
-	const DWORD WantedCaps = D3DDEVCAPS_EXECUTEVIDEOMEMORY | D3DDEVCAPS_TLVERTEXVIDEOMEMORY | D3DDEVCAPS_TEXTUREVIDEOMEMORY;
-
-	if ((lpD3DDeviceDesc->dwDevCaps & WantedCaps) == WantedCaps)
-	{
-		return S_OK;
-	}
-
-	return S_FALSE;
-}
-
-HRESULT WINAPI HWD3DGame_DX8::D3DCb_EnumZBufferFormat(DDPIXELFORMAT* pddpf, VOID* pddpfDesired)
-{
-	if( pddpf->dwFlags == (DDPF_ZBUFFER) )
-	{
-		*reinterpret_cast<DDPIXELFORMAT*>(pddpfDesired) = *pddpf;
-		return D3DENUMRET_CANCEL;
-	}
-
-	return D3DENUMRET_OK;
 }

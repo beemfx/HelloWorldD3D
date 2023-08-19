@@ -10,9 +10,11 @@ HWD3DMesh* HWD3DMesh::CreateMesh(class HWD3DGame* InGame, const char* InFilename
 
 void HWD3DMesh_DX8::Draw()
 {
-	if (m_Game && m_Game->GetDevice() && m_VB)
+	if (m_Game && m_Game->GetDevice() && m_VB && m_IB)
 	{ 
-		m_Game->GetDevice()->DrawIndexedPrimitiveVB(D3DPT_TRIANGLELIST, m_VB, 0, m_Vertices.size(), m_D3DIndexes.data(), m_D3DIndexes.size(), D3DDP_WAIT);
+		m_Game->GetDevice()->SetStreamSource(0, m_VB, sizeof(hwd3d_vertex));
+		m_Game->GetDevice()->SetIndices(m_IB, 0);
+		m_Game->GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, m_Vertices.size(), 0, m_Triangles.size());
 	}
 }
 
@@ -30,6 +32,8 @@ HWD3DMesh_DX8::~HWD3DMesh_DX8()
 
 bool HWD3DMesh_DX8::CreateBuffers()
 {
+	return true;
+/*
 	m_D3DIndexes.resize(0);
 
 	IDirect3D7* D3D = m_Game ? m_Game->GetD3D() : nullptr;
@@ -73,4 +77,5 @@ bool HWD3DMesh_DX8::CreateBuffers()
 	}
 
 	return true;
+*/
 }

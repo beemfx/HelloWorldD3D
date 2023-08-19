@@ -23,15 +23,14 @@ HWD3DTexture_DX8::HWD3DTexture_DX8(class HWD3DGame_DX8* InGame)
 
 HWD3DTexture_DX8::~HWD3DTexture_DX8()
 {
-	HWD3D_SafeRelease(m_Surface);
+	HWD3D_SafeRelease(m_Texture);
 }
 
 void HWD3DTexture_DX8::InitTexture()
 {
-	IDirectDraw7* DDraw = m_Game ? m_Game->GetDirectDraw() : nullptr;
-	IDirect3DDevice7* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	IDirect3DDevice8* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
-	if (!DDraw || !Dev)
+	if (!Dev)
 	{
 		return;
 	}
@@ -41,38 +40,19 @@ void HWD3DTexture_DX8::InitTexture()
 		return;
 	}
 
-	DDSURFACEDESC2 SurfDesc = { };
-	SurfDesc.dwSize = sizeof(SurfDesc);
-	SurfDesc.dwFlags = DDSD_CAPS|DDSD_HEIGHT|DDSD_WIDTH|DDSD_PIXELFORMAT;
-	SurfDesc.ddsCaps.dwCaps = DDSCAPS_TEXTURE|DDSCAPS_ALLOCONLOAD|m_Game->GetMemFlag();
-	SurfDesc.dwWidth = m_Width;
-	SurfDesc.dwHeight = m_Height;
-
-	DDPIXELFORMAT& Pxf = SurfDesc.ddpfPixelFormat;
-	Pxf.dwSize = sizeof(Pxf);
-	Pxf.dwFlags = DDPF_RGB|DDPF_ALPHAPIXELS;
-	Pxf.dwRGBBitCount = 32;
-	Pxf.dwRGBAlphaBitMask = 0xFF << 24;
-	Pxf.dwRBitMask = 0xFF << 16;
-	Pxf.dwGBitMask = 0xFF << 8;
-	Pxf.dwBBitMask = 0xFF << 0;
-
-	const HRESULT CreateSurfaceRes = DDraw->CreateSurface(&SurfDesc, &m_Surface, nullptr);
-	if (FAILED(CreateSurfaceRes) || !m_Surface)
+	const HRESULT CreateSurfaceRes = Dev->CreateTexture(m_Width, m_Height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_Texture);
+	if (FAILED(CreateSurfaceRes) || !m_Texture)
 	{
 		return;
 	}
 
-	DDSURFACEDESC2 Sd = { };
-	Sd.dwSize = sizeof(Sd);
-	Sd.dwFlags =  DDSD_ALL;
-
 	const int PixelByteSize = 4;
 
-	const HRESULT LockSurfRes = m_Surface->Lock(NULL, &Sd, 0, NULL);
+	D3DLOCKED_RECT LockedRect = { };
+	const HRESULT LockSurfRes = m_Texture->LockRect(0, &LockedRect, NULL, 0);
 	if (SUCCEEDED(LockSurfRes))
 	{
-		assert(Sd.lpSurface);
+		assert(LockedRect.pBits);
 
 		// Copy pixels:
 		for (int SrcY = 0; SrcY < m_Width; SrcY++)
@@ -80,17 +60,17 @@ void HWD3DTexture_DX8::InitTexture()
 			for (int SrcX = 0; SrcX < m_Height; SrcX++)
 			{
 				const hwd3d_rgba& SrcClr = m_Pixels[SrcY*m_Width + SrcX];
-				const D3DCOLOR DstClr = RGBA_SETALPHA(RGB_MAKE(SrcClr.R, SrcClr.G, SrcClr.B), SrcClr.A);
+				const D3DCOLOR DstClr = RGB(SrcClr.R, SrcClr.G, SrcClr.B)|(SrcClr.A<<24);
 
-				BYTE* SurfAsByteArray = reinterpret_cast<BYTE*>(Sd.lpSurface);
-				const int PixelStartOffset = (SrcY*Sd.lPitch) + SrcX*PixelByteSize;
-				assert( (PixelStartOffset + PixelByteSize) <= static_cast<int>(Sd.lPitch * Sd.dwHeight) );
+				BYTE* SurfAsByteArray = reinterpret_cast<BYTE*>(LockedRect.pBits);
+				const int PixelStartOffset = (SrcY*LockedRect.Pitch) + SrcX*PixelByteSize;
+				assert( (PixelStartOffset + PixelByteSize) <= static_cast<int>(LockedRect.Pitch * m_Height) );
 				BYTE* DstP = &SurfAsByteArray[PixelStartOffset];
 				memcpy(DstP, &DstClr, PixelByteSize);
 			}
 		}
 
-		const HRESULT UnlockSurfRes = m_Surface->Unlock(NULL);
+		const HRESULT UnlockSurfRes = m_Texture->UnlockRect(NULL);
 		assert(SUCCEEDED(UnlockSurfRes));
 	}
 }
@@ -99,12 +79,12 @@ void HWD3DTexture_DX8::SetTexture()
 {
 	if (m_Game && m_Game->GetDevice())
 	{
-		m_Game->GetDevice()->SetTexture(0, m_Surface);
-		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
-		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
-		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_WRAPU, FALSE);
-		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_WRAPV, FALSE);
-		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_LIGHTING, FALSE);
+		m_Game->GetDevice()->SetTexture(0, m_Texture);
+		m_Game->GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		m_Game->GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		m_Game->GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		m_Game->GetDevice()->SetRenderState(D3DRS_WRAP0, FALSE);
+		m_Game->GetDevice()->SetRenderState(D3DRS_WRAP1, FALSE);
+		m_Game->GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
 	}
 }

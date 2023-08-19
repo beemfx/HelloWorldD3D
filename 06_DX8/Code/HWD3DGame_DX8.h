@@ -1,38 +1,26 @@
 // D3D Hello World
 
 #include "HWD3DGame.h"
-
-#include <d3d.h>
-#include <ddraw.h>
+#include <d3d8.h>
 
 class HWD3DGame_DX8 : public HWD3DGame
 {
 private:
 	
 	HWND m_TargetWnd = nullptr;
-	IDirectDraw7* m_DDraw = nullptr;
-	IDirect3D7* m_D3D = nullptr;
-	IDirectDrawSurface7* m_PrimarySurface = nullptr;
-	IDirectDrawSurface7* m_BackBuffer = nullptr;
-	IDirectDrawSurface7* m_ZBuffer = nullptr;
+	D3DDEVTYPE m_DevType = D3DDEVTYPE_HAL;
+	D3DPRESENT_PARAMETERS m_PP = { };
+	IDirect3D8* m_D3D = nullptr;
+	IDirect3DTexture8* m_PrimarySurface = nullptr;
+	IDirect3DTexture8* m_BackBuffer = nullptr;
+	IDirect3DTexture8* m_ZBuffer = nullptr;
 
-	IDirect3DDevice7* m_D3DDevice = nullptr;
-
-	DWORD m_MemFlag = 0;
-
-	struct d3dDeviceData
-	{
-		D3DDEVICEDESC7 Desc = { };
-	};
-
-	std::vector<d3dDeviceData> m_DevicesFound;
+	IDirect3DDevice8* m_D3DDevice = nullptr;
 
 public:
 	
-	IDirectDraw7* GetDirectDraw() const { return m_DDraw; }
-	IDirect3D7* GetD3D() const { return m_D3D; }
-	IDirect3DDevice7* GetDevice() const { return m_D3DDevice; }
-	DWORD GetMemFlag() const { return m_MemFlag; }
+	IDirect3D8* GetD3D() const { return m_D3D; }
+	IDirect3DDevice8* GetDevice() const { return m_D3DDevice; }
 
 private:
 
@@ -47,7 +35,4 @@ private:
 	virtual void SetWorldMatrix(const hwd3d_matrix& InMatrix) override;
 
 	void InitCommonStates();
-
-	static HRESULT CALLBACK D3DCb_EnumDevices(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpContext);
-	static HRESULT WINAPI D3DCb_EnumZBufferFormat( DDPIXELFORMAT* pddpf, VOID* pddpfDesired );
 };

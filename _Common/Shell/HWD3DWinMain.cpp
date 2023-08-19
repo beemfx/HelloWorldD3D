@@ -14,7 +14,23 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 #if (_WIN32_WINNT >= 0x0600)
 	{
+
+#if 1
+		// Load and call SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE) directly from DLL.
+		HMODULE WinUserLib = LoadLibraryW(L"User32.dll");
+		if (WinUserLib != INVALID_HANDLE_VALUE)
+		{
+			typedef BOOL ( WINAPI * FnType)(_In_ HANDLE value);
+			FnType Fn = reinterpret_cast<FnType>(GetProcAddress(WinUserLib, "SetProcessDpiAwarenessContext"));
+			if (Fn)
+			{
+				Fn(((HANDLE)-3));
+			}
+			FreeLibrary(WinUserLib);
+		}
+#else
 		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
+#endif
 	}
 #endif
 
