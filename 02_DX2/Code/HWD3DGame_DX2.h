@@ -61,6 +61,5 @@ private:
 
 	void InitCommonStates();
 
-	static BOOL FAR PASCAL D3DCb_EnumDDraw(GUID FAR * Guid, LPSTR Desc, LPSTR Name, LPVOID Context);
 	static HRESULT FAR PASCAL D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context);
 };

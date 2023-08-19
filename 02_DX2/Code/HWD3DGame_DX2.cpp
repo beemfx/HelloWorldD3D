@@ -33,7 +33,6 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 
 	// Init DirectDraw and obtain Direct3D
 	{
-		// DirectDrawEnumerateA(D3DCb_EnumDDraw, this);
 		// Don't actually seem to need this: HRESULT CoInitRes = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 		const HRESULT CciRes = CoCreateInstance(CLSID_DirectDraw, NULL, CLSCTX_ALL, IID_IDirectDraw, reinterpret_cast<LPVOID*>(&m_DDraw));
 
@@ -439,13 +438,6 @@ void HWD3DGame_DX2::InitCommonStates()
 	}
 
 	HWD3D_SafeRelease(ExecBuffer);
-}
-
-BOOL FAR PASCAL HWD3DGame_DX2::D3DCb_EnumDDraw(GUID FAR* Guid, LPSTR Desc, LPSTR Name, LPVOID Context)
-{
-	HWD3DGame_DX2* _this = reinterpret_cast<HWD3DGame_DX2*>(Context);
-
-	return TRUE;
 }
 
 HRESULT FAR PASCAL HWD3DGame_DX2::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context)
