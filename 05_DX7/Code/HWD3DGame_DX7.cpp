@@ -29,14 +29,7 @@ void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 
 	// Init DirectDraw and obtain Direct3D
 	{
-		IDirectDraw* DDraw = nullptr;
-		const HRESULT CciRes = DirectDrawCreate(NULL, &DDraw, NULL);
-		if (DDraw)
-		{
-			DDraw->QueryInterface(IID_IDirectDraw7, reinterpret_cast<LPVOID*>(&m_DDraw));
-			HWD3D_SafeRelease(DDraw);
-		}
-
+		const HRESULT CciRes = DirectDrawCreateEx(NULL, reinterpret_cast<LPVOID*>(&m_DDraw), IID_IDirectDraw7, NULL);
 		if (FAILED(CciRes) || !m_DDraw)
 		{
 			Deinit();
