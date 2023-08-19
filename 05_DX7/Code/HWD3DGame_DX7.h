@@ -18,10 +18,11 @@ private:
 
 	IDirect3DDevice7* m_D3DDevice = nullptr;
 
+	DWORD m_MemFlag = 0;
+
 	struct d3dDeviceData
 	{
-		std::string Name;
-		GUID Id;
+		D3DDEVICEDESC7 Desc = { };
 	};
 
 	std::vector<d3dDeviceData> m_DevicesFound;
@@ -31,6 +32,7 @@ public:
 	IDirectDraw7* GetDirectDraw() const { return m_DDraw; }
 	IDirect3D7* GetD3D() const { return m_D3D; }
 	IDirect3DDevice7* GetDevice() const { return m_D3DDevice; }
+	DWORD GetMemFlag() const { return m_MemFlag; }
 
 private:
 

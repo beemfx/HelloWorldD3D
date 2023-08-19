@@ -21,6 +21,7 @@ HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 {
 	m_TargetWnd = TargetWnd;
+	m_MemFlag = 0;
 
 	RECT TargetWndRc = {};
 	GetClientRect(m_TargetWnd, &TargetWndRc);
@@ -55,6 +56,15 @@ void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 		{
 			Deinit();
 			return;
+		}
+
+		if ((m_DevicesFound.back().Desc.dwDevCaps&D3DDEVCAPS_TEXTUREVIDEOMEMORY) != 0)
+		{
+			m_MemFlag = DDSCAPS_VIDEOMEMORY;
+		}
+		else
+		{
+			m_MemFlag = DDSCAPS_SYSTEMMEMORY;
 		}
 	}
 
@@ -92,7 +102,7 @@ void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 		DDSURFACEDESC2 BbSd = {};
 		BbSd.dwSize = sizeof(BbSd);
 		BbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
-		BbSd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | DDSCAPS_VIDEOMEMORY;
+		BbSd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_3DDEVICE | GetMemFlag();
 		BbSd.dwWidth = ScreenWidth;
 		BbSd.dwHeight = ScreenHeight;
 		const HRESULT CreateBbRes = m_DDraw->CreateSurface(&BbSd, &m_BackBuffer, 0);
@@ -108,12 +118,12 @@ void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 		// Z Buffer (Should be attached to back buffer before device is created.)
 		{
 			DDPIXELFORMAT ZBufferFormat = { };
-			const HRESULT EnumZBufFormats = m_D3D->EnumZBufferFormats(m_DevicesFound.back().Id, D3DCb_EnumZBufferFormat, reinterpret_cast<VOID*>(&ZBufferFormat) );
+			const HRESULT EnumZBufFormats = m_D3D->EnumZBufferFormats(m_DevicesFound.back().Desc.deviceGUID, D3DCb_EnumZBufferFormat, reinterpret_cast<VOID*>(&ZBufferFormat) );
 
 			DDSURFACEDESC2 ZbSd = {};
 			ZbSd.dwSize = sizeof(ZbSd);
 			ZbSd.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-			ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | DDSCAPS_VIDEOMEMORY;
+			ZbSd.ddsCaps.dwCaps = DDSCAPS_ZBUFFER | GetMemFlag();
 			ZbSd.dwWidth = ScreenWidth;
 			ZbSd.dwHeight = ScreenHeight;
 			ZbSd.dwMipMapCount = 1;
@@ -136,7 +146,7 @@ void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 			}
 		}
 
-		const HRESULT CreateDevRes = m_D3D->CreateDevice(m_DevicesFound.back().Id, m_BackBuffer, &m_D3DDevice);
+		const HRESULT CreateDevRes = m_D3D->CreateDevice(m_DevicesFound.back().Desc.deviceGUID, m_BackBuffer, &m_D3DDevice);
 		if (FAILED(CreateDevRes) || !m_D3DDevice)
 		{
 			Deinit();
@@ -276,17 +286,14 @@ HRESULT CALLBACK HWD3DGame_DX7::D3DCb_EnumDevices(LPSTR lpDeviceDescription, LPS
 {
 	HWD3DGame_DX7* _this = reinterpret_cast<HWD3DGame_DX7*>(lpContext);
 
-	D3DDEVICEDESC7 d1 = *lpD3DDeviceDesc;
-
 	d3dDeviceData NewData;
-	NewData.Name = lpDeviceName;
-	NewData.Id = lpD3DDeviceDesc->deviceGUID;
+	NewData.Desc = *lpD3DDeviceDesc;
 
 	_this->m_DevicesFound.push_back(NewData);
 
 	const DWORD WantedCaps = D3DDEVCAPS_EXECUTEVIDEOMEMORY | D3DDEVCAPS_TLVERTEXVIDEOMEMORY | D3DDEVCAPS_TEXTUREVIDEOMEMORY;
 
-	if ((d1.dwDevCaps & WantedCaps) == WantedCaps)
+	if ((lpD3DDeviceDesc->dwDevCaps & WantedCaps) == WantedCaps)
 	{
 		return S_OK;
 	}

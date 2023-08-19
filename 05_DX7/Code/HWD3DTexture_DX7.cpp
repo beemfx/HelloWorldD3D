@@ -44,7 +44,7 @@ void HWD3DTexture_DX7::InitTexture()
 	DDSURFACEDESC2 SurfDesc = { };
 	SurfDesc.dwSize = sizeof(SurfDesc);
 	SurfDesc.dwFlags = DDSD_CAPS|DDSD_HEIGHT|DDSD_WIDTH|DDSD_PIXELFORMAT;
-	SurfDesc.ddsCaps.dwCaps = DDSCAPS_TEXTURE|DDSCAPS_ALLOCONLOAD|DDSCAPS_VIDEOMEMORY;
+	SurfDesc.ddsCaps.dwCaps = DDSCAPS_TEXTURE|DDSCAPS_ALLOCONLOAD|m_Game->GetMemFlag();
 	SurfDesc.dwWidth = m_Width;
 	SurfDesc.dwHeight = m_Height;
 
@@ -105,5 +105,6 @@ void HWD3DTexture_DX7::SetTexture()
 		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_WRAPU, FALSE);
 		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_WRAPV, FALSE);
+		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_LIGHTING, FALSE);
 	}
 }
