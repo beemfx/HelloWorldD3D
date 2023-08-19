@@ -10,14 +10,13 @@ class HWD3DGame_DX7 : public HWD3DGame
 private:
 	
 	HWND m_TargetWnd = nullptr;
-	IDirectDraw4* m_DDraw = nullptr;
-	IDirect3D3* m_D3D = nullptr;
-	IDirectDrawSurface4* m_PrimarySurface = nullptr;
-	IDirectDrawSurface4* m_BackBuffer = nullptr;
-	IDirectDrawSurface4* m_ZBuffer = nullptr;
+	IDirectDraw7* m_DDraw = nullptr;
+	IDirect3D7* m_D3D = nullptr;
+	IDirectDrawSurface7* m_PrimarySurface = nullptr;
+	IDirectDrawSurface7* m_BackBuffer = nullptr;
+	IDirectDrawSurface7* m_ZBuffer = nullptr;
 
-	IDirect3DDevice3* m_D3DDevice = nullptr;
-	IDirect3DViewport3* m_Viewport = nullptr;
+	IDirect3DDevice7* m_D3DDevice = nullptr;
 
 	struct d3dDeviceData
 	{
@@ -29,9 +28,9 @@ private:
 
 public:
 	
-	IDirectDraw4* GetDirectDraw() const { return m_DDraw; }
-	IDirect3D3* GetD3D() const { return m_D3D; }
-	IDirect3DDevice3* GetDevice() const { return m_D3DDevice; }
+	IDirectDraw7* GetDirectDraw() const { return m_DDraw; }
+	IDirect3D7* GetD3D() const { return m_D3D; }
+	IDirect3DDevice7* GetDevice() const { return m_D3DDevice; }
 
 private:
 
@@ -47,6 +46,6 @@ private:
 
 	void InitCommonStates();
 
-	static HRESULT FAR PASCAL D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context);
+	static HRESULT CALLBACK D3DCb_EnumDevices(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpContext);
 	static HRESULT WINAPI D3DCb_EnumZBufferFormat( DDPIXELFORMAT* pddpf, VOID* pddpfDesired );
 };

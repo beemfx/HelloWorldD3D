@@ -33,7 +33,7 @@ void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 		const HRESULT CciRes = DirectDrawCreate(NULL, &DDraw, NULL);
 		if (DDraw)
 		{
-			DDraw->QueryInterface(IID_IDirectDraw4, reinterpret_cast<LPVOID*>(&m_DDraw));
+			DDraw->QueryInterface(IID_IDirectDraw7, reinterpret_cast<LPVOID*>(&m_DDraw));
 			HWD3D_SafeRelease(DDraw);
 		}
 
@@ -50,7 +50,7 @@ void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 			return;
 		}
 
-		const HRESULT QueryD3DRes = m_DDraw->QueryInterface(IID_IDirect3D3, reinterpret_cast<LPVOID*>(&m_D3D));
+		const HRESULT QueryD3DRes = m_DDraw->QueryInterface(IID_IDirect3D7, reinterpret_cast<LPVOID*>(&m_D3D));
 		if (FAILED(QueryD3DRes) || !m_D3D)
 		{
 			Deinit();
@@ -112,23 +112,10 @@ void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 
 	// Get device from back surface
 	{
-		D3DFINDDEVICERESULT FindDev = {};
-		FindDev.dwSize = sizeof(FindDev);
-		D3DFINDDEVICESEARCH SearchDev = {};
-		SearchDev.dwSize = sizeof(SearchDev);
-		SearchDev.guid = m_DevicesFound.back().Id;
-
-		const HRESULT FindDevRes = m_D3D->FindDevice(&SearchDev, &FindDev);
-		if (FAILED(FindDevRes))
-		{
-			Deinit();
-			return;
-		}
-
 		// Z Buffer (Should be attached to back buffer before device is created.)
 		{
 			DDPIXELFORMAT ZBufferFormat = { };
-			const HRESULT EnumZBufFormats = m_D3D->EnumZBufferFormats(FindDev.guid, D3DCb_EnumZBufferFormat, reinterpret_cast<VOID*>(&ZBufferFormat) );
+			const HRESULT EnumZBufFormats = m_D3D->EnumZBufferFormats(m_DevicesFound.back().Id, D3DCb_EnumZBufferFormat, reinterpret_cast<VOID*>(&ZBufferFormat) );
 
 			DDSURFACEDESC2 ZbSd = {};
 			ZbSd.dwSize = sizeof(ZbSd);
@@ -156,7 +143,7 @@ void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 			}
 		}
 
-		const HRESULT CreateDevRes = m_D3D->CreateDevice(FindDev.guid, m_BackBuffer, &m_D3DDevice, NULL);
+		const HRESULT CreateDevRes = m_D3D->CreateDevice(m_DevicesFound.back().Id, m_BackBuffer, &m_D3DDevice);
 		if (FAILED(CreateDevRes) || !m_D3DDevice)
 		{
 			Deinit();
@@ -166,41 +153,16 @@ void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 
 	// Viewport
 	{
-		const HRESULT CvpRes = m_D3D->CreateViewport(&m_Viewport, nullptr);
-		if (FAILED(CvpRes) || !m_Viewport)
-		{
-			Deinit();
-			return;
-		}
-		const HRESULT AvpRes = m_D3DDevice->AddViewport(m_Viewport);
-		if (FAILED(AvpRes))
-		{
-			Deinit();
-			return;
-		}
-
 		// Update Viewport
-		D3DVIEWPORT2 Vp = { };
-		Vp.dwSize = sizeof(Vp);
+		D3DVIEWPORT7 Vp = { };
 		Vp.dwX = 0UL;
 		Vp.dwY = 0UL;
 		Vp.dwWidth = ScreenWidth;
 		Vp.dwHeight = ScreenHeight;
-		Vp.dvClipX = -1.f;
-		Vp.dvClipY = 1.f;
-		Vp.dvClipWidth = 2.0f;
-		Vp.dvClipHeight = 2.0f;
 		Vp.dvMinZ = 0.0f;
 		Vp.dvMaxZ = 1.0f;
-		
-		const HRESULT SvpRes = m_Viewport->SetViewport2(&Vp);
-		if (FAILED(SvpRes))
-		{
-			Deinit();
-			return;
-		}
 
-		const HRESULT ScvpRes = m_D3DDevice->SetCurrentViewport(m_Viewport);
+		const HRESULT ScvpRes = m_D3DDevice->SetViewport(&Vp);
 		if (FAILED(ScvpRes))
 		{
 			Deinit();
@@ -227,7 +189,6 @@ void HWD3DGame_DX7::InitDevice(HWND TargetWnd)
 
 void HWD3DGame_DX7::DeinitDevice()
 {
-	HWD3D_SafeRelease(m_Viewport);
 	HWD3D_SafeRelease(m_D3DDevice);
 	HWD3D_SafeRelease(m_ZBuffer);
 	HWD3D_SafeRelease(m_BackBuffer);
@@ -238,13 +199,12 @@ void HWD3DGame_DX7::DeinitDevice()
 
 void HWD3DGame_DX7::ClearViewport()
 {
-	if (m_Viewport)
+	if (m_D3DDevice)
 	{
-		D3DVIEWPORT2 Vp = {};
-		Vp.dwSize = sizeof(Vp);
-		m_Viewport->GetViewport2(&Vp);
+		D3DVIEWPORT7 Vp = { };
+		m_D3DDevice->GetViewport(&Vp);
 		D3DRECT ClearRect = { 0, 0, static_cast<LONG>(Vp.dwWidth), static_cast<LONG>(Vp.dwHeight) };
-		const HRESULT Res = m_Viewport->Clear2(1, &ClearRect, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, RGBA_SETALPHA(RGB_MAKE(102, 102, 255), 255), 1.f, 0);
+		const HRESULT Res = m_D3DDevice->Clear(1, &ClearRect, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, RGBA_SETALPHA(RGB_MAKE(102, 102, 255), 255), 1.f, 0);
 		assert(SUCCEEDED(Res));
 	}
 }
@@ -319,16 +279,15 @@ void HWD3DGame_DX7::InitCommonStates()
 	}
 }
 
-HRESULT FAR PASCAL HWD3DGame_DX7::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context)
+HRESULT CALLBACK HWD3DGame_DX7::D3DCb_EnumDevices(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpContext)
 {
-	HWD3DGame_DX7* _this = reinterpret_cast<HWD3DGame_DX7*>(Context);
+	HWD3DGame_DX7* _this = reinterpret_cast<HWD3DGame_DX7*>(lpContext);
 
-	D3DDEVICEDESC d1 = *DevDesc1;
-	D3DDEVICEDESC d2 = *DevDesc2;
+	D3DDEVICEDESC7 d1 = *lpD3DDeviceDesc;
 
 	d3dDeviceData NewData;
 	NewData.Name = lpDeviceName;
-	NewData.Id = *lpGuid;
+	NewData.Id = lpD3DDeviceDesc->deviceGUID;
 
 	_this->m_DevicesFound.push_back(NewData);
 

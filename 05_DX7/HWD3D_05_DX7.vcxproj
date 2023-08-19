@@ -125,12 +125,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../_SDK/DX6/inc;Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../_SDK/DX7/inc;Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../_SDK/DX6/lib;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../_SDK/DX7/lib;</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -142,14 +142,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../_SDK/DX6/inc;Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../_SDK/DX7/inc;Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../_SDK/DX6/lib;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../_SDK/DX7/lib;</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -159,12 +159,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../_SDK/DX6/inc;Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../_SDK/DX7/inc;Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../_SDK/DX6/lib;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../_SDK/DX7/lib;</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
@@ -176,14 +176,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../_SDK/DX6/inc;Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../_SDK/DX7/inc;Code/;../_Common/Framework;../_Common/Res;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../_SDK/DX6/lib;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../_SDK/DX7/lib;</AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>

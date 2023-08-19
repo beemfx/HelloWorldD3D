@@ -10,7 +10,7 @@ class HWD3DMesh_DX7 : public HWD3DMesh
 private:
 	class HWD3DGame_DX7*const m_Game = nullptr;
 	const DWORD m_FVF = D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_TEX1;
-	IDirect3DVertexBuffer* m_VB = nullptr;
+	IDirect3DVertexBuffer7* m_VB = nullptr;
 	std::vector<WORD> m_D3DIndexes;
 
 public:

@@ -12,7 +12,7 @@ void HWD3DMesh_DX7::Draw()
 {
 	if (m_Game && m_Game->GetDevice() && m_VB)
 	{ 
-		m_Game->GetDevice()->DrawIndexedPrimitiveVB(D3DPT_TRIANGLELIST, m_VB, m_D3DIndexes.data(), m_D3DIndexes.size(), D3DDP_WAIT);
+		m_Game->GetDevice()->DrawIndexedPrimitiveVB(D3DPT_TRIANGLELIST, m_VB, 0, m_Vertices.size(), m_D3DIndexes.data(), m_D3DIndexes.size(), D3DDP_WAIT);
 	}
 }
 
@@ -32,7 +32,7 @@ bool HWD3DMesh_DX7::CreateBuffers()
 {
 	m_D3DIndexes.resize(0);
 
-	IDirect3D3* D3D = m_Game ? m_Game->GetD3D() : nullptr;
+	IDirect3D7* D3D = m_Game ? m_Game->GetD3D() : nullptr;
 
 	if (!D3D)
 	{
@@ -44,7 +44,7 @@ bool HWD3DMesh_DX7::CreateBuffers()
 	Vbd.dwCaps = 0;
 	Vbd.dwFVF = m_FVF;
 	Vbd.dwNumVertices = m_Vertices.size();
-	const HRESULT CvbRes = D3D->CreateVertexBuffer(&Vbd, &m_VB, 0, NULL);
+	const HRESULT CvbRes = D3D->CreateVertexBuffer(&Vbd, &m_VB, 0);
 	if (FAILED(CvbRes) || !m_VB)
 	{
 		return false;

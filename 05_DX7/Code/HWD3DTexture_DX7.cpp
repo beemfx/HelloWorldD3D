@@ -23,14 +23,13 @@ HWD3DTexture_DX7::HWD3DTexture_DX7(class HWD3DGame_DX7* InGame)
 
 HWD3DTexture_DX7::~HWD3DTexture_DX7()
 {
-	HWD3D_SafeRelease(m_Texture);
 	HWD3D_SafeRelease(m_Surface);
 }
 
 void HWD3DTexture_DX7::InitTexture()
 {
-	IDirectDraw4* DDraw = m_Game ? m_Game->GetDirectDraw() : nullptr;
-	IDirect3DDevice3* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	IDirectDraw7* DDraw = m_Game ? m_Game->GetDirectDraw() : nullptr;
+	IDirect3DDevice7* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!DDraw || !Dev)
 	{
@@ -94,19 +93,13 @@ void HWD3DTexture_DX7::InitTexture()
 		const HRESULT UnlockSurfRes = m_Surface->Unlock(NULL);
 		assert(SUCCEEDED(UnlockSurfRes));
 	}
-
-	const HRESULT QueryTextureRes = m_Surface->QueryInterface(IID_IDirect3DTexture2, reinterpret_cast<LPVOID*>(&m_Texture));
-	if (FAILED(QueryTextureRes) || !m_Texture)
-	{
-		return;
-	}
 }
 
 void HWD3DTexture_DX7::SetTexture()
 {
 	if (m_Game && m_Game->GetDevice())
 	{
-		m_Game->GetDevice()->SetTexture(0, m_Texture);
+		m_Game->GetDevice()->SetTexture(0, m_Surface);
 		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
 		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
