@@ -1,6 +1,7 @@
 // D3D Hello World
 
 #include "HWD3DGame_DX9_SM3.h"
+#include "HWD3DShader_DX9_SM3.h"
 
 #pragma comment(lib, "d3d9.lib")
 
@@ -60,25 +61,12 @@ void HWD3DGame_DX9_SM3::InitDevice(HWND TargetWnd)
 		}
 	}
 
-	// Viewport
-	if (false) // Don't actually need to set the viewport since by default it is se to the full render target.
-	{
-		// Update Viewport
-		D3DVIEWPORT9 Vp = { };
-		Vp.X = 0UL;
-		Vp.Y = 0UL;
-		Vp.Width = m_PP.BackBufferWidth;
-		Vp.Height = m_PP.BackBufferHeight;
-		Vp.MinZ = 0.0f;
-		Vp.MaxZ = 1.0f;
-
-		const HRESULT ScvpRes = m_D3DDevice->SetViewport(&Vp);
-		assert(SUCCEEDED(ScvpRes));
-	}
+	m_Shader = HWD3DShader_DX9_SM3::CreateShader(this, "_Media/DX9_SM3_VS.cso", "_Media/DX9_SM3_PS.cso");
 }
 
 void HWD3DGame_DX9_SM3::DeinitDevice()
 {
+	HWD3D_SafeRelease(m_Shader);
 	HWD3D_SafeRelease(m_D3DDevice);
 	HWD3D_SafeRelease(m_ZBuffer);
 	HWD3D_SafeRelease(m_BackBuffer);
@@ -101,6 +89,11 @@ bool HWD3DGame_DX9_SM3::BeginDraw()
 	{
 		if (SUCCEEDED(m_D3DDevice->BeginScene()))
 		{
+			if (m_Shader)
+			{
+				m_Shader->SetShader();
+			}
+
 			return true;
 		}
 	}
@@ -129,22 +122,29 @@ void HWD3DGame_DX9_SM3::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d
 {
 	if (m_D3DDevice)
 	{
-		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
+		hwd3d_matrix* Mat = nullptr;
 
-		D3DTRANSFORMSTATETYPE Type = static_cast<D3DTRANSFORMSTATETYPE>(0);
 		switch (InType)
 		{
 		case HWD3DGame::hwd3d_transform_t::Proj:
-			Type = D3DTS_PROJECTION;
+			Mat = &m_Proj;
 			break;
 		case HWD3DGame::hwd3d_transform_t::View:
-			Type = D3DTS_VIEW;
+			Mat = &m_View;
 			break;
 		case HWD3DGame::hwd3d_transform_t::World:
-			Type = D3DTS_WORLD;
+			Mat = &m_World;
 			break;
 		}
 
-		m_D3DDevice->SetTransform(Type, &Mat);
+		if (Mat)
+		{
+			*Mat = InMatrix;
+
+			// Optimally we wouldn't set this every time a matrix changed, but for Hello World sample this is acceptable.
+			m_ShaderWVP = HWD3DMatrix_Transpose(HWD3DMatrix_Multiply(m_World, HWD3DMatrix_Multiply(m_View, m_Proj)));
+
+			m_D3DDevice->SetVertexShaderConstantF(0, reinterpret_cast<const float*>(&m_ShaderWVP), 4);
+		}
 	}
 }

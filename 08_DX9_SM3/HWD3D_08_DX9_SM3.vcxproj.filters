@@ -17,6 +17,9 @@
     <Filter Include="Common\Shell">
       <UniqueIdentifier>{773a4289-b5b7-4f63-9dbd-0dd37c6466b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{a8afabb8-2d77-4cf9-80cb-7c516f4b4831}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\_Common\Framework\HWD3DGame.cpp">
@@ -44,6 +47,9 @@
       <Filter>Code</Filter>
     </ClCompile>
     <ClCompile Include="Code\HWD3DTexture_DX9_SM3.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\HWD3DShader_DX9_SM3.cpp">
       <Filter>Code</Filter>
     </ClCompile>
   </ItemGroup>
@@ -75,6 +81,9 @@
     <ClInclude Include="Code\HWD3DTexture_DX9_SM3.h">
       <Filter>Code</Filter>
     </ClInclude>
+    <ClInclude Include="Code\HWD3DShader_DX9_SM3.h">
+      <Filter>Code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\_Common\Res\directx.ico">
@@ -85,5 +94,18 @@
     <ResourceCompile Include="..\_Common\Res\HWD3DRes.rc">
       <Filter>Common\Res</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shader\DX9_SM3_VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\DX9_SM3_PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shader\DX9_SM3.hlsli">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

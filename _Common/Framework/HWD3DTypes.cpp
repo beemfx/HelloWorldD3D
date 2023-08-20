@@ -250,3 +250,15 @@ hwd3d_matrix HWD3DMatrix_BuildScale(const hwd3d_vec3& V)
 	};
 	return M;
 }
+
+hwd3d_matrix HWD3DMatrix_Transpose(const hwd3d_matrix& M)
+{
+	const hwd3d_matrix Out =
+	{
+		M._11, M._21, M._31, M._41,
+		M._12, M._22, M._32, M._42,
+		M._13, M._23, M._33, M._43,
+		M._14, M._24, M._34, M._44,
+	};
+	return Out;
+}

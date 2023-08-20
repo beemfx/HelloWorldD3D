@@ -85,6 +85,5 @@ void HWD3DTexture_DX9_SM3::SetTexture()
 		m_Game->GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 		m_Game->GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTEXTUREADDRESS::D3DTADDRESS_WRAP);
 		m_Game->GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTEXTUREADDRESS::D3DTADDRESS_WRAP);
-		m_Game->GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
 	}
 }

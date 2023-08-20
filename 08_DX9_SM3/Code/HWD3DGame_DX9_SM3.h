@@ -17,6 +17,13 @@ private:
 
 	IDirect3DDevice9* m_D3DDevice = nullptr;
 
+	class HWD3DShader_DX9_SM3* m_Shader = nullptr;
+
+	hwd3d_matrix m_Proj = HWD3DMatrix_Ident;
+	hwd3d_matrix m_View = HWD3DMatrix_Ident;
+	hwd3d_matrix m_World = HWD3DMatrix_Ident;
+	hwd3d_matrix m_ShaderWVP = HWD3DMatrix_Ident;
+
 public:
 	
 	IDirect3D9* GetD3D() const { return m_D3D; }
