@@ -45,7 +45,7 @@ bool HWD3DMesh_DX10::CreateBuffers()
 		return false;
 	}
 
-	const D3D10_USAGE Usage = D3D10_USAGE_IMMUTABLE;
+	const D3D10_USAGE Usage = D3D10_USAGE_DEFAULT;//D3D10_USAGE_IMMUTABLE;
 	
 	// Fill Vertex Buffer
 	{
@@ -67,6 +67,7 @@ bool HWD3DMesh_DX10::CreateBuffers()
 	// Fill index Buffer
 	{
 		std::vector<hwd3d_graphics_index> Indices;
+		Indices.reserve(m_Triangles.size()*3);
 
 		for (int i = 0; i < static_cast<int>(m_Triangles.size()); i++)
 		{
@@ -83,8 +84,8 @@ bool HWD3DMesh_DX10::CreateBuffers()
 
 		D3D10_SUBRESOURCE_DATA Data = { };
 		Data.pSysMem = Indices.data();
-		const HRESULT CvbRes = Dev->CreateBuffer(&Bd, &Data, &m_VB);
-		if (FAILED(CvbRes) || !m_VB)
+		const HRESULT CvbRes = Dev->CreateBuffer(&Bd, &Data, &m_IB);
+		if (FAILED(CvbRes) || !m_IB)
 		{
 			return false;
 		}

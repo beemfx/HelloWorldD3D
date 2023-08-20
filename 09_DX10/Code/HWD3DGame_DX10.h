@@ -8,6 +8,8 @@ class HWD3DGame_DX10 : public HWD3DGame
 private:
 	
 	HWND m_TargetWnd = nullptr;
+	UINT m_ViewWidth = 0;
+	UINT m_ViewHeight = 0;
 
 	IDXGISwapChain* m_SwapChain = nullptr;
 	ID3D10Device* m_D3DDevice = nullptr;
@@ -15,6 +17,9 @@ private:
 	ID3D10RenderTargetView* m_RTV = nullptr;
 	ID3D10Texture2D* m_DSVTexture = nullptr;
 	ID3D10DepthStencilView* m_DSV = nullptr;
+	ID3D10Buffer* m_VSConstBuffer = nullptr;
+	ID3D10RasterizerState* m_RS = nullptr;
+	ID3D10SamplerState* m_SS = nullptr;
 
 	class HWD3DShader_DX10* m_Shader = nullptr;
 
@@ -39,4 +44,6 @@ private:
 	virtual void Present() override;
 
 	virtual void SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_matrix& InMatrix) override;
+
+	bool CreateConstBuffer();
 };

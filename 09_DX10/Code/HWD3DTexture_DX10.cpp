@@ -79,6 +79,8 @@ void HWD3DTexture_DX10::InitTexture()
 
 void HWD3DTexture_DX10::SetTexture()
 {
+	return;
+
 	if (m_Game && m_Game->GetDevice() && m_Texture && m_View)
 	{
 		m_Game->GetDevice()->PSSetShaderResources(0, 1 , &m_View);

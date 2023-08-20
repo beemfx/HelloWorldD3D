@@ -105,4 +105,5 @@ HWD3DShader_DX10::~HWD3DShader_DX10()
 {
 	HWD3D_SafeRelease(m_PS);
 	HWD3D_SafeRelease(m_VS);
+	HWD3D_SafeRelease(m_IL);
 }

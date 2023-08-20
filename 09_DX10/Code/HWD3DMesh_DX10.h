@@ -12,6 +12,8 @@ private:
 	ID3D10Buffer* m_VB = nullptr;
 	ID3D10Buffer* m_IB = nullptr;
 
+	ID3D10Buffer* m_Bogus = nullptr;
+
 public:
 
 	virtual void Draw() override;
