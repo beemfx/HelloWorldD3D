@@ -99,9 +99,5 @@ void HWD3DTexture_DX10::SetTexture()
 	if (m_Game && m_Game->GetDevice() && m_Texture && m_View)
 	{
 		m_Game->GetDevice()->PSSetShaderResources(0, 1 , &m_View);
-
-		// m_Game->GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		// m_Game->GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		// m_Game->GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	}
 }

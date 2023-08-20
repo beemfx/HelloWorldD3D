@@ -108,7 +108,7 @@ void HWD3DGame_DX10::InitDevice(HWND TargetWnd)
 		}
 	}
 
-	if (!CreateConstBuffer())
+	if (!InitSharedObjects())
 	{
 		Deinit();
 		return;
@@ -121,6 +121,8 @@ void HWD3DGame_DX10::DeinitDevice()
 	HWD3D_SafeRelease(m_Shader);
 	HWD3D_SafeRelease(m_SS);
 	HWD3D_SafeRelease(m_RS);
+	HWD3D_SafeRelease(m_DS);
+	HWD3D_SafeRelease(m_BS);
 	HWD3D_SafeRelease(m_VSConstBuffer);
 	HWD3D_SafeRelease(m_DSV);
 	HWD3D_SafeRelease(m_DSVTexture);
@@ -158,6 +160,9 @@ bool HWD3DGame_DX10::BeginDraw()
 
 		m_D3DDevice->RSSetState(m_RS);
 		m_D3DDevice->PSSetSamplers(0, 1, &m_SS);
+		const float BlendFactor[] = { 1.f , 1.f , 1.f , 1.f };
+		m_D3DDevice->OMSetBlendState(m_BS, BlendFactor, 0xFFFFFFFF);
+		m_D3DDevice->OMSetDepthStencilState(m_DS, 0);
 
 		if (m_Shader)
 		{
@@ -228,7 +233,7 @@ void HWD3DGame_DX10::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_ma
 	}
 }
 
-bool HWD3DGame_DX10::CreateConstBuffer()
+bool HWD3DGame_DX10::InitSharedObjects()
 {
 	if (!m_D3DDevice)
 	{
@@ -253,16 +258,16 @@ bool HWD3DGame_DX10::CreateConstBuffer()
 	// Raster State:
 	{
 		D3D10_RASTERIZER_DESC Rsd = { };
-		Rsd.CullMode = D3D10_CULL_NONE;
 		Rsd.FillMode = D3D10_FILL_SOLID;
-		Rsd.FrontCounterClockwise = true;
-		Rsd.DepthBias = false;
-		Rsd.DepthBiasClamp = 0;
-		Rsd.SlopeScaledDepthBias = 0;
-		Rsd.DepthClipEnable = true;
-		Rsd.ScissorEnable = false;
-		Rsd.MultisampleEnable = false;
-		Rsd.AntialiasedLineEnable = true;
+		Rsd.CullMode = D3D10_CULL_BACK;
+		Rsd.FrontCounterClockwise = FALSE;
+		Rsd.DepthBias = 0;
+		Rsd.DepthBiasClamp = 0.f;
+		Rsd.SlopeScaledDepthBias = 0.f;
+		Rsd.DepthClipEnable = TRUE;
+		Rsd.ScissorEnable = FALSE;
+		Rsd.MultisampleEnable = FALSE;
+		Rsd.AntialiasedLineEnable = FALSE;
 		const HRESULT Res = m_D3DDevice->CreateRasterizerState(&Rsd, &m_RS);
 		if (FAILED(Res) || !m_RS)
 		{
@@ -277,8 +282,60 @@ bool HWD3DGame_DX10::CreateConstBuffer()
 		Ssd.AddressU = D3D10_TEXTURE_ADDRESS_WRAP;
 		Ssd.AddressV = D3D10_TEXTURE_ADDRESS_WRAP;
 		Ssd.AddressW = D3D10_TEXTURE_ADDRESS_WRAP;
+		Ssd.MipLODBias = 0.f;
+		Ssd.MaxAnisotropy = 16;
+		Ssd.ComparisonFunc = D3D10_COMPARISON_NEVER;
+		Ssd.BorderColor[0] = 0.f;
+		Ssd.BorderColor[1] = 0.f;
+		Ssd.BorderColor[2] = 0.f;
+		Ssd.BorderColor[3] = 0.f;
+		Ssd.MinLOD = 0.f;
+		Ssd.MaxLOD = FLT_MAX;
+
 		const HRESULT Res = m_D3DDevice->CreateSamplerState(&Ssd, &m_SS);
 		if (FAILED(Res) || !m_SS)
+		{
+			return false;
+		}
+	}
+
+	// Blend State:
+	{
+		D3D10_BLEND_DESC Bd = { };
+		Bd.AlphaToCoverageEnable = FALSE;
+		Bd.BlendEnable[0] = TRUE;
+		Bd.SrcBlend = D3D10_BLEND_SRC_ALPHA;
+		Bd.DestBlend = D3D10_BLEND_INV_SRC_ALPHA;
+		Bd.BlendOp = D3D10_BLEND_OP_ADD;
+		Bd.SrcBlendAlpha = D3D10_BLEND_ONE;
+		Bd.DestBlendAlpha = D3D10_BLEND_ZERO;
+		Bd.BlendOpAlpha = D3D10_BLEND_OP_ADD;
+		for (auto& Value : Bd.RenderTargetWriteMask)
+		{
+			Value = D3D10_COLOR_WRITE_ENABLE_ALL;
+		}
+
+		const HRESULT Res = m_D3DDevice->CreateBlendState(&Bd, &m_BS);
+		if (FAILED(Res) || !m_BS)
+		{
+			return false;
+		}
+	}
+
+	// Depth Stencil State:
+	{
+		const D3D10_DEPTH_STENCIL_DESC Dsd = 
+			{ TRUE 
+			, D3D10_DEPTH_WRITE_MASK_ALL 
+			, D3D10_COMPARISON_LESS
+			, FALSE
+			, D3D10_DEFAULT_STENCIL_READ_MASK
+			, D3D10_DEFAULT_STENCIL_WRITE_MASK
+			, { D3D10_STENCIL_OP_KEEP , D3D10_STENCIL_OP_KEEP , D3D10_STENCIL_OP_KEEP , D3D10_COMPARISON_ALWAYS }
+			, { D3D10_STENCIL_OP_KEEP , D3D10_STENCIL_OP_KEEP , D3D10_STENCIL_OP_KEEP , D3D10_COMPARISON_ALWAYS } };
+
+		const HRESULT Res = m_D3DDevice->CreateDepthStencilState(&Dsd, &m_DS);
+		if (FAILED(Res) || !m_DS)
 		{
 			return false;
 		}
