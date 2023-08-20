@@ -164,6 +164,8 @@ bool HWD3DGame_DX10::BeginDraw()
 		m_D3DDevice->OMSetBlendState(m_BS, BlendFactor, 0xFFFFFFFF);
 		m_D3DDevice->OMSetDepthStencilState(m_DS, 0);
 
+		m_D3DDevice->VSSetConstantBuffers(0, 1, &m_VSConstBuffer);
+
 		if (m_Shader)
 		{
 			m_Shader->SetShader();
@@ -177,10 +179,7 @@ bool HWD3DGame_DX10::BeginDraw()
 
 void HWD3DGame_DX10::EndDraw()
 {
-	if (m_D3DDevice)
-	{
-		
-	}
+	
 }
 
 void HWD3DGame_DX10::Present()
@@ -226,8 +225,6 @@ void HWD3DGame_DX10::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_ma
 					memcpy(Dest, &m_ShaderWVP, sizeof(m_ShaderWVP));
 					m_VSConstBuffer->Unmap();
 				}
-
-				m_D3DDevice->VSSetConstantBuffers(0, 1, &m_VSConstBuffer);
 			}
 		}
 	}
