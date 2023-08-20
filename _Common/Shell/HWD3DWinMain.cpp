@@ -8,15 +8,22 @@
 static const WCHAR WinMain_Title[] = L"Hello World D3D";
 static const WCHAR WinMain_WindowClass[] = L"HelloWorldD3D";
 
-static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-static void HWD3DWinMain_SetDPIAware();
+namespace HWD3DWinMain
+{
+	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+	static bool ChangeToContentDirectory();
+	static void SetDPIAware();
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
+	using namespace HWD3DWinMain;
+
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	HWD3DWinMain_SetDPIAware();
+	SetDPIAware();
+	ChangeToContentDirectory();
 
 	const POINT DisplayRes = { 800, 600 }; // TODO: Command Line Parameter
 	const float GameUpdateRate = 1.f / 60.f;
@@ -111,7 +118,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	return 0;
 }
 
-static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK HWD3DWinMain::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
@@ -138,7 +145,33 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	return 0;
 }
 
-static void HWD3DWinMain_SetDPIAware()
+static bool HWD3DWinMain::ChangeToContentDirectory()
+{
+	static const int MAX_PARENT_DIRS = 10;
+
+	for (int i = 0; i < MAX_PARENT_DIRS; i++)
+	{
+		// Is the _Media directory in our working directory, if so we're where we want to be:
+		const DWORD Attrs = GetFileAttributesW(L"_Media");
+	#ifndef INVALID_FILE_ATTRIBUTES
+		#define INVALID_FILE_ATTRIBUTES -1 // Our DX8 version of the Windows API doesn't have this defined.
+	#endif
+		if (INVALID_FILE_ATTRIBUTES != Attrs && ((Attrs&FILE_ATTRIBUTE_DIRECTORY) != 0))
+		{
+			return true;
+		}
+
+		// If not go up one directory:
+		if (!SetCurrentDirectoryW(L".."))
+		{
+			return false;
+		}
+	}
+
+	return false;
+}
+
+static void HWD3DWinMain::SetDPIAware()
 {
 #define HWD3DWINMAIN_CALL_DLL_DPI_AWARENESS 1
 

@@ -31,8 +31,8 @@ void HWD3DGame::Deinit()
 
 void HWD3DGame::CreateScene()
 {
-	m_Teapot.Load(*this, "../_Media/teapot.hw3d", "../_Media/checkers.rgba");
-	m_Cube.Load(*this, "../_Media/box.hw3d", "../_Media/HappyFace.rgba");
+	m_Teapot.Load(*this, "_Media/teapot.hw3d", "_Media/checkers.rgba");
+	m_Cube.Load(*this, "_Media/box.hw3d", "_Media/HappyFace.rgba");
 }
 
 void HWD3DGame::DestroyScene()
