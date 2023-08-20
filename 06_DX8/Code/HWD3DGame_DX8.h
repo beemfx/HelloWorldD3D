@@ -35,4 +35,5 @@ private:
 	virtual void SetWorldMatrix(const hwd3d_matrix& InMatrix) override;
 
 	void InitCommonStates();
+	void ResetSceneStates();
 };

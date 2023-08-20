@@ -43,7 +43,7 @@ void HWD3DGame_DX8::InitDevice(HWND TargetWnd)
 		m_PP.BackBufferFormat = D3DFMT_X8R8G8B8; // Same as desktop since we're windowed.
 		m_PP.EnableAutoDepthStencil = TRUE;
 		m_PP.AutoDepthStencilFormat = D3DFMT_D16;
-		m_PP.SwapEffect = D3DSWAPEFFECT_COPY;
+		m_PP.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		m_PP.Windowed = TRUE;
 		m_PP.hDeviceWindow = m_TargetWnd;
 
@@ -61,27 +61,24 @@ void HWD3DGame_DX8::InitDevice(HWND TargetWnd)
 	}
 
 	// Viewport
+	if (false) // Don't actually need to set the viewport since by default it is se to the full render target.
 	{
 		// Update Viewport
 		D3DVIEWPORT8 Vp = { };
 		Vp.X = 0UL;
 		Vp.Y = 0UL;
-		Vp.Width = ScreenWidth;
-		Vp.Height = ScreenHeight;
+		Vp.Width = m_PP.BackBufferWidth;
+		Vp.Height = m_PP.BackBufferHeight;
 		Vp.MinZ = 0.0f;
 		Vp.MaxZ = 1.0f;
 
 		const HRESULT ScvpRes = m_D3DDevice->SetViewport(&Vp);
-		if (FAILED(ScvpRes))
-		{
-			Deinit();
-			return;
-		}
+		assert(SUCCEEDED(ScvpRes));
 	}
 
 	// Set WVP Matrices
 	{
-		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(ScreenWidth)/ScreenHeight), .1f , 1000.f );
+		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(m_PP.BackBufferWidth)/m_PP.BackBufferHeight), .1f , 1000.f );
 		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(hwd3d_vec3(0.f, 0.f, -25.f), hwd3d_vec3(0.f,0.f,0.f), hwd3d_vec3(0.f,1.f,0.f));
 
 		D3DMATRIX Proj = *reinterpret_cast<const D3DMATRIX*>(&ProjMatrix);
@@ -109,10 +106,7 @@ void HWD3DGame_DX8::ClearViewport()
 {
 	if (m_D3DDevice)
 	{
-		D3DVIEWPORT8 Vp = { };
-		m_D3DDevice->GetViewport(&Vp);
-		D3DRECT ClearRect = { 0, 0, static_cast<LONG>(Vp.Width), static_cast<LONG>(Vp.Height) };
-		const HRESULT Res = m_D3DDevice->Clear(1, &ClearRect, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 0xFF6666FF, 1.f, 0);
+		const HRESULT Res = m_D3DDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 0xFF6666FF, 1.f, 0);
 		assert(SUCCEEDED(Res));
 	}
 }
@@ -123,6 +117,7 @@ bool HWD3DGame_DX8::BeginDraw()
 	{
 		if (SUCCEEDED(m_D3DDevice->BeginScene()))
 		{
+			ResetSceneStates();
 			return true;
 		}
 	}
@@ -159,6 +154,14 @@ void HWD3DGame_DX8::SetWorldMatrix(const hwd3d_matrix& InMatrix)
 void HWD3DGame_DX8::InitCommonStates()
 {
 	if (!m_D3D || !m_D3DDevice)
+	{
+		return;
+	}
+}
+
+void HWD3DGame_DX8::ResetSceneStates()
+{
+	if (!m_D3DDevice)
 	{
 		return;
 	}

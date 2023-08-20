@@ -60,7 +60,7 @@ void HWD3DTexture_DX8::InitTexture()
 			for (int SrcX = 0; SrcX < m_Height; SrcX++)
 			{
 				const hwd3d_rgba& SrcClr = m_Pixels[SrcY*m_Width + SrcX];
-				const D3DCOLOR DstClr = RGB(SrcClr.R, SrcClr.G, SrcClr.B)|(SrcClr.A<<24);
+				const D3DCOLOR DstClr = (SrcClr.B<<0) | (SrcClr.G<<8) | (SrcClr.R<<16) | (SrcClr.A<<24);
 
 				BYTE* SurfAsByteArray = reinterpret_cast<BYTE*>(LockedRect.pBits);
 				const int PixelStartOffset = (SrcY*LockedRect.Pitch) + SrcX*PixelByteSize;
@@ -83,8 +83,8 @@ void HWD3DTexture_DX8::SetTexture()
 		m_Game->GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		m_Game->GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_Game->GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		m_Game->GetDevice()->SetRenderState(D3DRS_WRAP0, FALSE);
-		m_Game->GetDevice()->SetRenderState(D3DRS_WRAP1, FALSE);
+		m_Game->GetDevice()->SetTextureStageState(0, D3DTSS_ADDRESSU, D3DTEXTUREADDRESS::D3DTADDRESS_WRAP);
+		m_Game->GetDevice()->SetTextureStageState(0, D3DTSS_ADDRESSV, D3DTEXTUREADDRESS::D3DTADDRESS_WRAP);
 		m_Game->GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
 	}
 }
