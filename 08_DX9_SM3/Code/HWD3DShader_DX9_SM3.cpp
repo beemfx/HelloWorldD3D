@@ -15,8 +15,9 @@ void HWD3DShader_DX9_SM3::Release()
 
 void HWD3DShader_DX9_SM3::SetShader()
 {
-	if (m_Game && m_Game->GetDevice() && m_VS && m_PS)
+	if (m_Game && m_Game->GetDevice() && m_VS && m_PS && m_VD)
 	{
+		m_Game->GetDevice()->SetVertexDeclaration(m_VD);
 		m_Game->GetDevice()->SetVertexShader(m_VS);
 		m_Game->GetDevice()->SetPixelShader(m_PS);
 	}
@@ -30,6 +31,22 @@ HWD3DShader_DX9_SM3::HWD3DShader_DX9_SM3(class HWD3DGame_DX9_SM3* InGame, const 
 	if (!Dev)
 	{
 		return;
+	}
+
+	// Vertex Declaration
+	{
+		static const D3DVERTEXELEMENT9 Vd[] =
+		{
+			{ 0 , 0 , D3DDECLTYPE_FLOAT3 , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_POSITION , 0 } ,
+			{ 0 , 12 , D3DDECLTYPE_FLOAT3 , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_NORMAL , 0 } ,
+			{ 0 , 24 , D3DDECLTYPE_FLOAT2 , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_TEXCOORD , 0 } ,
+			D3DDECL_END()
+		};
+		const HRESULT CreateVdRes = Dev->CreateVertexDeclaration(Vd, &m_VD);
+		if (FAILED(CreateVdRes) || !m_VD)
+		{
+			return;
+		}
 	}
 
 	// Load Vertex Shader:

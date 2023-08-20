@@ -14,6 +14,7 @@ public:
 protected:
 	
 	class HWD3DGame_DX9_SM3*const m_Game = nullptr;
+	IDirect3DVertexDeclaration9* m_VD = nullptr;
 	IDirect3DVertexShader9* m_VS = nullptr;
 	IDirect3DPixelShader9* m_PS = nullptr;
 
