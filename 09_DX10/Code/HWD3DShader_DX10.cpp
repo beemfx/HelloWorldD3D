@@ -15,38 +15,22 @@ void HWD3DShader_DX10::Release()
 
 void HWD3DShader_DX10::SetShader()
 {
-	if (m_Game && m_Game->GetDevice() && m_VS && m_PS && m_VD)
+	if (m_Game && m_Game->GetDevice() && m_VS && m_IL)
 	{
-		m_Game->GetDevice()->SetVertexDeclaration(m_VD);
-		m_Game->GetDevice()->SetVertexShader(m_VS);
-		m_Game->GetDevice()->SetPixelShader(m_PS);
+		m_Game->GetDevice()->IASetInputLayout(m_IL);
+		m_Game->GetDevice()->VSSetShader(m_VS);
+		m_Game->GetDevice()->PSSetShader(m_PS);
 	}
 }
 
 HWD3DShader_DX10::HWD3DShader_DX10(class HWD3DGame_DX10* InGame, const char* InVSFile, const char* InPSFile)
 	: m_Game(InGame)
 {
-	IDirect3DDevice9* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	ID3D10Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!Dev)
 	{
 		return;
-	}
-
-	// Vertex Declaration
-	{
-		static const D3DVERTEXELEMENT9 Vd[] =
-		{
-			{ 0 , 0 , D3DDECLTYPE_FLOAT3 , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_POSITION , 0 } ,
-			{ 0 , 12 , D3DDECLTYPE_FLOAT3 , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_NORMAL , 0 } ,
-			{ 0 , 24 , D3DDECLTYPE_FLOAT2 , D3DDECLMETHOD_DEFAULT , D3DDECLUSAGE_TEXCOORD , 0 } ,
-			D3DDECL_END()
-		};
-		const HRESULT CreateVdRes = Dev->CreateVertexDeclaration(Vd, &m_VD);
-		if (FAILED(CreateVdRes) || !m_VD)
-		{
-			return;
-		}
 	}
 
 	// Load Vertex Shader:
@@ -68,10 +52,25 @@ HWD3DShader_DX10::HWD3DShader_DX10(class HWD3DGame_DX10* InGame, const char* InV
 			return;
 		}
 
-		const HRESULT CreateRes = Dev->CreateVertexShader(reinterpret_cast<DWORD*>(FileData.data()), &m_VS);
+		const HRESULT CreateRes = Dev->CreateVertexShader(reinterpret_cast<DWORD*>(FileData.data()), FileData.size(), &m_VS);
 		if (FAILED(CreateRes) || !m_VS)
 		{
 			return;
+		}
+
+		// Vertex Declaration
+		{
+			static const D3D10_INPUT_ELEMENT_DESC Vd[] =
+			{
+				{ "SV_POSITION" , 0 , DXGI_FORMAT_R32G32B32_FLOAT , 0 , D3D10_APPEND_ALIGNED_ELEMENT , D3D10_INPUT_PER_VERTEX_DATA , 0 },
+				{ "NORMAL"      , 0 , DXGI_FORMAT_R32G32B32_FLOAT , 0 , D3D10_APPEND_ALIGNED_ELEMENT , D3D10_INPUT_PER_VERTEX_DATA , 0 },
+				{ "TEXCOORD"    , 0 , DXGI_FORMAT_R32G32_FLOAT    , 0 , D3D10_APPEND_ALIGNED_ELEMENT , D3D10_INPUT_PER_VERTEX_DATA , 0 },
+			};
+			const HRESULT CreateVdRes = Dev->CreateInputLayout(Vd, _countof(Vd), reinterpret_cast<const void*>(FileData.data()), FileData.size(), &m_IL);
+			if (FAILED(CreateVdRes) || !m_IL)
+			{
+				return;
+			}
 		}
 	}
 
@@ -94,7 +93,7 @@ HWD3DShader_DX10::HWD3DShader_DX10(class HWD3DGame_DX10* InGame, const char* InV
 			return;
 		}
 
-		const HRESULT CreateRes = Dev->CreatePixelShader(reinterpret_cast<DWORD*>(FileData.data()), &m_PS);
+		const HRESULT CreateRes = Dev->CreatePixelShader(reinterpret_cast<DWORD*>(FileData.data()), FileData.size(), &m_PS);
 		if (FAILED(CreateRes) || !m_VS)
 		{
 			return;

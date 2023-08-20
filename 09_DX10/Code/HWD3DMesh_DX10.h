@@ -3,14 +3,14 @@
 #pragma once
 
 #include "HWD3DMesh.h"
-#include <d3d9.h>
+#include <d3d10.h>
 
 class HWD3DMesh_DX10 : public HWD3DMesh
 {
 private:
 	class HWD3DGame_DX10*const m_Game = nullptr;
-	IDirect3DVertexBuffer9* m_VB = nullptr;
-	IDirect3DIndexBuffer9* m_IB = nullptr;
+	ID3D10Buffer* m_VB = nullptr;
+	ID3D10Buffer* m_IB = nullptr;
 
 public:
 

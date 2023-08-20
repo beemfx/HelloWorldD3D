@@ -13,10 +13,13 @@ void HWD3DMesh_DX10::Draw()
 	if (m_Game && m_Game->GetDevice() && m_VB && m_IB)
 	{ 
 		static_assert(sizeof(hwd3d_vertex) == (sizeof(float)*8), "hwd3d_vertex has padding.");
-		m_Game->GetDevice()->SetStreamSource(0, m_VB, 0, sizeof(hwd3d_vertex));
-		m_Game->GetDevice()->SetIndices(m_IB);
-		const HRESULT Res = m_Game->GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_Vertices.size(), 0, m_Triangles.size());
-		assert(SUCCEEDED(Res));
+		ID3D10Buffer* Buffers[] = { m_VB };
+		const UINT Strides[] = { sizeof(hwd3d_vertex) };
+		const UINT Offsets[] = { 0 };
+		m_Game->GetDevice()->IASetVertexBuffers(0, _countof(Buffers), Buffers, Strides, Offsets);
+		m_Game->GetDevice()->IASetIndexBuffer(m_IB, DXGI_FORMAT_R16_UINT, 0);
+		m_Game->GetDevice()->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_Game->GetDevice()->DrawIndexed(m_Triangles.size()*3, 0, 0);
 	}
 }
 
@@ -35,54 +38,55 @@ HWD3DMesh_DX10::~HWD3DMesh_DX10()
 
 bool HWD3DMesh_DX10::CreateBuffers()
 {
-	IDirect3DDevice9* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	ID3D10Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!Dev)
 	{
 		return false;
 	}
 
-	const DWORD Usage = 0;// D3DUSAGE_DYNAMIC;
+	const D3D10_USAGE Usage = D3D10_USAGE_IMMUTABLE;
 	
-	const UINT VbSize = m_Vertices.size()*sizeof(hwd3d_vertex);
-	const HRESULT CvbRes = Dev->CreateVertexBuffer(VbSize, Usage, 0, D3DPOOL_DEFAULT, &m_VB, NULL);
-	if (FAILED(CvbRes) || !m_VB)
-	{
-		return false;
-	}
-
 	// Fill Vertex Buffer
 	{
-		hwd3d_vertex* DstVerts = nullptr;
-		const HRESULT LockRes = m_VB->Lock(0, 0, reinterpret_cast<void**>(&DstVerts), 0);
-		if (SUCCEEDED(LockRes) && DstVerts)
+		const UINT VbSize = m_Vertices.size()*sizeof(hwd3d_vertex);
+		D3D10_BUFFER_DESC Bd = { };
+		Bd.Usage = Usage;
+		Bd.ByteWidth = VbSize;
+		Bd.BindFlags = D3D10_BIND_VERTEX_BUFFER;
+
+		D3D10_SUBRESOURCE_DATA Data = { };
+		Data.pSysMem = m_Vertices.data();
+		const HRESULT CvbRes = Dev->CreateBuffer(&Bd, &Data, &m_VB);
+		if (FAILED(CvbRes) || !m_VB)
 		{
-			memcpy(DstVerts, m_Vertices.data(), VbSize);
-			m_VB->Unlock();
+			return false;
 		}
 	}
 
-	const HRESULT CibRes = Dev->CreateIndexBuffer(m_Triangles.size()*3*sizeof(hwd3d_graphics_index), Usage, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &m_IB, NULL);
-	if (FAILED(CibRes) || !m_IB)
+	// Fill index Buffer
 	{
-		return false;
-	}
+		std::vector<hwd3d_graphics_index> Indices;
 
-	// Fill Index Buffer
-	{
-		static_assert(sizeof(hwd3d_graphics_index) == 2, "Padding on hwd3d_graphics_index");
-		hwd3d_graphics_index* DstIdxs = nullptr;
-		const HRESULT LockRes = m_IB->Lock(0, m_Triangles.size()*3*sizeof(hwd3d_graphics_index), reinterpret_cast<void**>(&DstIdxs), 0);
-		if (SUCCEEDED(LockRes) && DstIdxs)
+		for (int i = 0; i < static_cast<int>(m_Triangles.size()); i++)
 		{
-			for (int i = 0; i < static_cast<int>(m_Triangles.size()); i++)
-			{
-				DstIdxs[i*3+0] = m_Triangles[i].v1;
-				DstIdxs[i*3+1] = m_Triangles[i].v2;
-				DstIdxs[i*3+2] = m_Triangles[i].v3;
-			}
+			Indices.push_back(m_Triangles[i].v1);
+			Indices.push_back(m_Triangles[i].v2);
+			Indices.push_back(m_Triangles[i].v3);
+		}
 
-			m_VB->Unlock();
+		const UINT IbSize = Indices.size()*sizeof(hwd3d_graphics_index);
+		D3D10_BUFFER_DESC Bd = { };
+		Bd.Usage = Usage;
+		Bd.ByteWidth = IbSize;
+		Bd.BindFlags = D3D10_BIND_INDEX_BUFFER;
+
+		D3D10_SUBRESOURCE_DATA Data = { };
+		Data.pSysMem = Indices.data();
+		const HRESULT CvbRes = Dev->CreateBuffer(&Bd, &Data, &m_VB);
+		if (FAILED(CvbRes) || !m_VB)
+		{
+			return false;
 		}
 	}
 

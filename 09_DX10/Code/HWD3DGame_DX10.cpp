@@ -3,7 +3,7 @@
 #include "HWD3DGame_DX10.h"
 #include "HWD3DShader_DX10.h"
 
-#pragma comment(lib, "d3d9.lib")
+#pragma comment(lib, "d3d10.lib")
 
 HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 {
@@ -29,57 +29,100 @@ void HWD3DGame_DX10::InitDevice(HWND TargetWnd)
 
 	// Init DirectDraw and obtain Direct3D
 	{
-		m_D3D = Direct3DCreate9(D3D_SDK_VERSION);
-		if (!m_D3D)
+		DXGI_SWAP_CHAIN_DESC ScDesc = { };
+		ScDesc.BufferCount = 1;
+		ScDesc.Windowed = TRUE;
+		ScDesc.OutputWindow = m_TargetWnd;
+		ScDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+		ScDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		ScDesc.SampleDesc.Quality = 0;
+		ScDesc.SampleDesc.Count = 1;
+		ScDesc.BufferDesc.Width = ScreenWidth;
+		ScDesc.BufferDesc.Height = ScreenHeight;
+		ScDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		ScDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
+		ScDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_STRETCHED;
+
+		const HRESULT CreateDevRes = D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_HARDWARE, NULL, 0, D3D10_SDK_VERSION, &ScDesc, &m_SwapChain, &m_D3DDevice);
+		if (FAILED(CreateDevRes) || !m_D3DDevice || !m_SwapChain)
+		{
+			Deinit();
+			return;
+		}
+	}
+
+	// Back Buffer:
+	{
+		const HRESULT GetBbRes = m_SwapChain->GetBuffer(0, IID_PPV_ARGS(&m_RTVTexture));
+		if (FAILED(GetBbRes) || !m_RTVTexture)
+		{
+			return;
+		}
+
+		D3D10_RENDER_TARGET_VIEW_DESC RtvDesc = { };
+		RtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		RtvDesc.ViewDimension = D3D10_RTV_DIMENSION_TEXTURE2D;
+		RtvDesc.Texture2D.MipSlice = 0;
+		const HRESULT CreateRtvRes = m_D3DDevice->CreateRenderTargetView(m_RTVTexture, &RtvDesc, &m_RTV);
+		if (FAILED(CreateRtvRes) || !m_RTV)
+		{
+			Deinit();
+			return;
+		}
+	}
+
+	// Z-Buffer
+	{
+		D3D10_TEXTURE2D_DESC RtvTd = { };
+		RtvTd.Width = ScreenWidth;
+		RtvTd.Height = ScreenHeight;
+		RtvTd.MipLevels = 1;
+		RtvTd.ArraySize = 1;
+		RtvTd.Format = DXGI_FORMAT_R16_TYPELESS;
+		RtvTd.Usage = D3D10_USAGE_DEFAULT;
+		RtvTd.BindFlags = D3D10_BIND_DEPTH_STENCIL;
+		RtvTd.SampleDesc.Quality = 0;
+		RtvTd.SampleDesc.Count = 1;
+		const HRESULT CreateRtRes = m_D3DDevice->CreateTexture2D(&RtvTd,  NULL, &m_DSVTexture);
+		if (FAILED(CreateRtRes) || !m_DSVTexture)
 		{
 			Deinit();
 			return;
 		}
 
-		m_DevType = D3DDEVTYPE_HAL;
-
-		m_PP.BackBufferWidth = ScreenWidth;
-		m_PP.BackBufferHeight = ScreenHeight;
-		m_PP.BackBufferCount = 1;
-		m_PP.BackBufferFormat = D3DFMT_X8R8G8B8; // Same as desktop since we're windowed.
-		m_PP.EnableAutoDepthStencil = TRUE;
-		m_PP.AutoDepthStencilFormat = D3DFMT_D16;
-		m_PP.SwapEffect = D3DSWAPEFFECT_DISCARD;
-		m_PP.Windowed = TRUE;
-		m_PP.hDeviceWindow = m_TargetWnd;
-
-		const HRESULT CreateHalRes = m_D3D->CreateDevice(D3DADAPTER_DEFAULT, m_DevType, m_TargetWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &m_PP, &m_D3DDevice);
-		if (FAILED(CreateHalRes) || !m_D3DDevice)
+		D3D10_DEPTH_STENCIL_VIEW_DESC RtvDesc = { };
+		RtvDesc.Format = DXGI_FORMAT_D16_UNORM;
+		RtvDesc.ViewDimension = D3D10_DSV_DIMENSION_TEXTURE2D;
+		RtvDesc.Texture2D.MipSlice = 0;
+		const HRESULT CreateRtvRes = m_D3DDevice->CreateDepthStencilView(m_DSVTexture, &RtvDesc, &m_DSV);
+		if (FAILED(CreateRtvRes) || !m_RTV)
 		{
-			m_DevType = D3DDEVTYPE_REF;
-			const HRESULT CreateRefRes = m_D3D->CreateDevice(D3DADAPTER_DEFAULT, m_DevType, m_TargetWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_PP, &m_D3DDevice);
-			if (FAILED(CreateRefRes) || !m_D3DDevice)
-			{
-				Deinit();
-				return;
-			}
+			Deinit();
+			return;
 		}
 	}
 
-	m_Shader = HWD3DShader_DX10::CreateShader(this, "_Media/DX9_SM3_VS.cso", "_Media/DX9_SM3_PS.cso");
+	m_Shader = HWD3DShader_DX10::CreateShader(this, "_Media/DX10_VS.cso", "_Media/DX10_VS.cso");
 }
 
 void HWD3DGame_DX10::DeinitDevice()
 {
 	HWD3D_SafeRelease(m_Shader);
+	HWD3D_SafeRelease(m_DSV);
+	HWD3D_SafeRelease(m_DSVTexture);
+	HWD3D_SafeRelease(m_RTV);
+	HWD3D_SafeRelease(m_RTVTexture);
+	HWD3D_SafeRelease(m_SwapChain);
 	HWD3D_SafeRelease(m_D3DDevice);
-	HWD3D_SafeRelease(m_ZBuffer);
-	HWD3D_SafeRelease(m_BackBuffer);
-	HWD3D_SafeRelease(m_PrimarySurface);
-	HWD3D_SafeRelease(m_D3D);
 }
 
 void HWD3DGame_DX10::ClearViewport()
 {
-	if (m_D3DDevice)
+	if (m_D3DDevice && m_RTV && m_DSV)
 	{
-		const HRESULT Res = m_D3DDevice->Clear(0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 0xFF6666FF, 1.f, 0);
-		assert(SUCCEEDED(Res));
+		const FLOAT ClearColor[] = { .4f , .4f , 1.f , 1.f };
+		m_D3DDevice->ClearRenderTargetView(m_RTV, ClearColor);
+		m_D3DDevice->ClearDepthStencilView(m_DSV, D3D10_CLEAR_DEPTH|D3D10_CLEAR_STENCIL , 1.f, 0);
 	}
 }
 
@@ -87,15 +130,14 @@ bool HWD3DGame_DX10::BeginDraw()
 {
 	if (m_D3DDevice)
 	{
-		if (SUCCEEDED(m_D3DDevice->BeginScene()))
-		{
-			if (m_Shader)
-			{
-				m_Shader->SetShader();
-			}
+		m_D3DDevice->OMSetRenderTargets(1, &m_RTV, m_DSV);
 
-			return true;
+		if (m_Shader)
+		{
+			m_Shader->SetShader();
 		}
+
+		return true;
 	}
 
 	return false;
@@ -105,16 +147,15 @@ void HWD3DGame_DX10::EndDraw()
 {
 	if (m_D3DDevice)
 	{
-		const HRESULT EndSceneRes = m_D3DDevice->EndScene();
-		assert(SUCCEEDED(EndSceneRes));
+		
 	}
 }
 
 void HWD3DGame_DX10::Present()
 {
-	if (m_D3DDevice)
+	if (m_SwapChain)
 	{
-		m_D3DDevice->Present(NULL, NULL, NULL, NULL);
+		m_SwapChain->Present(0, 0);
 	}
 }
 
@@ -144,7 +185,7 @@ void HWD3DGame_DX10::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_ma
 			// Optimally we wouldn't set this every time a matrix changed, but for Hello World sample this is acceptable.
 			m_ShaderWVP = HWD3DMatrix_Transpose(HWD3DMatrix_Multiply(m_World, HWD3DMatrix_Multiply(m_View, m_Proj)));
 
-			m_D3DDevice->SetVertexShaderConstantF(0, reinterpret_cast<const float*>(&m_ShaderWVP), 4);
+			// m_D3DDevice->SetVertexShaderConstantF(0, reinterpret_cast<const float*>(&m_ShaderWVP), 4);
 		}
 	}
 }

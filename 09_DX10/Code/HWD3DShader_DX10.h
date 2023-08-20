@@ -1,7 +1,7 @@
 // D3D Hello World
 
 #include "HWD3DTypes.h"
-#include <d3d9.h>
+#include <d3d10.h>
 
 #pragma once
 
@@ -14,9 +14,9 @@ public:
 protected:
 	
 	class HWD3DGame_DX10*const m_Game = nullptr;
-	IDirect3DVertexDeclaration9* m_VD = nullptr;
-	IDirect3DVertexShader9* m_VS = nullptr;
-	IDirect3DPixelShader9* m_PS = nullptr;
+	ID3D10InputLayout* m_IL = nullptr;
+	ID3D10VertexShader* m_VS = nullptr;
+	ID3D10PixelShader* m_PS = nullptr;
 
 public:
 	
