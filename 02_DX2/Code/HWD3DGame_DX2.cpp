@@ -252,7 +252,6 @@ void HWD3DGame_DX2::DeinitDevice()
 			m_D3DDevice->DeleteMatrix(m);
 			m = 0;
 		}
-
 	};
 
 	HWD3D_SafeRelease(m_BgMaterial);
@@ -344,30 +343,28 @@ void HWD3DGame_DX2::Present()
 	}
 }
 
-void HWD3DGame_DX2::SetProjMatrix(const hwd3d_matrix& InMatrix)
+void HWD3DGame_DX2::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_matrix& InMatrix)
 {
 	if (m_D3DDevice)
 	{
 		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
-		m_D3DDevice->SetMatrix(m_MatrixProj, &Mat);
-	}
-}
 
-void HWD3DGame_DX2::SetViewMatrix(const hwd3d_matrix& InMatrix)
-{
-	if (m_D3DDevice)
-	{
-		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
-		m_D3DDevice->SetMatrix(m_MatrixView, &Mat);
-	}
-}
+		D3DMATRIXHANDLE Type = 0;
 
-void HWD3DGame_DX2::SetWorldMatrix(const hwd3d_matrix& InMatrix)
-{
-	if (m_D3DDevice)
-	{
-		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
-		m_D3DDevice->SetMatrix(m_MatrixWorld, &Mat);
+		switch (InType)
+		{
+		case HWD3DGame::hwd3d_transform_t::Proj:
+			Type = m_MatrixProj;
+			break;
+		case HWD3DGame::hwd3d_transform_t::View:
+			Type = m_MatrixView;
+			break;
+		case HWD3DGame::hwd3d_transform_t::World:
+			Type = m_MatrixWorld;
+			break;
+		}
+
+		m_D3DDevice->SetMatrix(Type, &Mat);
 	}
 }
 

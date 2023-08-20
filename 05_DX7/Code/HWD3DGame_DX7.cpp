@@ -249,30 +249,27 @@ void HWD3DGame_DX7::Present()
 	}
 }
 
-void HWD3DGame_DX7::SetProjMatrix(const hwd3d_matrix& InMatrix)
+void HWD3DGame_DX7::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_matrix& InMatrix)
 {
 	if (m_D3DDevice)
 	{
 		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
-		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &Mat);
-	}
-}
+		
+		D3DTRANSFORMSTATETYPE Type = static_cast<D3DTRANSFORMSTATETYPE>(0);
+		switch (InType)
+		{
+		case HWD3DGame::hwd3d_transform_t::Proj:
+			Type = D3DTRANSFORMSTATE_PROJECTION;
+			break;
+		case HWD3DGame::hwd3d_transform_t::View:
+			Type = D3DTRANSFORMSTATE_VIEW;
+			break;
+		case HWD3DGame::hwd3d_transform_t::World:
+			Type = D3DTRANSFORMSTATE_WORLD;
+			break;
+		}
 
-void HWD3DGame_DX7::SetViewMatrix(const hwd3d_matrix& InMatrix)
-{
-	if (m_D3DDevice)
-	{
-		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
-		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &Mat);
-	}
-}
-
-void HWD3DGame_DX7::SetWorldMatrix(const hwd3d_matrix& InMatrix)
-{
-	if (m_D3DDevice)
-	{
-		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
-		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &Mat);
+		m_D3DDevice->SetTransform(Type, &Mat);
 	}
 }
 

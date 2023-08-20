@@ -93,8 +93,10 @@ void HWD3DGame::DrawScene()
 		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(m_ViewSize.x)/m_ViewSize.y), .1f , 1000.f );
 		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(hwd3d_vec3(0.f, 0.f, -25.f), hwd3d_vec3(0.f,0.f,0.f), hwd3d_vec3(0.f,1.f,0.f));
 
-		SetProjMatrix(ProjMatrix);
-		SetViewMatrix(ViewMatrix);
+		SetTransformMatrix(hwd3d_transform_t::Proj, ProjMatrix);
+		SetTransformMatrix(hwd3d_transform_t::View, ViewMatrix);
+		SetTransformMatrix(hwd3d_transform_t::World, HWD3DMatrix_Ident);
+
 
 		m_Teapot.Draw(*this);
 		m_Cube.Draw(*this);
@@ -103,41 +105,6 @@ void HWD3DGame::DrawScene()
 	}
 
 	Present();
-}
-
-void HWD3DGame::ClearViewport()
-{
-
-}
-
-bool HWD3DGame::BeginDraw()
-{
-	return true;
-}
-
-void HWD3DGame::EndDraw()
-{
-
-}
-
-void HWD3DGame::Present()
-{
-
-}
-
-void HWD3DGame::SetProjMatrix(const hwd3d_matrix& InMatrix)
-{
-
-}
-
-void HWD3DGame::SetViewMatrix(const hwd3d_matrix& InMatrix)
-{
-
-}
-
-void HWD3DGame::SetWorldMatrix(const hwd3d_matrix& InMatrix)
-{
-
 }
 
 void HWD3DGame::hwd3dMeshSet::Load(HWD3DGame& InGame, const char* InMeshFile, const char* InTextureFile)
@@ -154,7 +121,7 @@ void HWD3DGame::hwd3dMeshSet::Unload()
 
 void HWD3DGame::hwd3dMeshSet::Draw(HWD3DGame& InGame)
 {
-	InGame.SetWorldMatrix(WorldMatrix);
+	InGame.SetTransformMatrix(HWD3DGame::hwd3d_transform_t::World, WorldMatrix);
 	if (Texture)
 	{
 		Texture->SetTexture();

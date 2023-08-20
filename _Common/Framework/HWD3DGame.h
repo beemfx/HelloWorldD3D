@@ -10,6 +10,15 @@ public:
 	
 	static HWD3DGame* CreateGame(HWND InMainWnd);
 
+protected:
+
+	enum class hwd3d_transform_t
+	{
+		Proj ,
+		View ,
+		World ,
+	};
+
 private:
 	
 	hwd3d_vec2 m_ViewSize = hwd3d_vec2(1.f, 1.f);
@@ -48,14 +57,12 @@ protected:
 	virtual void InitDevice(HWND InMainWnd) { }
 	virtual void DeinitDevice() { }
 
-	virtual void ClearViewport();
-	virtual bool BeginDraw();
-	virtual void EndDraw();
-	virtual void Present();
+	virtual void ClearViewport() { }
+	virtual bool BeginDraw() { return true; }
+	virtual void EndDraw() { }
+	virtual void Present() { }
 
-	virtual void SetProjMatrix(const hwd3d_matrix& InMatrix);
-	virtual void SetViewMatrix(const hwd3d_matrix& InMatrix);
-	virtual void SetWorldMatrix(const hwd3d_matrix& InMatrix);
+	virtual void SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_matrix& InMatrix) { }
 
 protected:
 
