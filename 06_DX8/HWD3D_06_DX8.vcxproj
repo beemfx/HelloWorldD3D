@@ -34,18 +34,15 @@
     <ClInclude Include="..\_Common\Framework\HWD3DSysInclude.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTexture.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTypes.h" />
-    <ClInclude Include="..\_Common\Res\resource.h" />
-    <ClInclude Include="..\_Common\Res\targetver.h" />
     <ClInclude Include="Code\HWD3DGame_DX8.h" />
     <ClInclude Include="Code\HWD3DMesh_DX8.h" />
     <ClInclude Include="Code\HWD3DTexture_DX8.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\_Common\Res\D3D_3.ico" />
-    <Image Include="..\_Common\Res\small.ico" />
+    <Image Include="..\_Common\Res\directx.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\_Common\Res\D3D_3.rc" />
+    <ResourceCompile Include="..\_Common\Res\HWD3DRes.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

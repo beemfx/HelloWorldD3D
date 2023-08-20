@@ -51,12 +51,6 @@
     <ClInclude Include="..\_Common\Framework\HWD3DTypes.h">
       <Filter>Common\Framework</Filter>
     </ClInclude>
-    <ClInclude Include="..\_Common\Res\resource.h">
-      <Filter>Common\Res</Filter>
-    </ClInclude>
-    <ClInclude Include="..\_Common\Res\targetver.h">
-      <Filter>Common\Res</Filter>
-    </ClInclude>
     <ClInclude Include="..\_Common\Framework\HWD3DTexture.h">
       <Filter>Common\Framework</Filter>
     </ClInclude>
@@ -77,15 +71,12 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\_Common\Res\D3D_3.ico">
-      <Filter>Common\Res</Filter>
-    </Image>
-    <Image Include="..\_Common\Res\small.ico">
+    <Image Include="..\_Common\Res\directx.ico">
       <Filter>Common\Res</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\_Common\Res\D3D_3.rc">
+    <ResourceCompile Include="..\_Common\Res\HWD3DRes.rc">
       <Filter>Common\Res</Filter>
     </ResourceCompile>
   </ItemGroup>

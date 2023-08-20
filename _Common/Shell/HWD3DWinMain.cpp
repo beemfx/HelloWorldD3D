@@ -2,6 +2,8 @@
 
 #include "HWD3DGame.h"
 
+#define IDM_EXIT 1
+
 static const WCHAR WinMain_Title[] = L"Hello World D3D";
 static const WCHAR WinMain_WindowClass[] = L"HelloWorldD3D";
 
@@ -12,7 +14,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-#if (_WIN32_WINNT >= 0x0600)
+#if 1//(_WIN32_WINNT >= 0x0600)
 	{
 
 #if 1
@@ -50,12 +52,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		wcex.cbClsExtra = 0;
 		wcex.cbWndExtra = 0;
 		wcex.hInstance = hInstance;
-		wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_D3D3));
-		wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+		wcex.hIcon = LoadIconW(hInstance, L"IDI_APPICON");
+		wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
 		wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-		wcex.lpszMenuName = MAKEINTRESOURCEW(IDC_D3D3);
+		wcex.lpszMenuName = L"IDC_APPMENU";
 		wcex.lpszClassName = WinMain_WindowClass;
-		wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+		wcex.hIconSm = LoadIcon(wcex.hInstance, L"IDI_APPICON");
 
 		ATOM RegisterClassAtom = RegisterClassExW(&wcex);
 		if (!RegisterClassAtom)
@@ -84,8 +86,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		ShowWindow(MainWnd, nCmdShow);
 		UpdateWindow(MainWnd);
 	}
-
-	const HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_D3D3));
 
 	HWD3DGame* Game = HWD3DGame::CreateGame(MainWnd);
 	bool bGameStillRunning = true;
@@ -118,15 +118,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		while (PeekMessageW(&msg, nullptr, 0 , 0, PM_NOREMOVE))
 		{
 			GetMessage(&msg, nullptr, 0, 0);
-			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 
-				if (msg.message == WM_QUIT)
-				{
-					bGameStillRunning = false;
-				}
+			if (msg.message == WM_QUIT)
+			{
+				bGameStillRunning = false;
 			}
 		}
 
