@@ -23,6 +23,7 @@ HWD3DTexture_DX10::HWD3DTexture_DX10(class HWD3DGame_DX10* InGame)
 
 HWD3DTexture_DX10::~HWD3DTexture_DX10()
 {
+	HWD3D_SafeRelease(m_View);
 	HWD3D_SafeRelease(m_Texture);
 }
 
@@ -40,47 +41,61 @@ void HWD3DTexture_DX10::InitTexture()
 		return;
 	}
 
-#if 0
-	const HRESULT CreateSurfaceRes = Dev->CreateTexture(m_Width, m_Height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_Texture, NULL);
-	if (FAILED(CreateSurfaceRes) || !m_Texture)
+	// Create Texture:
 	{
-		return;
-	}
-
-	const int PixelByteSize = 4;
-
-	D3DLOCKED_RECT LockedRect = { };
-	const HRESULT LockSurfRes = m_Texture->LockRect(0, &LockedRect, NULL, 0);
-	if (SUCCEEDED(LockSurfRes))
-	{
-		assert(LockedRect.pBits);
-
+		std::vector<DWORD> TexturePixels;
+		TexturePixels.reserve(m_Width*m_Height);
 		// Copy pixels:
 		for (int SrcY = 0; SrcY < m_Width; SrcY++)
 		{
 			for (int SrcX = 0; SrcX < m_Height; SrcX++)
 			{
 				const hwd3d_rgba& SrcClr = m_Pixels[SrcY*m_Width + SrcX];
-				const D3DCOLOR DstClr = (SrcClr.B<<0) | (SrcClr.G<<8) | (SrcClr.R<<16) | (SrcClr.A<<24);
-
-				BYTE* SurfAsByteArray = reinterpret_cast<BYTE*>(LockedRect.pBits);
-				const int PixelStartOffset = (SrcY*LockedRect.Pitch) + SrcX*PixelByteSize;
-				assert( (PixelStartOffset + PixelByteSize) <= static_cast<int>(LockedRect.Pitch * m_Height) );
-				BYTE* DstP = &SurfAsByteArray[PixelStartOffset];
-				memcpy(DstP, &DstClr, PixelByteSize);
+				const DWORD DstClr = (SrcClr.A<<24) | (SrcClr.B<<16) | (SrcClr.G<<8) | (SrcClr.R<<0);
+				TexturePixels.push_back(DstClr);
 			}
 		}
 
-		const HRESULT UnlockSurfRes = m_Texture->UnlockRect(NULL);
-		assert(SUCCEEDED(UnlockSurfRes));
+		D3D10_TEXTURE2D_DESC TxDesc = { };
+		TxDesc.Width = m_Width;
+		TxDesc.Height = m_Height;
+		TxDesc.MipLevels = 1;
+		TxDesc.ArraySize = 1;
+		TxDesc.Format = DXGI_FORMAT_R8G8B8A8_TYPELESS;
+		TxDesc.Usage = D3D10_USAGE_IMMUTABLE;
+		TxDesc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
+		TxDesc.SampleDesc.Quality = 0;
+		TxDesc.SampleDesc.Count = 1;
+
+		D3D10_SUBRESOURCE_DATA Data = { };
+		Data.pSysMem = TexturePixels.data();
+		Data.SysMemPitch = m_Width*sizeof(DWORD);
+		Data.SysMemSlicePitch = m_Width * m_Height * sizeof(DWORD);
+
+		const HRESULT Res = Dev->CreateTexture2D(&TxDesc, &Data, &m_Texture);
+		if (FAILED(Res) || !m_Texture)
+		{
+			return;
+		}
 	}
-#endif
+
+	// Create View:
+	{
+		D3D10_SHADER_RESOURCE_VIEW_DESC ViewDesc = { };
+		ViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		ViewDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+		ViewDesc.Texture2D.MipLevels = 1;
+		ViewDesc.Texture2D.MostDetailedMip = 0;
+		const HRESULT Res = Dev->CreateShaderResourceView(m_Texture, &ViewDesc, &m_View);
+		if (FAILED(Res) || !m_View)
+		{
+			return;
+		}
+	}
 }
 
 void HWD3DTexture_DX10::SetTexture()
 {
-	return;
-
 	if (m_Game && m_Game->GetDevice() && m_Texture && m_View)
 	{
 		m_Game->GetDevice()->PSSetShaderResources(0, 1 , &m_View);
@@ -88,7 +103,5 @@ void HWD3DTexture_DX10::SetTexture()
 		// m_Game->GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		// m_Game->GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		// m_Game->GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		// m_Game->GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTEXTUREADDRESS::D3DTADDRESS_WRAP);
-		// m_Game->GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTEXTUREADDRESS::D3DTADDRESS_WRAP);
 	}
 }

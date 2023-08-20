@@ -45,7 +45,7 @@ bool HWD3DMesh_DX10::CreateBuffers()
 		return false;
 	}
 
-	const D3D10_USAGE Usage = D3D10_USAGE_DEFAULT;//D3D10_USAGE_IMMUTABLE;
+	const D3D10_USAGE Usage = D3D10_USAGE_IMMUTABLE;
 	
 	// Fill Vertex Buffer
 	{
