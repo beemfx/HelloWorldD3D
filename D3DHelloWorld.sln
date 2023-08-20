@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWD3D_05_DX7", "05_DX7\HWD3
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWD3D_06_DX8", "06_DX8\HWD3D_06_DX8.vcxproj", "{67E6E239-F882-4A25-A2EF-73157AA67B3E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWD3D_07_DX9", "07_DX9\HWD3D_07_DX9.vcxproj", "{CED7188A-E773-468E-AF2F-5059872E4AFF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -71,6 +73,14 @@ Global
 		{67E6E239-F882-4A25-A2EF-73157AA67B3E}.Release|x64.Build.0 = Release|x64
 		{67E6E239-F882-4A25-A2EF-73157AA67B3E}.Release|x86.ActiveCfg = Release|Win32
 		{67E6E239-F882-4A25-A2EF-73157AA67B3E}.Release|x86.Build.0 = Release|Win32
+		{CED7188A-E773-468E-AF2F-5059872E4AFF}.Debug|x64.ActiveCfg = Debug|x64
+		{CED7188A-E773-468E-AF2F-5059872E4AFF}.Debug|x64.Build.0 = Debug|x64
+		{CED7188A-E773-468E-AF2F-5059872E4AFF}.Debug|x86.ActiveCfg = Debug|Win32
+		{CED7188A-E773-468E-AF2F-5059872E4AFF}.Debug|x86.Build.0 = Debug|Win32
+		{CED7188A-E773-468E-AF2F-5059872E4AFF}.Release|x64.ActiveCfg = Release|x64
+		{CED7188A-E773-468E-AF2F-5059872E4AFF}.Release|x64.Build.0 = Release|x64
+		{CED7188A-E773-468E-AF2F-5059872E4AFF}.Release|x86.ActiveCfg = Release|Win32
+		{CED7188A-E773-468E-AF2F-5059872E4AFF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
