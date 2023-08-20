@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWD3D_07_DX9", "07_DX9\HWD3
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWD3D_08_DX9_SM3", "08_DX9_SM3\HWD3D_08_DX9_SM3.vcxproj", "{BF2E3B05-C482-44C5-838C-FBCAAB7BF7BE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWD3D_09_DX10", "09_DX10\HWD3D_09_DX10.vcxproj", "{FCF048B3-C4C4-4DA6-A37E-6BF4E35F131F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -81,6 +83,14 @@ Global
 		{BF2E3B05-C482-44C5-838C-FBCAAB7BF7BE}.Release|x64.Build.0 = Release|x64
 		{BF2E3B05-C482-44C5-838C-FBCAAB7BF7BE}.Release|x86.ActiveCfg = Release|Win32
 		{BF2E3B05-C482-44C5-838C-FBCAAB7BF7BE}.Release|x86.Build.0 = Release|Win32
+		{FCF048B3-C4C4-4DA6-A37E-6BF4E35F131F}.Debug|x64.ActiveCfg = Debug|x64
+		{FCF048B3-C4C4-4DA6-A37E-6BF4E35F131F}.Debug|x64.Build.0 = Debug|x64
+		{FCF048B3-C4C4-4DA6-A37E-6BF4E35F131F}.Debug|x86.ActiveCfg = Debug|Win32
+		{FCF048B3-C4C4-4DA6-A37E-6BF4E35F131F}.Debug|x86.Build.0 = Debug|Win32
+		{FCF048B3-C4C4-4DA6-A37E-6BF4E35F131F}.Release|x64.ActiveCfg = Release|x64
+		{FCF048B3-C4C4-4DA6-A37E-6BF4E35F131F}.Release|x64.Build.0 = Release|x64
+		{FCF048B3-C4C4-4DA6-A37E-6BF4E35F131F}.Release|x86.ActiveCfg = Release|Win32
+		{FCF048B3-C4C4-4DA6-A37E-6BF4E35F131F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
