@@ -44,9 +44,9 @@ private:
 	virtual void EndDraw() override;
 	virtual void Present() override;
 
+	virtual void SetProjMatrix(const hwd3d_matrix& InMatrix) override;
+	virtual void SetViewMatrix(const hwd3d_matrix& InMatrix) override;
 	virtual void SetWorldMatrix(const hwd3d_matrix& InMatrix) override;
-
-	void InitCommonStates();
 
 	static HRESULT CALLBACK D3DCb_EnumDevices(LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC7 lpD3DDeviceDesc, LPVOID lpContext);
 	static HRESULT WINAPI D3DCb_EnumZBufferFormat( DDPIXELFORMAT* pddpf, VOID* pddpfDesired );

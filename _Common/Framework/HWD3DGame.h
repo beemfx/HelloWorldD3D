@@ -12,6 +12,7 @@ public:
 
 private:
 	
+	hwd3d_vec2 m_ViewSize = hwd3d_vec2(1.f, 1.f);
 	int m_Frame = 0;
 
 	struct hwd3dMeshSet
@@ -52,6 +53,8 @@ protected:
 	virtual void EndDraw();
 	virtual void Present();
 
+	virtual void SetProjMatrix(const hwd3d_matrix& InMatrix);
+	virtual void SetViewMatrix(const hwd3d_matrix& InMatrix);
 	virtual void SetWorldMatrix(const hwd3d_matrix& InMatrix);
 
 protected:

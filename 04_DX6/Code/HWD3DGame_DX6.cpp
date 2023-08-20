@@ -207,22 +207,6 @@ void HWD3DGame_DX6::InitDevice(HWND TargetWnd)
 			return;
 		}
 	}
-
-	// Set WVP Matrices
-	{
-		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(ScreenWidth)/ScreenHeight), .1f , 1000.f );
-		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(hwd3d_vec3(0.f, 0.f, -25.f), hwd3d_vec3(0.f,0.f,0.f), hwd3d_vec3(0.f,1.f,0.f));
-
-		D3DMATRIX Proj = *reinterpret_cast<const D3DMATRIX*>(&ProjMatrix);
-		D3DMATRIX View = *reinterpret_cast<const D3DMATRIX*>(&ViewMatrix);
-		D3DMATRIX World = *reinterpret_cast<const D3DMATRIX*>(&HWD3DMatrix_Ident);
-
-		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &Proj);
-		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &View);
-		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &World);
-	}
-
-	InitCommonStates();
 }
 
 void HWD3DGame_DX6::DeinitDevice()
@@ -302,20 +286,30 @@ void HWD3DGame_DX6::Present()
 	}
 }
 
+void HWD3DGame_DX6::SetProjMatrix(const hwd3d_matrix& InMatrix)
+{
+	if (m_D3DDevice)
+	{
+		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
+		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &Mat);
+	}
+}
+
+void HWD3DGame_DX6::SetViewMatrix(const hwd3d_matrix& InMatrix)
+{
+	if (m_D3DDevice)
+	{
+		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
+		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &Mat);
+	}
+}
+
 void HWD3DGame_DX6::SetWorldMatrix(const hwd3d_matrix& InMatrix)
 {
 	if (m_D3DDevice)
 	{
 		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
 		m_D3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &Mat);
-	}
-}
-
-void HWD3DGame_DX6::InitCommonStates()
-{
-	if (!m_D3D || !m_D3DDevice)
-	{
-		return;
 	}
 }
 

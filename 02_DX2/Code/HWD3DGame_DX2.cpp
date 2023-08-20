@@ -241,20 +241,6 @@ void HWD3DGame_DX2::InitDevice(HWND TargetWnd)
 	}
 
 	InitCommonStates();
-
-	// Set WVP Matrices
-	{
-		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(ScreenWidth)/ScreenHeight), .1f , 1000.f );
-		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(hwd3d_vec3(0.f, 0.f, -25.f), hwd3d_vec3(0.f,0.f,0.f), hwd3d_vec3(0.f,1.f,0.f));
-
-		D3DMATRIX Proj = *reinterpret_cast<const D3DMATRIX*>(&ProjMatrix);
-		D3DMATRIX View = *reinterpret_cast<const D3DMATRIX*>(&ViewMatrix);
-		D3DMATRIX World = *reinterpret_cast<const D3DMATRIX*>(&HWD3DMatrix_Ident);
-
-		m_D3DDevice->SetMatrix(m_MatrixProj, &Proj);
-		m_D3DDevice->SetMatrix(m_MatrixView, &View);
-		m_D3DDevice->SetMatrix(m_MatrixWorld, &World);
-	}
 }
 
 void HWD3DGame_DX2::DeinitDevice()
@@ -358,6 +344,24 @@ void HWD3DGame_DX2::Present()
 	}
 }
 
+void HWD3DGame_DX2::SetProjMatrix(const hwd3d_matrix& InMatrix)
+{
+	if (m_D3DDevice)
+	{
+		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
+		m_D3DDevice->SetMatrix(m_MatrixProj, &Mat);
+	}
+}
+
+void HWD3DGame_DX2::SetViewMatrix(const hwd3d_matrix& InMatrix)
+{
+	if (m_D3DDevice)
+	{
+		D3DMATRIX Mat = *reinterpret_cast<const D3DMATRIX*>(&InMatrix);
+		m_D3DDevice->SetMatrix(m_MatrixView, &Mat);
+	}
+}
+
 void HWD3DGame_DX2::SetWorldMatrix(const hwd3d_matrix& InMatrix)
 {
 	if (m_D3DDevice)
@@ -381,6 +385,12 @@ void HWD3DGame_DX2::InitCommonStates()
 		m_D3DDevice->CreateMatrix(&m_MatrixProj);
 		m_D3DDevice->CreateMatrix(&m_MatrixView);
 		m_D3DDevice->CreateMatrix(&m_MatrixWorld);
+
+		D3DMATRIX I = *reinterpret_cast<const D3DMATRIX*>(&HWD3DMatrix_Ident);
+
+		m_D3DDevice->SetMatrix(m_MatrixProj, &I );
+		m_D3DDevice->SetMatrix(m_MatrixView, &I );
+		m_D3DDevice->SetMatrix(m_MatrixWorld, &I );
 	}
 
 	// This is a one off so we don't keep any pointers.

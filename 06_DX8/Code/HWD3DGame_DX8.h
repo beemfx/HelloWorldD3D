@@ -32,8 +32,7 @@ private:
 	virtual void EndDraw() override;
 	virtual void Present() override;
 
+	virtual void SetProjMatrix(const hwd3d_matrix& InMatrix) override;
+	virtual void SetViewMatrix(const hwd3d_matrix& InMatrix) override;
 	virtual void SetWorldMatrix(const hwd3d_matrix& InMatrix) override;
-
-	void InitCommonStates();
-	void ResetSceneStates();
 };

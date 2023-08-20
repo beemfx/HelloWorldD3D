@@ -13,6 +13,12 @@ void HWD3DGame::Release()
 
 void HWD3DGame::Init(HWND InMainWnd)
 {
+	RECT TargetWndRc = {};
+	GetClientRect(InMainWnd, &TargetWndRc);
+	const int ScreenWidth = TargetWndRc.right - TargetWndRc.left;
+	const int ScreenHeight = TargetWndRc.bottom - TargetWndRc.top;
+	m_ViewSize = hwd3d_vec2(static_cast<float>(ScreenWidth), static_cast<float>(ScreenHeight));
+
 	InitDevice(InMainWnd);
 	CreateScene();
 }
@@ -84,6 +90,12 @@ void HWD3DGame::DrawScene()
 
 	if (BeginDraw())
 	{
+		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), (static_cast<float>(m_ViewSize.x)/m_ViewSize.y), .1f , 1000.f );
+		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(hwd3d_vec3(0.f, 0.f, -25.f), hwd3d_vec3(0.f,0.f,0.f), hwd3d_vec3(0.f,1.f,0.f));
+
+		SetProjMatrix(ProjMatrix);
+		SetViewMatrix(ViewMatrix);
+
 		m_Teapot.Draw(*this);
 		m_Cube.Draw(*this);
 
@@ -109,6 +121,16 @@ void HWD3DGame::EndDraw()
 }
 
 void HWD3DGame::Present()
+{
+
+}
+
+void HWD3DGame::SetProjMatrix(const hwd3d_matrix& InMatrix)
+{
+
+}
+
+void HWD3DGame::SetViewMatrix(const hwd3d_matrix& InMatrix)
 {
 
 }
