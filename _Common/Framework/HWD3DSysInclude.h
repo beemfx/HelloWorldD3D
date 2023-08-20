@@ -15,3 +15,4 @@
 #include <string>
 #include <guiddef.h>
 #include <cassert>
+#include <functional>

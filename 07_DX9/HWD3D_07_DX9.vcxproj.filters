@@ -43,6 +43,9 @@
     <ClCompile Include="Code\HWD3DTexture_DX9.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DTimer.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\_Common\Framework\HWD3DGame.h">
@@ -68,6 +71,9 @@
     </ClInclude>
     <ClInclude Include="Code\HWD3DTexture_DX9.h">
       <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DTimer.h">
+      <Filter>Common\Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

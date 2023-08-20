@@ -1,6 +1,7 @@
 // D3D Hello World
 
 #include "HWD3DGame.h"
+#include "HWD3DTimer.h"
 
 #define IDM_EXIT 1
 
@@ -77,29 +78,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	bool bGameStillRunning = true;
 
-	LARGE_INTEGER PerfFreq = {};
-	QueryPerformanceFrequency(&PerfFreq);
-	auto GetRawTimeElapsedSec = [&PerfFreq](const LARGE_INTEGER& Start, const LARGE_INTEGER& End) -> float
-		{
-			assert(Start.QuadPart <= End.QuadPart);
-			const LONGLONG Diff = End.QuadPart - Start.QuadPart;
-			const double TimeMs = (Diff * 1000.) / PerfFreq.QuadPart;
-			const float TimeSec = static_cast<float>(TimeMs) / 1000.f;
-			return TimeSec;
-		};
-	
-	LARGE_INTEGER FrameStartTime = {};
-	LARGE_INTEGER FrameEndTime = {};
-	QueryPerformanceCounter(&FrameStartTime);
-	FrameEndTime = FrameStartTime;
-	float CumulativeDelta = 0.f;
+	HWD3DTimer FrameTimer;
 
 	while (bGameStillRunning)
 	{
-		const float GameDeltaTime = GetRawTimeElapsedSec(FrameStartTime, FrameEndTime);
-		const float TotalDelta = GameDeltaTime + CumulativeDelta;
-		CumulativeDelta = TotalDelta;
-
 		// Pump Messages
 		MSG msg = {};
 		while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -115,24 +97,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 		if (bGameStillRunning)
 		{
-			int NumUpdatesThisFrame = 0;
-			while (CumulativeDelta >= GameUpdateRate)
-			{
-				Game->Update(GameUpdateRate);
-				CumulativeDelta -= GameUpdateRate;
-				NumUpdatesThisFrame++;
-
-				if (NumUpdatesThisFrame >= MaxUpatesPerFrameThreshold)
+			FrameTimer.UpdateAtRate(GameUpdateRate, MaxUpatesPerFrameThreshold, [Game](float DeltaTime) -> void 
 				{
-					CumulativeDelta = 0.f;
-					break;
-				}
-			}
+					Game->Update(DeltaTime); 
+				} );
+
 			Game->DrawScene();
 		}
-
-		FrameStartTime = FrameEndTime;
-		QueryPerformanceCounter(&FrameEndTime);
 	}
 
 	HWD3D_SafeRelease(Game);
@@ -182,7 +153,7 @@ static void HWD3DWinMain_SetDPIAware()
 		FnType Fn = reinterpret_cast<FnType>(GetProcAddress(WinUserLib, "SetProcessDpiAwarenessContext"));
 		if (Fn)
 		{
-			Fn(((HANDLE)-3));
+			Fn((reinterpret_cast<HANDLE>(-3)));
 		}
 		FreeLibrary(WinUserLib);
 	}
