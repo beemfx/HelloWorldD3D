@@ -2,7 +2,7 @@
 
 #include "HWD3DGame_DX9.h"
 
-#pragma comment(lib, "d3d8.lib")
+#pragma comment(lib, "d3d9.lib")
 
 HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 {
@@ -28,7 +28,7 @@ void HWD3DGame_DX9::InitDevice(HWND TargetWnd)
 
 	// Init DirectDraw and obtain Direct3D
 	{
-		m_D3D = Direct3DCreate8(D3D_SDK_VERSION);
+		m_D3D = Direct3DCreate9(D3D_SDK_VERSION);
 		if (!m_D3D)
 		{
 			Deinit();
@@ -64,7 +64,7 @@ void HWD3DGame_DX9::InitDevice(HWND TargetWnd)
 	if (false) // Don't actually need to set the viewport since by default it is se to the full render target.
 	{
 		// Update Viewport
-		D3DVIEWPORT8 Vp = { };
+		D3DVIEWPORT9 Vp = { };
 		Vp.X = 0UL;
 		Vp.Y = 0UL;
 		Vp.Width = m_PP.BackBufferWidth;

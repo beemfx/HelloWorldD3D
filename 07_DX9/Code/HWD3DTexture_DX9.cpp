@@ -28,7 +28,7 @@ HWD3DTexture_DX9::~HWD3DTexture_DX9()
 
 void HWD3DTexture_DX9::InitTexture()
 {
-	IDirect3DDevice8* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	IDirect3DDevice9* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!Dev)
 	{
@@ -40,7 +40,7 @@ void HWD3DTexture_DX9::InitTexture()
 		return;
 	}
 
-	const HRESULT CreateSurfaceRes = Dev->CreateTexture(m_Width, m_Height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_Texture);
+	const HRESULT CreateSurfaceRes = Dev->CreateTexture(m_Width, m_Height, 1, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &m_Texture, NULL);
 	if (FAILED(CreateSurfaceRes) || !m_Texture)
 	{
 		return;
@@ -83,8 +83,8 @@ void HWD3DTexture_DX9::SetTexture()
 		m_Game->GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		m_Game->GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_Game->GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		m_Game->GetDevice()->SetTextureStageState(0, D3DTSS_ADDRESSU, D3DTEXTUREADDRESS::D3DTADDRESS_WRAP);
-		m_Game->GetDevice()->SetTextureStageState(0, D3DTSS_ADDRESSV, D3DTEXTUREADDRESS::D3DTADDRESS_WRAP);
+		m_Game->GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTEXTUREADDRESS::D3DTADDRESS_WRAP);
+		m_Game->GetDevice()->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTEXTUREADDRESS::D3DTADDRESS_WRAP);
 		m_Game->GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
 	}
 }
