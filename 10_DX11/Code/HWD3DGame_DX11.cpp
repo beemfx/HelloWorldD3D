@@ -42,6 +42,7 @@ void HWD3DGame_DX11::InitDevice(HWND TargetWnd)
 		ScDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		ScDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
 		ScDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_STRETCHED;
+		ScDesc.Flags = 0;
 
 		DWORD Flags = D3D11_CREATE_DEVICE_SINGLETHREADED;;
 
@@ -51,19 +52,88 @@ void HWD3DGame_DX11::InitDevice(HWND TargetWnd)
 
 		const D3D_FEATURE_LEVEL FeatureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
 		D3D_FEATURE_LEVEL FeatureLevel = D3D_FEATURE_LEVEL_1_0_CORE;
-		const HRESULT CreateDevRes = D3D11CreateDeviceAndSwapChain(
-			NULL, 
-			D3D_DRIVER_TYPE_HARDWARE, 
-			NULL, 
-			Flags, 
-			FeatureLevels, _countof(FeatureLevels), 
-			D3D11_SDK_VERSION, &ScDesc, 
-			&m_SwapChain, &m_D3DDevice, &FeatureLevel, &m_D3DContext);
 
-		if (FAILED(CreateDevRes) || !m_D3DDevice || !m_SwapChain || !m_D3DContext)
+		const bool bUseManualSwapChainCreation = true;
+
+		if (bUseManualSwapChainCreation)
 		{
-			Deinit();
-			return;
+			// Device and Context:
+			const HRESULT CreateDevRes = D3D11CreateDevice(
+				NULL,
+				D3D_DRIVER_TYPE_HARDWARE, 
+				NULL, 
+				Flags, 
+				FeatureLevels, _countof(FeatureLevels), 
+				D3D11_SDK_VERSION,
+				&m_D3DDevice, &FeatureLevel, &m_D3DContext);
+
+			if (FAILED(CreateDevRes) || !m_D3DDevice || !m_D3DContext)
+			{
+				Deinit();
+				return;
+			}
+
+			// Swap Chain:
+			HRESULT ScRes = S_OK;
+			IDXGIDevice* GiDev = nullptr;
+			ScRes = m_D3DDevice->QueryInterface<IDXGIDevice>(&GiDev);
+			if (FAILED(ScRes) || !GiDev)
+			{
+				Deinit();
+				return;
+			}
+			IDXGIAdapter* GiAdapter = nullptr;
+			ScRes = GiDev->GetAdapter(&GiAdapter);
+			if (FAILED(ScRes) || !GiAdapter)
+			{
+				HWD3D_SafeRelease(GiDev);
+				Deinit();
+				return;
+			}
+			IDXGIFactory* GiFactory = nullptr;
+			ScRes = GiAdapter->GetParent(IID_PPV_ARGS(&GiFactory));
+			if (FAILED(ScRes) || !GiFactory)
+			{
+				HWD3D_SafeRelease(GiAdapter);
+				HWD3D_SafeRelease(GiDev);
+				Deinit();
+				return;
+			}
+
+			ScRes = GiFactory->MakeWindowAssociation(m_TargetWnd, DXGI_MWA_NO_WINDOW_CHANGES|DXGI_MWA_NO_ALT_ENTER); // Doesn't work when created like this:
+			assert(SUCCEEDED(ScRes));
+
+			const HRESULT CreateScRes = GiFactory->CreateSwapChain(m_D3DDevice, &ScDesc, &m_SwapChain);
+			if (FAILED(CreateScRes) || !m_SwapChain)
+			{
+				HWD3D_SafeRelease(GiFactory);
+				HWD3D_SafeRelease(GiAdapter);
+				HWD3D_SafeRelease(GiDev);
+				Deinit();
+				return;
+			}
+
+			HWD3D_SafeRelease(GiFactory);
+			HWD3D_SafeRelease(GiAdapter);
+			HWD3D_SafeRelease(GiDev);
+		}
+		else
+		{
+			// Device, Context, and Swap Chain:
+			const HRESULT CreateDevRes = D3D11CreateDeviceAndSwapChain(
+				NULL, 
+				D3D_DRIVER_TYPE_HARDWARE, 
+				NULL, 
+				Flags, 
+				FeatureLevels, _countof(FeatureLevels), 
+				D3D11_SDK_VERSION, &ScDesc, 
+				&m_SwapChain, &m_D3DDevice, &FeatureLevel, &m_D3DContext);
+
+			if (FAILED(CreateDevRes) || !m_D3DDevice || !m_SwapChain || !m_D3DContext)
+			{
+				Deinit();
+				return;
+			}
 		}
 	}
 
@@ -135,6 +205,7 @@ void HWD3DGame_DX11::DeinitDevice()
 	HWD3D_SafeRelease(m_RTV);
 	HWD3D_SafeRelease(m_RTVTexture);
 	HWD3D_SafeRelease(m_SwapChain);
+	HWD3D_SafeRelease(m_D3DContext);
 	HWD3D_SafeRelease(m_D3DDevice);
 }
 
