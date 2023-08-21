@@ -18,10 +18,6 @@ private:
 	ID3D10Texture2D* m_DSVTexture = nullptr;
 	ID3D10DepthStencilView* m_DSV = nullptr;
 	ID3D10Buffer* m_VSConstBuffer = nullptr;
-	ID3D10RasterizerState* m_RS = nullptr;
-	ID3D10SamplerState* m_SS = nullptr;
-	ID3D10BlendState* m_BS = nullptr;
-	ID3D10DepthStencilState* m_DS = nullptr;
 
 	class HWD3DRenderState_DX10* m_Shader = nullptr;
 

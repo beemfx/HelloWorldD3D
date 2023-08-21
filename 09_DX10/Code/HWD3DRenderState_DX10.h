@@ -17,6 +17,10 @@ protected:
 	ID3D10InputLayout* m_IL = nullptr;
 	ID3D10VertexShader* m_VS = nullptr;
 	ID3D10PixelShader* m_PS = nullptr;
+	ID3D10RasterizerState* m_RS = nullptr;
+	ID3D10SamplerState* m_SS = nullptr;
+	ID3D10BlendState* m_BS = nullptr;
+	ID3D10DepthStencilState* m_DS = nullptr;
 
 public:
 	
