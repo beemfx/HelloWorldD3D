@@ -3,7 +3,11 @@
 #include "HWD3DGame_DX11.h"
 #include "HWD3DRenderState_DX11.h"
 
+extern "C" { _declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; }
+extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }
+
 #pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "dxgi.lib")
 
 HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 {
@@ -42,7 +46,7 @@ void HWD3DGame_DX11::InitDevice(HWND TargetWnd)
 		ScDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		ScDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
 		ScDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_STRETCHED;
-		ScDesc.Flags = 0;
+		ScDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 		DWORD Flags = D3D11_CREATE_DEVICE_SINGLETHREADED;;
 
@@ -57,10 +61,19 @@ void HWD3DGame_DX11::InitDevice(HWND TargetWnd)
 
 		if (bUseManualSwapChainCreation)
 		{
+			const HRESULT CreateFactRes = CreateDXGIFactory(IID_PPV_ARGS(&m_GiFactory));
+			if (FAILED(CreateFactRes) || !m_GiFactory)
+			{
+				DeinitDevice();
+				return;
+			}
+
+			m_GiAdapter = PickAdapter();
+
 			// Device and Context:
 			const HRESULT CreateDevRes = D3D11CreateDevice(
-				NULL,
-				D3D_DRIVER_TYPE_HARDWARE, 
+				m_GiAdapter,
+				m_GiAdapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE,
 				NULL, 
 				Flags, 
 				FeatureLevels, _countof(FeatureLevels), 
@@ -69,53 +82,17 @@ void HWD3DGame_DX11::InitDevice(HWND TargetWnd)
 
 			if (FAILED(CreateDevRes) || !m_D3DDevice || !m_D3DContext)
 			{
-				Deinit();
+				DeinitDevice();
 				return;
 			}
 
 			// Swap Chain:
-			HRESULT ScRes = S_OK;
-			IDXGIDevice* GiDev = nullptr;
-			ScRes = m_D3DDevice->QueryInterface<IDXGIDevice>(&GiDev);
-			if (FAILED(ScRes) || !GiDev)
-			{
-				Deinit();
-				return;
-			}
-			IDXGIAdapter* GiAdapter = nullptr;
-			ScRes = GiDev->GetAdapter(&GiAdapter);
-			if (FAILED(ScRes) || !GiAdapter)
-			{
-				HWD3D_SafeRelease(GiDev);
-				Deinit();
-				return;
-			}
-			IDXGIFactory* GiFactory = nullptr;
-			ScRes = GiAdapter->GetParent(IID_PPV_ARGS(&GiFactory));
-			if (FAILED(ScRes) || !GiFactory)
-			{
-				HWD3D_SafeRelease(GiAdapter);
-				HWD3D_SafeRelease(GiDev);
-				Deinit();
-				return;
-			}
-
-			ScRes = GiFactory->MakeWindowAssociation(m_TargetWnd, DXGI_MWA_NO_WINDOW_CHANGES|DXGI_MWA_NO_ALT_ENTER); // Doesn't work when created like this:
-			assert(SUCCEEDED(ScRes));
-
-			const HRESULT CreateScRes = GiFactory->CreateSwapChain(m_D3DDevice, &ScDesc, &m_SwapChain);
+			const HRESULT CreateScRes = m_GiFactory->CreateSwapChain(m_D3DDevice, &ScDesc, &m_SwapChain);
 			if (FAILED(CreateScRes) || !m_SwapChain)
 			{
-				HWD3D_SafeRelease(GiFactory);
-				HWD3D_SafeRelease(GiAdapter);
-				HWD3D_SafeRelease(GiDev);
-				Deinit();
+				DeinitDevice();
 				return;
 			}
-
-			HWD3D_SafeRelease(GiFactory);
-			HWD3D_SafeRelease(GiAdapter);
-			HWD3D_SafeRelease(GiDev);
 		}
 		else
 		{
@@ -131,10 +108,12 @@ void HWD3DGame_DX11::InitDevice(HWND TargetWnd)
 
 			if (FAILED(CreateDevRes) || !m_D3DDevice || !m_SwapChain || !m_D3DContext)
 			{
-				Deinit();
+				DeinitDevice();
 				return;
 			}
 		}
+
+		DisableAltEnter();
 	}
 
 	// Back Buffer:
@@ -152,7 +131,7 @@ void HWD3DGame_DX11::InitDevice(HWND TargetWnd)
 		const HRESULT CreateRtvRes = m_D3DDevice->CreateRenderTargetView(m_RTVTexture, &RtvDesc, &m_RTV);
 		if (FAILED(CreateRtvRes) || !m_RTV)
 		{
-			Deinit();
+			DeinitDevice();
 			return;
 		}
 	}
@@ -172,7 +151,7 @@ void HWD3DGame_DX11::InitDevice(HWND TargetWnd)
 		const HRESULT CreateRtRes = m_D3DDevice->CreateTexture2D(&RtvTd,  NULL, &m_DSVTexture);
 		if (FAILED(CreateRtRes) || !m_DSVTexture)
 		{
-			Deinit();
+			DeinitDevice();
 			return;
 		}
 
@@ -183,14 +162,14 @@ void HWD3DGame_DX11::InitDevice(HWND TargetWnd)
 		const HRESULT CreateRtvRes = m_D3DDevice->CreateDepthStencilView(m_DSVTexture, &RtvDesc, &m_DSV);
 		if (FAILED(CreateRtvRes) || !m_DSV)
 		{
-			Deinit();
+			DeinitDevice();
 			return;
 		}
 	}
 
 	if (!InitSharedObjects())
 	{
-		Deinit();
+		DeinitDevice();
 		return;
 	}
 	m_Shader = HWD3DRenderState_DX11::CreateRenderState(this, "_Media/DX11_VS.cso", "_Media/DX11_PS.cso");
@@ -207,6 +186,8 @@ void HWD3DGame_DX11::DeinitDevice()
 	HWD3D_SafeRelease(m_SwapChain);
 	HWD3D_SafeRelease(m_D3DContext);
 	HWD3D_SafeRelease(m_D3DDevice);
+	HWD3D_SafeRelease(m_GiAdapter);
+	HWD3D_SafeRelease(m_GiFactory);
 }
 
 void HWD3DGame_DX11::ClearViewport()
@@ -324,4 +305,68 @@ bool HWD3DGame_DX11::InitSharedObjects()
 	}
 
 	return true;
+}
+
+IDXGIAdapter* HWD3DGame_DX11::PickAdapter()
+{
+	if (!m_GiFactory)
+	{
+		return nullptr;
+	}
+
+	IDXGIAdapter* PotentialAdapter = nullptr;
+	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != m_GiFactory->EnumAdapters(i, &PotentialAdapter); i++)
+	{
+		DXGI_ADAPTER_DESC AdapterDesc = { };
+		PotentialAdapter->GetDesc( &AdapterDesc );
+
+		// We'll actually just take the first adapter we find:
+		if (i == 0)
+		{
+			return PotentialAdapter;
+		}
+
+		HWD3D_SafeRelease(PotentialAdapter);
+	}
+
+	return nullptr;
+}
+
+void HWD3DGame_DX11::DisableAltEnter()
+{
+	if (!m_D3DDevice)
+	{
+		return;
+	}
+
+	HRESULT ScRes = S_OK;
+
+	IDXGIDevice* GiDev = nullptr;
+	ScRes = m_D3DDevice->QueryInterface<IDXGIDevice>(&GiDev);
+	if (FAILED(ScRes) || !GiDev)
+	{
+		return;
+	}
+	IDXGIAdapter* GiAdapter = nullptr;
+	ScRes = GiDev->GetAdapter(&GiAdapter);
+	if (FAILED(ScRes) || !GiAdapter)
+	{
+		HWD3D_SafeRelease(GiDev);
+		return;
+	}
+	IDXGIFactory* GiFactory = nullptr;
+	ScRes = GiAdapter->GetParent(IID_PPV_ARGS(&GiFactory));
+	if (FAILED(ScRes) || !GiFactory)
+	{
+		HWD3D_SafeRelease(GiAdapter);
+		HWD3D_SafeRelease(GiDev);
+		return;
+	}
+
+	ScRes = GiFactory->MakeWindowAssociation(m_TargetWnd, DXGI_MWA_NO_WINDOW_CHANGES|DXGI_MWA_NO_ALT_ENTER);
+	assert(SUCCEEDED(ScRes));
+
+	HWD3D_SafeRelease(GiFactory);
+	HWD3D_SafeRelease(GiAdapter);
+	HWD3D_SafeRelease(GiDev);
 }

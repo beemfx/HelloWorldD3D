@@ -44,4 +44,5 @@ private:
 	virtual void SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_matrix& InMatrix) override;
 
 	bool InitSharedObjects();
+	void DisableAltEnter();
 };

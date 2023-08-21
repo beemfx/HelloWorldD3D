@@ -52,9 +52,11 @@ void HWD3DGame_DX10::InitDevice(HWND TargetWnd)
 		const HRESULT CreateDevRes = D3D10CreateDeviceAndSwapChain(NULL, D3D10_DRIVER_TYPE_HARDWARE, NULL, Flags, D3D10_SDK_VERSION, &ScDesc, &m_SwapChain, &m_D3DDevice);
 		if (FAILED(CreateDevRes) || !m_D3DDevice || !m_SwapChain)
 		{
-			Deinit();
+			DeinitDevice();
 			return;
 		}
+
+		DisableAltEnter();
 	}
 
 	// Back Buffer:
@@ -72,7 +74,7 @@ void HWD3DGame_DX10::InitDevice(HWND TargetWnd)
 		const HRESULT CreateRtvRes = m_D3DDevice->CreateRenderTargetView(m_RTVTexture, &RtvDesc, &m_RTV);
 		if (FAILED(CreateRtvRes) || !m_RTV)
 		{
-			Deinit();
+			DeinitDevice();
 			return;
 		}
 	}
@@ -92,7 +94,7 @@ void HWD3DGame_DX10::InitDevice(HWND TargetWnd)
 		const HRESULT CreateRtRes = m_D3DDevice->CreateTexture2D(&RtvTd,  NULL, &m_DSVTexture);
 		if (FAILED(CreateRtRes) || !m_DSVTexture)
 		{
-			Deinit();
+			DeinitDevice();
 			return;
 		}
 
@@ -103,14 +105,14 @@ void HWD3DGame_DX10::InitDevice(HWND TargetWnd)
 		const HRESULT CreateRtvRes = m_D3DDevice->CreateDepthStencilView(m_DSVTexture, &RtvDesc, &m_DSV);
 		if (FAILED(CreateRtvRes) || !m_DSV)
 		{
-			Deinit();
+			DeinitDevice();
 			return;
 		}
 	}
 
 	if (!InitSharedObjects())
 	{
-		Deinit();
+		DeinitDevice();
 		return;
 	}
 	m_Shader = HWD3DRenderState_DX10::CreateRenderState(this, "_Media/DX10_VS.cso", "_Media/DX10_PS.cso");
@@ -243,4 +245,43 @@ bool HWD3DGame_DX10::InitSharedObjects()
 	}
 
 	return true;
+}
+
+void HWD3DGame_DX10::DisableAltEnter()
+{
+	if (!m_D3DDevice)
+	{
+		return;
+	}
+
+	HRESULT ScRes = S_OK;
+
+	IDXGIDevice* GiDev = nullptr;
+	ScRes = m_D3DDevice->QueryInterface<IDXGIDevice>(&GiDev);
+	if (FAILED(ScRes) || !GiDev)
+	{
+		return;
+	}
+	IDXGIAdapter* GiAdapter = nullptr;
+	ScRes = GiDev->GetAdapter(&GiAdapter);
+	if (FAILED(ScRes) || !GiAdapter)
+	{
+		HWD3D_SafeRelease(GiDev);
+		return;
+	}
+	IDXGIFactory* GiFactory = nullptr;
+	ScRes = GiAdapter->GetParent(IID_PPV_ARGS(&GiFactory));
+	if (FAILED(ScRes) || !GiFactory)
+	{
+		HWD3D_SafeRelease(GiAdapter);
+		HWD3D_SafeRelease(GiDev);
+		return;
+	}
+
+	ScRes = GiFactory->MakeWindowAssociation(m_TargetWnd, DXGI_MWA_NO_WINDOW_CHANGES|DXGI_MWA_NO_ALT_ENTER);
+	assert(SUCCEEDED(ScRes));
+
+	HWD3D_SafeRelease(GiFactory);
+	HWD3D_SafeRelease(GiAdapter);
+	HWD3D_SafeRelease(GiDev);
 }
