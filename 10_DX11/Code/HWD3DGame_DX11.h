@@ -1,7 +1,7 @@
 // D3D Hello World
 
 #include "HWD3DGame.h"
-#include <d3d10.h>
+#include <d3d11.h>
 
 class HWD3DGame_DX11 : public HWD3DGame
 {
@@ -12,12 +12,13 @@ private:
 	UINT m_ViewHeight = 0;
 
 	IDXGISwapChain* m_SwapChain = nullptr;
-	ID3D10Device* m_D3DDevice = nullptr;
-	ID3D10Texture2D* m_RTVTexture = nullptr;
-	ID3D10RenderTargetView* m_RTV = nullptr;
-	ID3D10Texture2D* m_DSVTexture = nullptr;
-	ID3D10DepthStencilView* m_DSV = nullptr;
-	ID3D10Buffer* m_VSConstBuffer = nullptr;
+	ID3D11Device* m_D3DDevice = nullptr;
+	ID3D11DeviceContext* m_D3DContext = nullptr;
+	ID3D11Texture2D* m_RTVTexture = nullptr;
+	ID3D11RenderTargetView* m_RTV = nullptr;
+	ID3D11Texture2D* m_DSVTexture = nullptr;
+	ID3D11DepthStencilView* m_DSV = nullptr;
+	ID3D11Buffer* m_VSConstBuffer = nullptr;
 
 	class HWD3DRenderState_DX11* m_Shader = nullptr;
 
@@ -28,8 +29,8 @@ private:
 
 public:
 	
-	// IDirect3D9* GetD3D() const { return m_D3D; }
-	ID3D10Device* GetDevice() const { return m_D3DDevice; }
+	ID3D11Device* GetDevice() const { return m_D3DDevice; }
+	ID3D11DeviceContext* GetContext() const { return m_D3DContext; }
 
 private:
 

@@ -29,7 +29,7 @@ HWD3DTexture_DX11::~HWD3DTexture_DX11()
 
 void HWD3DTexture_DX11::InitTexture()
 {
-	ID3D10Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	ID3D11Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!Dev)
 	{
@@ -56,18 +56,18 @@ void HWD3DTexture_DX11::InitTexture()
 			}
 		}
 
-		D3D10_TEXTURE2D_DESC TxDesc = { };
+		D3D11_TEXTURE2D_DESC TxDesc = { };
 		TxDesc.Width = m_Width;
 		TxDesc.Height = m_Height;
 		TxDesc.MipLevels = 1;
 		TxDesc.ArraySize = 1;
 		TxDesc.Format = DXGI_FORMAT_R8G8B8A8_TYPELESS;
-		TxDesc.Usage = D3D10_USAGE_IMMUTABLE;
-		TxDesc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
+		TxDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		TxDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		TxDesc.SampleDesc.Quality = 0;
 		TxDesc.SampleDesc.Count = 1;
 
-		D3D10_SUBRESOURCE_DATA Data = { };
+		D3D11_SUBRESOURCE_DATA Data = { };
 		Data.pSysMem = TexturePixels.data();
 		Data.SysMemPitch = m_Width*sizeof(DWORD);
 		Data.SysMemSlicePitch = m_Width * m_Height * sizeof(DWORD);
@@ -81,9 +81,9 @@ void HWD3DTexture_DX11::InitTexture()
 
 	// Create View:
 	{
-		D3D10_SHADER_RESOURCE_VIEW_DESC ViewDesc = { };
+		D3D11_SHADER_RESOURCE_VIEW_DESC ViewDesc = { };
 		ViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		ViewDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+		ViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		ViewDesc.Texture2D.MipLevels = 1;
 		ViewDesc.Texture2D.MostDetailedMip = 0;
 		const HRESULT Res = Dev->CreateShaderResourceView(m_Texture, &ViewDesc, &m_View);
@@ -96,8 +96,8 @@ void HWD3DTexture_DX11::InitTexture()
 
 void HWD3DTexture_DX11::SetTexture()
 {
-	if (m_Game && m_Game->GetDevice() && m_Texture && m_View)
+	if (m_Game && m_Game->GetContext() && m_Texture && m_View)
 	{
-		m_Game->GetDevice()->PSSetShaderResources(0, 1 , &m_View);
+		m_Game->GetContext()->PSSetShaderResources(0, 1 , &m_View);
 	}
 }

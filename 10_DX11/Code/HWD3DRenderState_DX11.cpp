@@ -15,12 +15,12 @@ void HWD3DRenderState_DX11::Release()
 
 void HWD3DRenderState_DX11::ApplyRenderState()
 {
-	ID3D10Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	ID3D11DeviceContext* Dev = m_Game ? m_Game->GetContext() : nullptr;
 	if (Dev && m_VS && m_IL && m_RS && m_SS && m_BS && m_DS)
 	{
 		Dev->IASetInputLayout(m_IL);
-		Dev->VSSetShader(m_VS);
-		Dev->PSSetShader(m_PS);
+		Dev->VSSetShader(m_VS, nullptr, 0);
+		Dev->PSSetShader(m_PS, nullptr, 0);
 		Dev->RSSetState(m_RS);
 		Dev->PSSetSamplers(0, 1, &m_SS);
 		const float BlendFactor[] = { 1.f , 1.f , 1.f , 1.f };
@@ -32,7 +32,7 @@ void HWD3DRenderState_DX11::ApplyRenderState()
 HWD3DRenderState_DX11::HWD3DRenderState_DX11(class HWD3DGame_DX11* InGame, const char* InVSFile, const char* InPSFile)
 	: m_Game(InGame)
 {
-	ID3D10Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	ID3D11Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!Dev)
 	{
@@ -58,7 +58,7 @@ HWD3DRenderState_DX11::HWD3DRenderState_DX11(class HWD3DGame_DX11* InGame, const
 			return;
 		}
 
-		const HRESULT CreateRes = Dev->CreateVertexShader(reinterpret_cast<DWORD*>(FileData.data()), FileData.size(), &m_VS);
+		const HRESULT CreateRes = Dev->CreateVertexShader(reinterpret_cast<DWORD*>(FileData.data()), FileData.size(), nullptr, &m_VS);
 		if (FAILED(CreateRes) || !m_VS)
 		{
 			return;
@@ -66,11 +66,11 @@ HWD3DRenderState_DX11::HWD3DRenderState_DX11(class HWD3DGame_DX11* InGame, const
 
 		// Vertex Declaration
 		{
-			static const D3D10_INPUT_ELEMENT_DESC Vd[] =
+			static const D3D11_INPUT_ELEMENT_DESC Vd[] =
 			{
-				{ "SV_POSITION" , 0 , DXGI_FORMAT_R32G32B32_FLOAT , 0 , D3D10_APPEND_ALIGNED_ELEMENT , D3D10_INPUT_PER_VERTEX_DATA , 0 },
-				{ "NORMAL"      , 0 , DXGI_FORMAT_R32G32B32_FLOAT , 0 , D3D10_APPEND_ALIGNED_ELEMENT , D3D10_INPUT_PER_VERTEX_DATA , 0 },
-				{ "TEXCOORD"    , 0 , DXGI_FORMAT_R32G32_FLOAT    , 0 , D3D10_APPEND_ALIGNED_ELEMENT , D3D10_INPUT_PER_VERTEX_DATA , 0 },
+				{ "SV_POSITION" , 0 , DXGI_FORMAT_R32G32B32_FLOAT , 0 , D3D11_APPEND_ALIGNED_ELEMENT , D3D11_INPUT_PER_VERTEX_DATA , 0 },
+				{ "NORMAL"      , 0 , DXGI_FORMAT_R32G32B32_FLOAT , 0 , D3D11_APPEND_ALIGNED_ELEMENT , D3D11_INPUT_PER_VERTEX_DATA , 0 },
+				{ "TEXCOORD"    , 0 , DXGI_FORMAT_R32G32_FLOAT    , 0 , D3D11_APPEND_ALIGNED_ELEMENT , D3D11_INPUT_PER_VERTEX_DATA , 0 },
 			};
 			const HRESULT CreateVdRes = Dev->CreateInputLayout(Vd, _countof(Vd), reinterpret_cast<const void*>(FileData.data()), FileData.size(), &m_IL);
 			if (FAILED(CreateVdRes) || !m_IL)
@@ -99,7 +99,7 @@ HWD3DRenderState_DX11::HWD3DRenderState_DX11(class HWD3DGame_DX11* InGame, const
 			return;
 		}
 
-		const HRESULT CreateRes = Dev->CreatePixelShader(reinterpret_cast<DWORD*>(FileData.data()), FileData.size(), &m_PS);
+		const HRESULT CreateRes = Dev->CreatePixelShader(reinterpret_cast<DWORD*>(FileData.data()), FileData.size(), nullptr, &m_PS);
 		if (FAILED(CreateRes) || !m_VS)
 		{
 			return;
@@ -108,9 +108,9 @@ HWD3DRenderState_DX11::HWD3DRenderState_DX11(class HWD3DGame_DX11* InGame, const
 
 	// Raster State:
 	{
-		D3D10_RASTERIZER_DESC Rsd = { };
-		Rsd.FillMode = D3D10_FILL_SOLID;
-		Rsd.CullMode = D3D10_CULL_BACK;
+		D3D11_RASTERIZER_DESC Rsd = { };
+		Rsd.FillMode = D3D11_FILL_SOLID;
+		Rsd.CullMode = D3D11_CULL_BACK;
 		Rsd.FrontCounterClockwise = FALSE;
 		Rsd.DepthBias = 0;
 		Rsd.DepthBiasClamp = 0.f;
@@ -128,14 +128,14 @@ HWD3DRenderState_DX11::HWD3DRenderState_DX11(class HWD3DGame_DX11* InGame, const
 
 	// Sampler State:
 	{
-		D3D10_SAMPLER_DESC Ssd = { };
-		Ssd.Filter = D3D10_FILTER_MIN_MAG_MIP_LINEAR;
-		Ssd.AddressU = D3D10_TEXTURE_ADDRESS_WRAP;
-		Ssd.AddressV = D3D10_TEXTURE_ADDRESS_WRAP;
-		Ssd.AddressW = D3D10_TEXTURE_ADDRESS_WRAP;
+		D3D11_SAMPLER_DESC Ssd = { };
+		Ssd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		Ssd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		Ssd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		Ssd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 		Ssd.MipLODBias = 0.f;
 		Ssd.MaxAnisotropy = 16;
-		Ssd.ComparisonFunc = D3D10_COMPARISON_NEVER;
+		Ssd.ComparisonFunc = D3D11_COMPARISON_NEVER;
 		Ssd.BorderColor[0] = 0.f;
 		Ssd.BorderColor[1] = 0.f;
 		Ssd.BorderColor[2] = 0.f;
@@ -152,18 +152,18 @@ HWD3DRenderState_DX11::HWD3DRenderState_DX11(class HWD3DGame_DX11* InGame, const
 
 	// Blend State:
 	{
-		D3D10_BLEND_DESC Bd = { };
+		D3D11_BLEND_DESC Bd = { };
 		Bd.AlphaToCoverageEnable = FALSE;
-		Bd.BlendEnable[0] = TRUE;
-		Bd.SrcBlend = D3D10_BLEND_SRC_ALPHA;
-		Bd.DestBlend = D3D10_BLEND_INV_SRC_ALPHA;
-		Bd.BlendOp = D3D10_BLEND_OP_ADD;
-		Bd.SrcBlendAlpha = D3D10_BLEND_ONE;
-		Bd.DestBlendAlpha = D3D10_BLEND_ZERO;
-		Bd.BlendOpAlpha = D3D10_BLEND_OP_ADD;
-		for (auto& Value : Bd.RenderTargetWriteMask)
+		for (auto& Rt : Bd.RenderTarget)
 		{
-			Value = D3D10_COLOR_WRITE_ENABLE_ALL;
+			Rt.BlendEnable = TRUE;
+			Rt.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+			Rt.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+			Rt.BlendOp = D3D11_BLEND_OP_ADD;
+			Rt.SrcBlendAlpha = D3D11_BLEND_ONE;
+			Rt.DestBlendAlpha = D3D11_BLEND_ZERO;
+			Rt.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+			Rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 		}
 
 		const HRESULT Res = Dev->CreateBlendState(&Bd, &m_BS);
@@ -175,15 +175,15 @@ HWD3DRenderState_DX11::HWD3DRenderState_DX11(class HWD3DGame_DX11* InGame, const
 
 	// Depth Stencil State:
 	{
-		const D3D10_DEPTH_STENCIL_DESC Dsd = 
+		const D3D11_DEPTH_STENCIL_DESC Dsd = 
 		{ TRUE 
-			, D3D10_DEPTH_WRITE_MASK_ALL 
-			, D3D10_COMPARISON_LESS
+			, D3D11_DEPTH_WRITE_MASK_ALL 
+			, D3D11_COMPARISON_LESS
 			, FALSE
-			, D3D10_DEFAULT_STENCIL_READ_MASK
-			, D3D10_DEFAULT_STENCIL_WRITE_MASK
-			, { D3D10_STENCIL_OP_KEEP , D3D10_STENCIL_OP_KEEP , D3D10_STENCIL_OP_KEEP , D3D10_COMPARISON_ALWAYS }
-		, { D3D10_STENCIL_OP_KEEP , D3D10_STENCIL_OP_KEEP , D3D10_STENCIL_OP_KEEP , D3D10_COMPARISON_ALWAYS } };
+			, D3D11_DEFAULT_STENCIL_READ_MASK
+			, D3D11_DEFAULT_STENCIL_WRITE_MASK
+			, { D3D11_STENCIL_OP_KEEP , D3D11_STENCIL_OP_KEEP , D3D11_STENCIL_OP_KEEP , D3D11_COMPARISON_ALWAYS }
+		, { D3D11_STENCIL_OP_KEEP , D3D11_STENCIL_OP_KEEP , D3D11_STENCIL_OP_KEEP , D3D11_COMPARISON_ALWAYS } };
 
 		const HRESULT Res = Dev->CreateDepthStencilState(&Dsd, &m_DS);
 		if (FAILED(Res) || !m_DS)
