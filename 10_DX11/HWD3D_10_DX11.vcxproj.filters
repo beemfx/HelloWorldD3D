@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Code">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{0af69f08-0d6b-48b0-bed7-6b7e67713f8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Framework">
+      <UniqueIdentifier>{648f1be8-6060-4487-ac04-1b79509b7381}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Res">
+      <UniqueIdentifier>{d3ae5b74-870a-48cc-899e-6d73431836d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Shell">
+      <UniqueIdentifier>{773a4289-b5b7-4f63-9dbd-0dd37c6466b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{a8afabb8-2d77-4cf9-80cb-7c516f4b4831}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\_Common\Framework\HWD3DGame.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_Common\Shell\HWD3DWinMain.cpp">
+      <Filter>Common\Shell</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DTexture.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DMesh.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DTypes.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DTimer.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\HWD3DGame_DX11.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\HWD3DMesh_DX11.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\HWD3DRenderState_DX11.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\HWD3DTexture_DX11.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\_Common\Framework\HWD3DGame.h">
+      <Filter>Common\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DTypes.h">
+      <Filter>Common\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DTexture.h">
+      <Filter>Common\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DMesh.h">
+      <Filter>Common\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DSysInclude.h">
+      <Filter>Common\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DTimer.h">
+      <Filter>Common\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\HWD3DGame_DX11.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\HWD3DMesh_DX11.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\HWD3DRenderState_DX11.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\HWD3DTexture_DX11.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\_Common\Res\directx.ico">
+      <Filter>Common\Res</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\_Common\Res\HWD3DRes.rc">
+      <Filter>Common\Res</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shader\DX11_VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\DX11_PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shader\DX11.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+  </ItemGroup>
+</Project>
