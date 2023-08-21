@@ -43,7 +43,7 @@ void HWD3DGame_DX10::InitDevice(HWND TargetWnd)
 		ScDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
 		ScDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_STRETCHED;
 
-		DWORD Flags = 0;
+		DWORD Flags = D3D10_CREATE_DEVICE_SINGLETHREADED;;
 
 #if defined(_DEBUG)
 		Flags |= D3D10_CREATE_DEVICE_DEBUG;
