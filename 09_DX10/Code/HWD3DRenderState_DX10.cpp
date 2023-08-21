@@ -1,19 +1,19 @@
 // D3D Hello World
 
-#include "HWD3DShader_DX10.h"
+#include "HWD3DRenderState_DX10.h"
 #include "HWD3DGame_DX10.h"
 
-HWD3DShader_DX10* HWD3DShader_DX10::CreateShader(class HWD3DGame* InGame, const char* InVSFile, const char* InPSFile)
+HWD3DRenderState_DX10* HWD3DRenderState_DX10::CreateRenderState(class HWD3DGame* InGame, const char* InVSFile, const char* InPSFile)
 {
-	return new HWD3DShader_DX10(dynamic_cast<HWD3DGame_DX10*>(InGame), InVSFile, InPSFile);
+	return new HWD3DRenderState_DX10(dynamic_cast<HWD3DGame_DX10*>(InGame), InVSFile, InPSFile);
 }
 
-void HWD3DShader_DX10::Release()
+void HWD3DRenderState_DX10::Release()
 {
 	delete this;
 }
 
-void HWD3DShader_DX10::SetShader()
+void HWD3DRenderState_DX10::ApplyRenderState()
 {
 	if (m_Game && m_Game->GetDevice() && m_VS && m_IL)
 	{
@@ -23,7 +23,7 @@ void HWD3DShader_DX10::SetShader()
 	}
 }
 
-HWD3DShader_DX10::HWD3DShader_DX10(class HWD3DGame_DX10* InGame, const char* InVSFile, const char* InPSFile)
+HWD3DRenderState_DX10::HWD3DRenderState_DX10(class HWD3DGame_DX10* InGame, const char* InVSFile, const char* InPSFile)
 	: m_Game(InGame)
 {
 	ID3D10Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
@@ -101,7 +101,7 @@ HWD3DShader_DX10::HWD3DShader_DX10(class HWD3DGame_DX10* InGame, const char* InV
 	}
 }
 
-HWD3DShader_DX10::~HWD3DShader_DX10()
+HWD3DRenderState_DX10::~HWD3DRenderState_DX10()
 {
 	HWD3D_SafeRelease(m_PS);
 	HWD3D_SafeRelease(m_VS);

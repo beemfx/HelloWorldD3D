@@ -23,7 +23,7 @@ private:
 	ID3D10BlendState* m_BS = nullptr;
 	ID3D10DepthStencilState* m_DS = nullptr;
 
-	class HWD3DShader_DX10* m_Shader = nullptr;
+	class HWD3DRenderState_DX10* m_Shader = nullptr;
 
 	hwd3d_matrix m_Proj = HWD3DMatrix_Ident;
 	hwd3d_matrix m_View = HWD3DMatrix_Ident;

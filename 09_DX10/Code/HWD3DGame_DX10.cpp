@@ -1,7 +1,7 @@
 // D3D Hello World
 
 #include "HWD3DGame_DX10.h"
-#include "HWD3DShader_DX10.h"
+#include "HWD3DRenderState_DX10.h"
 
 #pragma comment(lib, "d3d10.lib")
 
@@ -113,7 +113,7 @@ void HWD3DGame_DX10::InitDevice(HWND TargetWnd)
 		Deinit();
 		return;
 	}
-	m_Shader = HWD3DShader_DX10::CreateShader(this, "_Media/DX10_VS.cso", "_Media/DX10_PS.cso");
+	m_Shader = HWD3DRenderState_DX10::CreateRenderState(this, "_Media/DX10_VS.cso", "_Media/DX10_PS.cso");
 }
 
 void HWD3DGame_DX10::DeinitDevice()
@@ -168,7 +168,7 @@ bool HWD3DGame_DX10::BeginDraw()
 
 		if (m_Shader)
 		{
-			m_Shader->SetShader();
+			m_Shader->ApplyRenderState();
 		}
 
 		return true;

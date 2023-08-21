@@ -5,11 +5,11 @@
 
 #pragma once
 
-class HWD3DShader_DX10
+class HWD3DRenderState_DX10
 {
 public:
 	
-	static HWD3DShader_DX10* CreateShader(class HWD3DGame* InGame, const char* InVSFile, const char* InPSFile);
+	static HWD3DRenderState_DX10* CreateRenderState(class HWD3DGame* InGame, const char* InVSFile, const char* InPSFile);
 
 protected:
 	
@@ -22,10 +22,10 @@ public:
 	
 	void Release();
 
-	void SetShader();
+	void ApplyRenderState();
 
 protected:
 	
-	HWD3DShader_DX10(class HWD3DGame_DX10* InGame, const char* InVSFile, const char* InPSFile);
-	~HWD3DShader_DX10();
+	HWD3DRenderState_DX10(class HWD3DGame_DX10* InGame, const char* InVSFile, const char* InPSFile);
+	~HWD3DRenderState_DX10();
 };
