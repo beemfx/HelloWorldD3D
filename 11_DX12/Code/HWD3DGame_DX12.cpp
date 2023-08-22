@@ -126,6 +126,18 @@ void HWD3DGame_DX12::InitDevice(HWND TargetWnd)
 		m_GiFactory->MakeWindowAssociation(m_TargetWnd, DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_ALT_ENTER);
 	}
 
+	if (!InitDescriptors())
+	{
+		DeinitDevice();
+		return;
+	}
+
+	if (!InitBackBuffer())
+	{
+		DeinitDevice();
+		return;
+	}
+
 #if 0
 	// Back Buffer:
 	{
@@ -192,7 +204,11 @@ void HWD3DGame_DX12::DeinitDevice()
 {
 	FlushSwapChain();
 
+	m_FrameData.resize(0);
+	m_RenderTargetDescriptors = hwd3dDescriptorHeap();
+
 	HWD3D_SafeRelease(m_Shader);
+	HWD3D_SafeRelease(m_SwapChainCommandList);
 	HWD3D_SafeRelease(m_SwapChain);
 	CloseHandle(m_SwapChainFenceEventHandle);
 	HWD3D_SafeRelease(m_SwapChainFence);
@@ -257,7 +273,7 @@ void HWD3DGame_DX12::Present()
 		const bool bVSync = true;
 		const DXGI_PRESENT_PARAMETERS Pp = { };
 		const UINT PresentFlags = !bVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
-		// m_SwapChain->Present1(bVSync ? 1 : 0, PresentFlags, &Pp);
+		m_SwapChain->Present1(bVSync ? 1 : 0, PresentFlags, &Pp);
 	}
 }
 
@@ -301,6 +317,102 @@ void HWD3DGame_DX12::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_ma
 		}
 	}
 #endif
+}
+
+bool HWD3DGame_DX12::InitDescriptors()
+{
+	if (!m_D3DDevice)
+	{
+		return false;
+	}
+
+	// Render Target Descriptors:
+	{
+		const bool bShaderVisible = false;
+
+		m_RenderTargetDescriptors.Descriptors.resize(NUM_BACK_BUFFERS);
+
+		D3D12_DESCRIPTOR_HEAP_DESC Dhd = {};
+		Dhd.NumDescriptors = m_RenderTargetDescriptors.Descriptors.size();
+		Dhd.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		Dhd.Flags = bShaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+		const HRESULT Res = m_D3DDevice->CreateDescriptorHeap(&Dhd, IID_PPV_ARGS(&m_RenderTargetDescriptors.Heap));
+		if (FAILED(Res) || !m_RenderTargetDescriptors.Heap)
+		{
+			return false;
+		}
+
+		const UINT IncrementSize = m_D3DDevice->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_RTV );
+
+		D3D12_CPU_DESCRIPTOR_HANDLE CpuHeapStart = m_RenderTargetDescriptors.Heap->GetCPUDescriptorHandleForHeapStart();
+		D3D12_GPU_DESCRIPTOR_HANDLE GpuHeapStart = { };
+		if (bShaderVisible)
+		{
+			m_RenderTargetDescriptors.Heap->GetGPUDescriptorHandleForHeapStart();
+		}
+
+		for( UINT i = 0; i< m_RenderTargetDescriptors.Descriptors.size(); i++ )
+		{
+			hwd3dDescriptor& Dst = m_RenderTargetDescriptors.Descriptors[i];
+
+			Dst.CpuDescHandle.ptr = CpuHeapStart.ptr + i*IncrementSize;
+			if (bShaderVisible)
+			{
+				Dst.GpuDescHandle.ptr = GpuHeapStart.ptr + i*IncrementSize;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool HWD3DGame_DX12::InitBackBuffer()
+{
+	if (!m_SwapChain || !m_D3DDevice)
+	{
+		return false;
+	}
+
+	m_FrameData.resize(NUM_BACK_BUFFERS);
+
+	for (int BbIndex = 0; BbIndex < m_FrameData.size(); BbIndex++)
+	{
+		hwd3dFrameData& FrameData = m_FrameData[BbIndex];
+
+		const HRESULT GetBufferRes = m_SwapChain->GetBuffer(BbIndex, IID_PPV_ARGS(&FrameData.BufferTexture));
+		if (FAILED(GetBufferRes) || !FrameData.BufferTexture)
+		{
+			return false;
+		}
+
+		FrameData.Descriptor = m_RenderTargetDescriptors.GetAvailableDesc();
+		m_D3DDevice->CreateRenderTargetView(FrameData.BufferTexture, nullptr, FrameData.Descriptor.CpuDescHandle);
+
+		// Every back buffer needs an allocator.
+		const HRESULT CcaRes = m_D3DDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&FrameData.CommandAlloc));
+		if (FAILED(CcaRes) && !FrameData.CommandAlloc)
+		{
+			return false;
+		}
+	}
+
+	// Single command list
+	{
+		// Initialize with frame 0's command allocator (this changes every frame, that's why we close it right away)
+		const HRESULT CclRes = m_D3DDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_FrameData[0].CommandAlloc, nullptr, IID_PPV_ARGS(&m_SwapChainCommandList));
+		if (SUCCEEDED(CclRes) && m_SwapChainCommandList)
+		{
+			const HRESULT ClCloseRes = m_SwapChainCommandList->Close();
+			assert(SUCCEEDED(ClCloseRes));
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 bool HWD3DGame_DX12::InitSharedObjects()

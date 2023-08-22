@@ -8,12 +8,52 @@ class HWD3DGame_DX12 : public HWD3DGame
 {
 private:
 	
-	// struct egFrameData
-	// {
-	// 	EGStrongPtr<EGDxCoreD12GraphicsRenderTarget> BackBufferRt;
-	// 	EGStrongPtr<EGDxCoreD12GraphicsFrameContext> Gd;
-	// 	UINT64 FrameFenceValue = 0;
-	// };
+	static const int NUM_BACK_BUFFERS = 2;
+	
+	struct hwd3dDescriptor
+	{
+		D3D12_CPU_DESCRIPTOR_HANDLE CpuDescHandle = { };
+		D3D12_GPU_DESCRIPTOR_HANDLE GpuDescHandle = { };
+		D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualPtr = 0;
+	};
+
+	struct hwd3dDescriptorHeap
+	{
+		ID3D12DescriptorHeap* Heap = nullptr;
+		std::vector<hwd3dDescriptor> Descriptors;
+		int NextDescriptor = 0;
+
+		~hwd3dDescriptorHeap()
+		{
+			HWD3D_SafeRelease(Heap);
+		}
+
+		hwd3dDescriptor GetAvailableDesc()
+		{
+			if (NextDescriptor < Descriptors.size())
+			{
+				NextDescriptor++;
+				return Descriptors[NextDescriptor-1];
+			}
+
+			return hwd3dDescriptor();
+		}
+	};
+	
+	struct hwd3dFrameData
+	{
+		ID3D12Resource* BufferTexture = nullptr;
+		ID3D12CommandAllocator* CommandAlloc = nullptr;
+		UINT64 FrameFenceValue = 0;
+
+		hwd3dDescriptor Descriptor;
+
+		~hwd3dFrameData()
+		{
+			HWD3D_SafeRelease(CommandAlloc);
+			HWD3D_SafeRelease(BufferTexture);
+		}
+	};
 
 private:
 	
@@ -30,9 +70,12 @@ private:
 	UINT64 m_SwapChainFenceValue = 0;
 	HANDLE m_SwapChainFenceEventHandle = 0;
 
-	// ID3D12CommandAllocator* m_CommandAlloc = nullptr;
+	hwd3dDescriptorHeap m_RenderTargetDescriptors;
+
+	std::vector<hwd3dFrameData> m_FrameData;
+
 	// ID3D12RootSignature* m_RootSig = nullptr;
-	// ID3D12GraphicsCommandList* m_SwapChainCommandList = nullptr;
+	ID3D12GraphicsCommandList* m_SwapChainCommandList = nullptr;
 
 	class HWD3DRenderState_DX12* m_Shader = nullptr;
 
@@ -56,6 +99,9 @@ private:
 	virtual void Present() override;
 
 	virtual void SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_matrix& InMatrix) override;
+
+	bool InitDescriptors();
+	bool InitBackBuffer();
 
 	bool InitSharedObjects();
 
