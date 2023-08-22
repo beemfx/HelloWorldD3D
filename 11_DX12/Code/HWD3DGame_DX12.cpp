@@ -86,12 +86,15 @@ void HWD3DGame_DX12::InitDevice(HWND TargetWnd)
 		const HRESULT Res = m_D3DDevice->CreateFence(m_SwapChainFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_SwapChainFence));
 		if (FAILED(Res) || !m_SwapChainFence)
 		{
-			m_SwapChainFenceEventHandle = ::CreateEvent(NULL, FALSE, FALSE, NULL);
-			if (!m_SwapChainFenceEventHandle)
-			{
-				DeinitDevice();
-				return;
-			}
+			DeinitDevice();
+			return;
+		}
+
+		m_SwapChainFenceEventHandle = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+		if (!m_SwapChainFenceEventHandle)
+		{
+			DeinitDevice();
+			return;
 		}
 	}
 
@@ -207,7 +210,8 @@ void HWD3DGame_DX12::DeinitDevice()
 	FlushSwapChain();
 
 	m_FrameData.resize(0);
-	m_RenderTargetDescriptors = hwd3dDescriptorHeap();
+	HWD3D_SafeRelease(m_RenderTargetDescriptors.Heap);
+	m_RenderTargetDescriptors.Destroy();
 
 	HWD3D_SafeRelease(m_Shader);
 	HWD3D_SafeRelease(m_SwapChainCommandList);
@@ -222,14 +226,7 @@ void HWD3DGame_DX12::DeinitDevice()
 
 void HWD3DGame_DX12::ClearViewport()
 {
-#if 0
-	if (m_D3DContext && m_RTV && m_DSV)
-	{
-		const FLOAT ClearColor[] = { .4f , .4f , 1.f , 1.f };
-		m_D3DContext->ClearRenderTargetView(m_RTV, ClearColor);
-		m_D3DContext->ClearDepthStencilView(m_DSV, D3D11_CLEAR_DEPTH, 1.f, 0);
-	}
-#endif
+	m_bShouldClearAtStartOfNextFrame = true;
 }
 
 bool HWD3DGame_DX12::BeginDraw()
@@ -244,34 +241,39 @@ bool HWD3DGame_DX12::BeginDraw()
 			FrameData.CommandAlloc->Reset();
 			m_SwapChainCommandList->Reset(FrameData.CommandAlloc, nullptr);
 			m_CurrentFrameData = &FrameData;
+
+			m_CurrentFrameData->PrepareToDraw(*m_SwapChainCommandList);
+
+			const D3D12_CPU_DESCRIPTOR_HANDLE Rts[] = { m_CurrentFrameData->BufferDescriptor.CpuDescHandle };
+			m_SwapChainCommandList->OMSetRenderTargets(_countof(Rts), Rts, FALSE, NULL);
+			if (m_bShouldClearAtStartOfNextFrame)
+			{
+				m_bShouldClearAtStartOfNextFrame = false;
+				const FLOAT ClearColor[] = { .4f , .4f , 1.f , 1.f };
+				m_SwapChainCommandList->ClearRenderTargetView(m_CurrentFrameData->BufferDescriptor.CpuDescHandle, ClearColor, 0, NULL);
+				// TODO Depth Stencil: m_SwapChainCommandList->ClearDepthStencilView(m_DepthStencilView, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0 NULL);
+			}
+
+			//set the viewport
+			D3D12_VIEWPORT Vp = { };
+			Vp.Width = static_cast<FLOAT>(m_ViewWidth);
+			Vp.Height = static_cast<FLOAT>(m_ViewHeight);
+			Vp.MinDepth = 0.0f;
+			Vp.MaxDepth = 1.0f;
+			Vp.TopLeftX = 0;
+			Vp.TopLeftY = 0;
+			m_SwapChainCommandList->RSSetViewports(1, &Vp);
+			
+			// m_D3DContext->VSSetConstantBuffers(0, 1, &m_VSConstBuffer);
+
+			if (m_Shader)
+			{
+				m_Shader->ApplyRenderState();
+			}
+			
 			return true;
 		}
 	}
-#if 0
-	if (m_D3DContext)
-	{
-		m_D3DContext->OMSetRenderTargets(1, &m_RTV, m_DSV);
-
-		//set the viewport
-		D3D11_VIEWPORT Vp = { };
-		Vp.Width = static_cast<FLOAT>(m_ViewWidth);
-		Vp.Height = static_cast<FLOAT>(m_ViewHeight);
-		Vp.MinDepth = 0.0f;
-		Vp.MaxDepth = 1.0f;
-		Vp.TopLeftX = 0;
-		Vp.TopLeftY = 0;
-		m_D3DContext->RSSetViewports(1, &Vp);
-
-		m_D3DContext->VSSetConstantBuffers(0, 1, &m_VSConstBuffer);
-
-		if (m_Shader)
-		{
-			m_Shader->ApplyRenderState();
-		}
-
-		return true;
-	}
-#endif
 
 	return false;
 }
@@ -280,6 +282,7 @@ void HWD3DGame_DX12::EndDraw()
 {
 	if (m_CurrentFrameData)
 	{
+		m_CurrentFrameData->PrepareToPresent(*m_SwapChainCommandList);
 		m_SwapChainCommandList->Close();
 		ID3D12CommandList* const CommandLists[] =
 		{
@@ -412,8 +415,9 @@ bool HWD3DGame_DX12::InitBackBuffer()
 			return false;
 		}
 
-		FrameData.Descriptor = m_RenderTargetDescriptors.GetAvailableDesc();
-		m_D3DDevice->CreateRenderTargetView(FrameData.BufferTexture, nullptr, FrameData.Descriptor.CpuDescHandle);
+		FrameData.BufferState = D3D12_RESOURCE_STATE_PRESENT; // Back buffers start in Present state.
+		FrameData.BufferDescriptor = m_RenderTargetDescriptors.GetAvailableDesc();
+		m_D3DDevice->CreateRenderTargetView(FrameData.BufferTexture, nullptr, FrameData.BufferDescriptor.CpuDescHandle);
 
 		// Every back buffer needs an allocator.
 		const HRESULT CcaRes = m_D3DDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&FrameData.CommandAlloc));

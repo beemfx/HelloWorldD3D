@@ -28,6 +28,13 @@ private:
 			HWD3D_SafeRelease(Heap);
 		}
 
+		void Destroy()
+		{
+			HWD3D_SafeRelease(Heap);
+			Descriptors.resize(0);
+			NextDescriptor = 0;
+		}
+
 		hwd3dDescriptor GetAvailableDesc()
 		{
 			if (NextDescriptor < Descriptors.size())
@@ -46,7 +53,38 @@ private:
 		ID3D12CommandAllocator* CommandAlloc = nullptr;
 		UINT64 FrameFenceValue = 0;
 
-		hwd3dDescriptor Descriptor;
+		hwd3dDescriptor BufferDescriptor;
+		D3D12_RESOURCE_STATES BufferState = D3D12_RESOURCE_STATE_COMMON;
+
+		void PrepareToDraw(ID3D12GraphicsCommandList& CmdList)
+		{
+			if( BufferState != D3D12_RESOURCE_STATE_RENDER_TARGET )
+			{
+				D3D12_RESOURCE_BARRIER Barrier = { };
+				Barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+				Barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+				Barrier.Transition.pResource = BufferTexture;
+				Barrier.Transition.StateBefore = BufferState;
+				Barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+				BufferState = D3D12_RESOURCE_STATE_RENDER_TARGET;
+				CmdList.ResourceBarrier( 1 , &Barrier );
+			}
+		}
+
+		void PrepareToPresent(ID3D12GraphicsCommandList& CmdList)
+		{
+			if( BufferState != D3D12_RESOURCE_STATE_PRESENT )
+			{
+				D3D12_RESOURCE_BARRIER Barrier = { };
+				Barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+				Barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+				Barrier.Transition.pResource = BufferTexture;
+				Barrier.Transition.StateBefore = BufferState;
+				Barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+				BufferState = D3D12_RESOURCE_STATE_PRESENT;
+				CmdList.ResourceBarrier( 1 , &Barrier );
+			}
+		}
 
 		~hwd3dFrameData()
 		{
@@ -85,6 +123,8 @@ private:
 	hwd3d_matrix m_View = HWD3DMatrix_Ident;
 	hwd3d_matrix m_World = HWD3DMatrix_Ident;
 	hwd3d_matrix m_ShaderWVP = HWD3DMatrix_Ident;
+
+	bool m_bShouldClearAtStartOfNextFrame = false;
 
 public:
 	
