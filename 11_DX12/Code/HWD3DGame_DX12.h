@@ -73,6 +73,8 @@ private:
 	hwd3dDescriptorHeap m_RenderTargetDescriptors;
 
 	std::vector<hwd3dFrameData> m_FrameData;
+	UINT m_CurrentFrameDataIndex = 0xFFFFFFFF;
+	hwd3dFrameData* m_CurrentFrameData = nullptr;
 
 	// ID3D12RootSignature* m_RootSig = nullptr;
 	ID3D12GraphicsCommandList* m_SwapChainCommandList = nullptr;

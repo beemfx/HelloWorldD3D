@@ -124,6 +124,8 @@ void HWD3DGame_DX12::InitDevice(HWND TargetWnd)
 		}
 
 		m_GiFactory->MakeWindowAssociation(m_TargetWnd, DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_ALT_ENTER);
+
+		m_CurrentFrameDataIndex = m_SwapChain->GetCurrentBackBufferIndex();
 	}
 
 	if (!InitDescriptors())
@@ -232,6 +234,19 @@ void HWD3DGame_DX12::ClearViewport()
 
 bool HWD3DGame_DX12::BeginDraw()
 {
+	if (0 <= m_CurrentFrameDataIndex && m_CurrentFrameDataIndex < m_FrameData.size())
+	{
+		hwd3dFrameData& FrameData = m_FrameData[m_CurrentFrameDataIndex];
+		SwapChainWaitForFenceValue(FrameData.FrameFenceValue);
+
+		if (FrameData.CommandAlloc)
+		{
+			FrameData.CommandAlloc->Reset();
+			m_SwapChainCommandList->Reset(FrameData.CommandAlloc, nullptr);
+			m_CurrentFrameData = &FrameData;
+			return true;
+		}
+	}
 #if 0
 	if (m_D3DContext)
 	{
@@ -263,7 +278,17 @@ bool HWD3DGame_DX12::BeginDraw()
 
 void HWD3DGame_DX12::EndDraw()
 {
-
+	if (m_CurrentFrameData)
+	{
+		m_SwapChainCommandList->Close();
+		ID3D12CommandList* const CommandLists[] =
+		{
+			m_SwapChainCommandList ,
+		};
+		m_CommandQueue->ExecuteCommandLists(_countof(CommandLists), CommandLists);
+		m_CurrentFrameData->FrameFenceValue = SwapChainSignal();
+		m_CurrentFrameData = nullptr;
+	}
 }
 
 void HWD3DGame_DX12::Present()
@@ -274,6 +299,7 @@ void HWD3DGame_DX12::Present()
 		const DXGI_PRESENT_PARAMETERS Pp = { };
 		const UINT PresentFlags = !bVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
 		m_SwapChain->Present1(bVSync ? 1 : 0, PresentFlags, &Pp);
+		m_CurrentFrameDataIndex = m_SwapChain->GetCurrentBackBufferIndex();
 	}
 }
 
