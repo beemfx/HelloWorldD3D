@@ -6,7 +6,7 @@
 extern "C" { _declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; }
 extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }
 
-#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
 HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
@@ -31,91 +31,102 @@ void HWD3DGame_DX12::InitDevice(HWND TargetWnd)
 	m_ViewWidth = TargetWndRc.right - TargetWndRc.left;
 	m_ViewHeight = TargetWndRc.bottom - TargetWndRc.top;
 
-	// Init DirectDraw and obtain Direct3D
+	// Init:
 	{
-		DXGI_SWAP_CHAIN_DESC ScDesc = { };
+#if defined(_DEBUG)
+		ID3D12Debug* D3DDebug = nullptr;
+		const HRESULT GetDebugRes = D3D12GetDebugInterface(IID_PPV_ARGS(&D3DDebug));
+		if (SUCCEEDED(GetDebugRes) && D3DDebug)
+		{
+			D3DDebug->EnableDebugLayer();
+			D3DDebug->Release();
+		}
+#endif
+
+		const HRESULT CreateFactRes = CreateDXGIFactory(IID_PPV_ARGS(&m_GiFactory));
+		if (FAILED(CreateFactRes) || !m_GiFactory)
+		{
+			DeinitDevice();
+			return;
+		}
+
+		m_GiAdapter = PickAdapter();
+
+		// Device and Context:
+		const HRESULT CreateDevRes = D3D12CreateDevice(
+			m_GiAdapter,
+			D3D_FEATURE_LEVEL_12_0,
+			IID_PPV_ARGS(&m_D3DDevice));
+
+		if (FAILED(CreateDevRes) || !m_D3DDevice)
+		{
+			DeinitDevice();
+			return;
+		}
+	}
+
+	// Command Queue:
+	{
+		D3D12_COMMAND_QUEUE_DESC Cqd = { };
+		Cqd.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+		Cqd.Priority = 0;
+		Cqd.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+		Cqd.NodeMask = 0;
+
+		const HRESULT CreateCcRes = m_D3DDevice->CreateCommandQueue(&Cqd, IID_PPV_ARGS(&m_CommandQueue));
+		if (FAILED(CreateCcRes) || !m_CommandQueue)
+		{
+			DeinitDevice();
+			return;
+		}
+	}
+
+	// Fence for swap chain:
+	{
+		const HRESULT Res = m_D3DDevice->CreateFence(m_SwapChainFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_SwapChainFence));
+		if (FAILED(Res) || !m_SwapChainFence)
+		{
+			m_SwapChainFenceEventHandle = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+			if (!m_SwapChainFenceEventHandle)
+			{
+				DeinitDevice();
+				return;
+			}
+		}
+	}
+
+	// Swap Chain:
+	{
+		DXGI_SWAP_CHAIN_DESC1 ScDesc = { };
 		ScDesc.BufferCount = 2;
-		ScDesc.Windowed = TRUE;
-		ScDesc.OutputWindow = m_TargetWnd;
+		ScDesc.Width = m_ViewWidth;
+		ScDesc.Height = m_ViewHeight;
+		ScDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		ScDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		ScDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		ScDesc.SampleDesc.Quality = 0;
 		ScDesc.SampleDesc.Count = 1;
-		ScDesc.BufferDesc.Width = m_ViewWidth;
-		ScDesc.BufferDesc.Height = m_ViewHeight;
-		ScDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		ScDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
-		ScDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_STRETCHED;
+		ScDesc.Scaling = DXGI_SCALING_STRETCH;
+		ScDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 		ScDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-		DWORD Flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
-
-#if defined(_DEBUG)
-		Flags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
-
-		const D3D_FEATURE_LEVEL FeatureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
-		D3D_FEATURE_LEVEL FeatureLevel = D3D_FEATURE_LEVEL_1_0_CORE;
-
-		const bool bUseManualSwapChainCreation = true;
-
-		if (bUseManualSwapChainCreation)
+		IDXGISwapChain1* SwapChain1 = nullptr;
+		const HRESULT CreateScRes = m_GiFactory->CreateSwapChainForHwnd(m_CommandQueue, m_TargetWnd, &ScDesc, nullptr, nullptr, &SwapChain1);
+		if (SwapChain1)
 		{
-			const HRESULT CreateFactRes = CreateDXGIFactory(IID_PPV_ARGS(&m_GiFactory));
-			if (FAILED(CreateFactRes) || !m_GiFactory)
-			{
-				DeinitDevice();
-				return;
-			}
-
-			m_GiAdapter = PickAdapter();
-
-			// Device and Context:
-			const HRESULT CreateDevRes = D3D11CreateDevice(
-				m_GiAdapter,
-				m_GiAdapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE,
-				NULL, 
-				Flags, 
-				FeatureLevels, _countof(FeatureLevels), 
-				D3D11_SDK_VERSION,
-				&m_D3DDevice, &FeatureLevel, &m_D3DContext);
-
-			if (FAILED(CreateDevRes) || !m_D3DDevice || !m_D3DContext)
-			{
-				DeinitDevice();
-				return;
-			}
-
-			// Swap Chain:
-			const HRESULT CreateScRes = m_GiFactory->CreateSwapChain(m_D3DDevice, &ScDesc, &m_SwapChain);
-			if (FAILED(CreateScRes) || !m_SwapChain)
-			{
-				DeinitDevice();
-				return;
-			}
+			SwapChain1->QueryInterface<IDXGISwapChain4>(&m_SwapChain);
+			SwapChain1->Release();
 		}
-		else
+		if (FAILED(CreateScRes) || !m_SwapChain)
 		{
-			// Device, Context, and Swap Chain:
-			const HRESULT CreateDevRes = D3D11CreateDeviceAndSwapChain(
-				NULL, 
-				D3D_DRIVER_TYPE_HARDWARE, 
-				NULL, 
-				Flags, 
-				FeatureLevels, _countof(FeatureLevels), 
-				D3D11_SDK_VERSION, &ScDesc, 
-				&m_SwapChain, &m_D3DDevice, &FeatureLevel, &m_D3DContext);
-
-			if (FAILED(CreateDevRes) || !m_D3DDevice || !m_SwapChain || !m_D3DContext)
-			{
-				DeinitDevice();
-				return;
-			}
+			DeinitDevice();
+			return;
 		}
 
-		DisableAltEnter();
+		m_GiFactory->MakeWindowAssociation(m_TargetWnd, DXGI_MWA_NO_WINDOW_CHANGES | DXGI_MWA_NO_ALT_ENTER);
 	}
 
+#if 0
 	// Back Buffer:
 	{
 		const HRESULT GetBbRes = m_SwapChain->GetBuffer(0, IID_PPV_ARGS(&m_RTVTexture));
@@ -148,7 +159,7 @@ void HWD3DGame_DX12::InitDevice(HWND TargetWnd)
 		RtvTd.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 		RtvTd.SampleDesc.Quality = 0;
 		RtvTd.SampleDesc.Count = 1;
-		const HRESULT CreateRtRes = m_D3DDevice->CreateTexture2D(&RtvTd,  NULL, &m_DSVTexture);
+		const HRESULT CreateRtRes = m_D3DDevice->CreateTexture2D(&RtvTd, NULL, &m_DSVTexture);
 		if (FAILED(CreateRtRes) || !m_DSVTexture)
 		{
 			DeinitDevice();
@@ -166,25 +177,26 @@ void HWD3DGame_DX12::InitDevice(HWND TargetWnd)
 			return;
 		}
 	}
+#endif
 
 	if (!InitSharedObjects())
 	{
 		DeinitDevice();
 		return;
 	}
+
 	m_Shader = HWD3DRenderState_DX12::CreateRenderState(this, "_Media/DX12_VS.cso", "_Media/DX12_PS.cso");
 }
 
 void HWD3DGame_DX12::DeinitDevice()
 {
+	FlushSwapChain();
+
 	HWD3D_SafeRelease(m_Shader);
-	HWD3D_SafeRelease(m_VSConstBuffer);
-	HWD3D_SafeRelease(m_DSV);
-	HWD3D_SafeRelease(m_DSVTexture);
-	HWD3D_SafeRelease(m_RTV);
-	HWD3D_SafeRelease(m_RTVTexture);
 	HWD3D_SafeRelease(m_SwapChain);
-	HWD3D_SafeRelease(m_D3DContext);
+	CloseHandle(m_SwapChainFenceEventHandle);
+	HWD3D_SafeRelease(m_SwapChainFence);
+	HWD3D_SafeRelease(m_CommandQueue);
 	HWD3D_SafeRelease(m_D3DDevice);
 	HWD3D_SafeRelease(m_GiAdapter);
 	HWD3D_SafeRelease(m_GiFactory);
@@ -192,16 +204,19 @@ void HWD3DGame_DX12::DeinitDevice()
 
 void HWD3DGame_DX12::ClearViewport()
 {
+#if 0
 	if (m_D3DContext && m_RTV && m_DSV)
 	{
 		const FLOAT ClearColor[] = { .4f , .4f , 1.f , 1.f };
 		m_D3DContext->ClearRenderTargetView(m_RTV, ClearColor);
-		m_D3DContext->ClearDepthStencilView(m_DSV, D3D11_CLEAR_DEPTH , 1.f, 0);
+		m_D3DContext->ClearDepthStencilView(m_DSV, D3D11_CLEAR_DEPTH, 1.f, 0);
 	}
+#endif
 }
 
 bool HWD3DGame_DX12::BeginDraw()
 {
+#if 0
 	if (m_D3DContext)
 	{
 		m_D3DContext->OMSetRenderTargets(1, &m_RTV, m_DSV);
@@ -225,25 +240,30 @@ bool HWD3DGame_DX12::BeginDraw()
 
 		return true;
 	}
+#endif
 
 	return false;
 }
 
 void HWD3DGame_DX12::EndDraw()
 {
-	
+
 }
 
 void HWD3DGame_DX12::Present()
 {
 	if (m_SwapChain)
 	{
-		m_SwapChain->Present(0, 0);
+		const bool bVSync = true;
+		const DXGI_PRESENT_PARAMETERS Pp = { };
+		const UINT PresentFlags = !bVSync ? DXGI_PRESENT_ALLOW_TEARING : 0;
+		// m_SwapChain->Present1(bVSync ? 1 : 0, PresentFlags, &Pp);
 	}
 }
 
 void HWD3DGame_DX12::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_matrix& InMatrix)
 {
+#if 0
 	if (m_D3DContext)
 	{
 		hwd3d_matrix* Mat = nullptr;
@@ -280,10 +300,12 @@ void HWD3DGame_DX12::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_ma
 			}
 		}
 	}
+#endif
 }
 
 bool HWD3DGame_DX12::InitSharedObjects()
 {
+#if 0
 	if (!m_D3DDevice)
 	{
 		return false;
@@ -292,19 +314,54 @@ bool HWD3DGame_DX12::InitSharedObjects()
 	// Constant Buffer
 	{
 		D3D11_BUFFER_DESC Bd = { };
-		Bd.ByteWidth           = sizeof(m_ShaderWVP);
-		Bd.Usage               = D3D11_USAGE_DYNAMIC;
-		Bd.BindFlags           = D3D11_BIND_CONSTANT_BUFFER;
-		Bd.CPUAccessFlags      = D3D11_CPU_ACCESS_WRITE;
-		Bd.MiscFlags           = 0;
+		Bd.ByteWidth = sizeof(m_ShaderWVP);
+		Bd.Usage = D3D11_USAGE_DYNAMIC;
+		Bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		Bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		Bd.MiscFlags = 0;
 		const HRESULT CreateBufferRes = m_D3DDevice->CreateBuffer(&Bd, NULL, &m_VSConstBuffer);
 		if (FAILED(CreateBufferRes) || !m_VSConstBuffer)
 		{
 			return false;
 		}
 	}
+#endif
 
 	return true;
+}
+
+void HWD3DGame_DX12::FlushSwapChain()
+{
+	SwapChainSignal();
+	SwapChainWaitForFenceValue(m_SwapChainFenceValue);
+}
+
+UINT64 HWD3DGame_DX12::SwapChainSignal()
+{
+	if (m_CommandQueue && m_SwapChainFence)
+	{
+		const UINT64 FenceValueForSignal = ++m_SwapChainFenceValue;
+		const HRESULT SigRes = m_CommandQueue->Signal(m_SwapChainFence, FenceValueForSignal);
+		assert(SUCCEEDED(SigRes));
+		return FenceValueForSignal;
+	}
+	else
+	{
+		assert(false);
+	}
+	return 0;
+}
+
+void HWD3DGame_DX12::SwapChainWaitForFenceValue(UINT64 InValue)
+{
+	if (m_SwapChainFence && m_SwapChainFenceEventHandle)
+	{
+		if (m_SwapChainFence->GetCompletedValue() < InValue)
+		{
+			m_SwapChainFence->SetEventOnCompletion(InValue, m_SwapChainFenceEventHandle);
+			::WaitForSingleObject(m_SwapChainFenceEventHandle, INFINITE);
+		}
+	}
 }
 
 IDXGIAdapter* HWD3DGame_DX12::PickAdapter()
@@ -318,7 +375,7 @@ IDXGIAdapter* HWD3DGame_DX12::PickAdapter()
 	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != m_GiFactory->EnumAdapters(i, &PotentialAdapter); i++)
 	{
 		DXGI_ADAPTER_DESC AdapterDesc = { };
-		PotentialAdapter->GetDesc( &AdapterDesc );
+		PotentialAdapter->GetDesc(&AdapterDesc);
 
 		// We'll actually just take the first adapter we find:
 		if (i == 0)
@@ -330,43 +387,4 @@ IDXGIAdapter* HWD3DGame_DX12::PickAdapter()
 	}
 
 	return nullptr;
-}
-
-void HWD3DGame_DX12::DisableAltEnter()
-{
-	if (!m_D3DDevice)
-	{
-		return;
-	}
-
-	HRESULT ScRes = S_OK;
-
-	IDXGIDevice* GiDev = nullptr;
-	ScRes = m_D3DDevice->QueryInterface<IDXGIDevice>(&GiDev);
-	if (FAILED(ScRes) || !GiDev)
-	{
-		return;
-	}
-	IDXGIAdapter* GiAdapter = nullptr;
-	ScRes = GiDev->GetAdapter(&GiAdapter);
-	if (FAILED(ScRes) || !GiAdapter)
-	{
-		HWD3D_SafeRelease(GiDev);
-		return;
-	}
-	IDXGIFactory* GiFactory = nullptr;
-	ScRes = GiAdapter->GetParent(IID_PPV_ARGS(&GiFactory));
-	if (FAILED(ScRes) || !GiFactory)
-	{
-		HWD3D_SafeRelease(GiAdapter);
-		HWD3D_SafeRelease(GiDev);
-		return;
-	}
-
-	ScRes = GiFactory->MakeWindowAssociation(m_TargetWnd, DXGI_MWA_NO_WINDOW_CHANGES|DXGI_MWA_NO_ALT_ENTER);
-	assert(SUCCEEDED(ScRes));
-
-	HWD3D_SafeRelease(GiFactory);
-	HWD3D_SafeRelease(GiAdapter);
-	HWD3D_SafeRelease(GiDev);
 }

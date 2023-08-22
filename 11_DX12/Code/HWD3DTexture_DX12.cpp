@@ -23,12 +23,13 @@ HWD3DTexture_DX12::HWD3DTexture_DX12(class HWD3DGame_DX12* InGame)
 
 HWD3DTexture_DX12::~HWD3DTexture_DX12()
 {
-	HWD3D_SafeRelease(m_View);
-	HWD3D_SafeRelease(m_Texture);
+	// HWD3D_SafeRelease(m_View);
+	// HWD3D_SafeRelease(m_Texture);
 }
 
 void HWD3DTexture_DX12::InitTexture()
 {
+#if 0
 	ID3D11Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!Dev)
@@ -92,12 +93,15 @@ void HWD3DTexture_DX12::InitTexture()
 			return;
 		}
 	}
+#endif
 }
 
 void HWD3DTexture_DX12::SetTexture()
 {
+#if 0
 	if (m_Game && m_Game->GetContext() && m_Texture && m_View)
 	{
 		m_Game->GetContext()->PSSetShaderResources(0, 1 , &m_View);
 	}
+#endif
 }

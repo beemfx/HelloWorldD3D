@@ -3,14 +3,14 @@
 #pragma once
 
 #include "HWD3DMesh.h"
-#include <d3d11.h>
+#include <d3d12.h>
 
 class HWD3DMesh_DX12 : public HWD3DMesh
 {
 private:
 	class HWD3DGame_DX12*const m_Game = nullptr;
-	ID3D11Buffer* m_VB = nullptr;
-	ID3D11Buffer* m_IB = nullptr;
+	// ID3D11Buffer* m_VB = nullptr;
+	// ID3D11Buffer* m_IB = nullptr;
 
 public:
 

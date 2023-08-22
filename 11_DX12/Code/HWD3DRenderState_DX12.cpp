@@ -15,6 +15,7 @@ void HWD3DRenderState_DX12::Release()
 
 void HWD3DRenderState_DX12::ApplyRenderState()
 {
+#if 0
 	ID3D11DeviceContext* Dev = m_Game ? m_Game->GetContext() : nullptr;
 	if (Dev && m_VS && m_IL && m_RS && m_SS && m_BS && m_DS)
 	{
@@ -27,11 +28,13 @@ void HWD3DRenderState_DX12::ApplyRenderState()
 		Dev->OMSetBlendState(m_BS, BlendFactor, 0xFFFFFFFF);
 		Dev->OMSetDepthStencilState(m_DS, 0);
 	}
+#endif
 }
 
 HWD3DRenderState_DX12::HWD3DRenderState_DX12(class HWD3DGame_DX12* InGame, const char* InVSFile, const char* InPSFile)
 	: m_Game(InGame)
 {
+#if 0
 	ID3D11Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!Dev)
@@ -191,15 +194,10 @@ HWD3DRenderState_DX12::HWD3DRenderState_DX12(class HWD3DGame_DX12* InGame, const
 			return;
 		}
 	}
+#endif
 }
 
 HWD3DRenderState_DX12::~HWD3DRenderState_DX12()
 {
-	HWD3D_SafeRelease(m_PS);
-	HWD3D_SafeRelease(m_VS);
-	HWD3D_SafeRelease(m_IL);
-	HWD3D_SafeRelease(m_SS);
-	HWD3D_SafeRelease(m_RS);
-	HWD3D_SafeRelease(m_DS);
-	HWD3D_SafeRelease(m_BS);
+	HWD3D_SafeRelease(m_State);
 }

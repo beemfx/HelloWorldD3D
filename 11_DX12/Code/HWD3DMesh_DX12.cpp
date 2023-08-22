@@ -10,6 +10,7 @@ HWD3DMesh* HWD3DMesh::CreateMesh(class HWD3DGame* InGame, const char* InFilename
 
 void HWD3DMesh_DX12::Draw()
 {
+#if 0
 	if (m_Game && m_Game->GetContext() && m_VB && m_IB)
 	{ 
 		static_assert(sizeof(hwd3d_vertex) == (sizeof(float)*8), "hwd3d_vertex has padding.");
@@ -21,6 +22,7 @@ void HWD3DMesh_DX12::Draw()
 		m_Game->GetContext()->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_Game->GetContext()->DrawIndexed(m_Triangles.size()*3, 0, 0);
 	}
+#endif
 }
 
 HWD3DMesh_DX12::HWD3DMesh_DX12(class HWD3DGame_DX12* InGame, const char* InFilename)
@@ -32,12 +34,15 @@ HWD3DMesh_DX12::HWD3DMesh_DX12(class HWD3DGame_DX12* InGame, const char* InFilen
 
 HWD3DMesh_DX12::~HWD3DMesh_DX12()
 {
+#if 0
 	HWD3D_SafeRelease(m_IB);
 	HWD3D_SafeRelease(m_VB);
+#endif
 }
 
 bool HWD3DMesh_DX12::CreateBuffers()
 {
+#if 0
 	ID3D11Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!Dev)
@@ -90,6 +95,6 @@ bool HWD3DMesh_DX12::CreateBuffers()
 			return false;
 		}
 	}
-
+#endif
 	return true;
 }
