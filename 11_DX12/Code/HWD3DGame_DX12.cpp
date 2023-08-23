@@ -438,6 +438,8 @@ bool HWD3DGame_DX12::InitSharedObjects()
 
 	// Root signature:
 	{
+		// We're using one static sampler, one texture register, and one constant buffer.
+
 		D3D12_STATIC_SAMPLER_DESC Ssd = { };
 		Ssd.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 		Ssd.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -460,8 +462,50 @@ bool HWD3DGame_DX12::InitSharedObjects()
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
 		D3D12_ROOT_SIGNATURE_DESC RootSigDesc = { };
+
 		RootSigDesc.NumStaticSamplers = 1;
 		RootSigDesc.pStaticSamplers = &Ssd;
+
+		// When using vectors like this, we need to make sure the memory pointers are valid
+		// (std::vector will move things around, so be very careful here.)
+
+		std::vector<D3D12_ROOT_PARAMETER> RootParams;
+
+		std::vector<D3D12_DESCRIPTOR_RANGE> TexTableRanges;
+
+		{
+			D3D12_DESCRIPTOR_RANGE TexRange;
+			TexRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+			TexRange.BaseShaderRegister =  0;
+			TexRange.RegisterSpace = 0;
+			TexRange.NumDescriptors = 1;
+			TexRange.OffsetInDescriptorsFromTableStart = 0;
+			TexTableRanges.push_back(TexRange);
+		}
+
+		// One texture buffer:
+		{
+			D3D12_ROOT_PARAMETER Rp = { };
+			Rp.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			Rp.DescriptorTable.NumDescriptorRanges = TexTableRanges.size();
+			Rp.DescriptorTable.pDescriptorRanges = TexTableRanges.data();
+			Rp.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+			RootParams.push_back(Rp);
+		}
+
+		// One constant buffer:
+		{
+			D3D12_ROOT_PARAMETER Rp = { };
+			Rp.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+			Rp.Descriptor.ShaderRegister = 0;
+			Rp.Descriptor.RegisterSpace = 0;
+			Rp.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			RootParams.push_back(Rp);
+		}
+
+		RootSigDesc.NumParameters = RootParams.size();
+		RootSigDesc.pParameters = RootParams.data();
+
 		RootSigDesc.Flags = RootSigFlags;
 
 		ID3DBlob* SignatureBlob = nullptr;
