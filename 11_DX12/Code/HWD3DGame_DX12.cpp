@@ -160,7 +160,12 @@ void HWD3DGame_DX12::InitDevice(HWND TargetWnd)
 
 void HWD3DGame_DX12::DeinitDevice()
 {
-	FlushSwapChain();
+	if (m_D3DDevice)
+	{
+		FlushSwapChain();
+	}
+
+	HWD3D_SafeRelease(m_RootSig);
 
 	m_DepthStencilViewProvider.DestroyView(m_DepthStencilView);
 	m_DepthStencilViewProvider.Deinit();
@@ -176,7 +181,11 @@ void HWD3DGame_DX12::DeinitDevice()
 	HWD3D_SafeRelease(m_Shader);
 	HWD3D_SafeRelease(m_SwapChainCommandList);
 	HWD3D_SafeRelease(m_SwapChain);
-	CloseHandle(m_SwapChainFenceEventHandle);
+	if (m_SwapChainFenceEventHandle)
+	{
+		CloseHandle(m_SwapChainFenceEventHandle);
+		m_SwapChainFenceEventHandle = 0;
+	}
 	HWD3D_SafeRelease(m_SwapChainFence);
 	HWD3D_SafeRelease(m_CommandQueue);
 	HWD3D_SafeRelease(m_D3DDevice);
@@ -422,11 +431,37 @@ bool HWD3DGame_DX12::InitDepthStencil()
 
 bool HWD3DGame_DX12::InitSharedObjects()
 {
-#if 0
 	if (!m_D3DDevice)
 	{
 		return false;
 	}
+
+	// Root signature:
+	{
+		D3D12_ROOT_SIGNATURE_DESC RootSigDesc = { };
+
+		ID3DBlob* SignatureBlob = nullptr;
+		ID3DBlob* ErrorBlob = nullptr;
+		const HRESULT CreateBlobRes = D3D12SerializeRootSignature(&RootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, &SignatureBlob, &ErrorBlob);
+		if (FAILED(CreateBlobRes) || !SignatureBlob)
+		{
+			HWD3D_SafeRelease(SignatureBlob);
+			HWD3D_SafeRelease(ErrorBlob);
+			return false;
+		}
+
+		const HRESULT CreateRes = m_D3DDevice->CreateRootSignature(0, SignatureBlob->GetBufferPointer(), SignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_RootSig));
+		
+		HWD3D_SafeRelease(SignatureBlob);
+		HWD3D_SafeRelease(ErrorBlob);
+
+		if (FAILED(CreateRes) || !m_RootSig)
+		{
+			return false;
+		}
+	}
+
+#if 0
 
 	// Constant Buffer
 	{

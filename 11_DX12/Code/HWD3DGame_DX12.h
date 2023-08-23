@@ -90,7 +90,7 @@ private:
 	hwd3dViewDescriptor m_DepthStencilView;
 	D3D12_RESOURCE_STATES m_DepthStencilState = D3D12_RESOURCE_STATE_COMMON;
 
-	// ID3D12RootSignature* m_RootSig = nullptr;
+	ID3D12RootSignature* m_RootSig = nullptr;
 	ID3D12GraphicsCommandList* m_SwapChainCommandList = nullptr;
 
 	class HWD3DRenderState_DX12* m_Shader = nullptr;
