@@ -73,6 +73,11 @@ hwd3dViewDescriptor HWD3DViewProvider_DX12::CreateView()
 
 void HWD3DViewProvider_DX12::DestroyView(const hwd3dViewDescriptor& InDesc)
 {
+	if (!InDesc.IsValid())
+	{
+		return;
+	}
+
 	if (InDesc.Owner != reinterpret_cast<uintptr_t>(this))
 	{
 		assert(false); // Destroying View with wrong provider.

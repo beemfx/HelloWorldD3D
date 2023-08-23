@@ -143,38 +143,11 @@ void HWD3DGame_DX12::InitDevice(HWND TargetWnd)
 		return;
 	}
 
-#if 0
-	// Z-Buffer
+	if (!InitDepthStencil())
 	{
-		D3D11_TEXTURE2D_DESC RtvTd = { };
-		RtvTd.Width = m_ViewWidth;
-		RtvTd.Height = m_ViewHeight;
-		RtvTd.MipLevels = 1;
-		RtvTd.ArraySize = 1;
-		RtvTd.Format = DXGI_FORMAT_R16_TYPELESS;
-		RtvTd.Usage = D3D11_USAGE_DEFAULT;
-		RtvTd.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		RtvTd.SampleDesc.Quality = 0;
-		RtvTd.SampleDesc.Count = 1;
-		const HRESULT CreateRtRes = m_D3DDevice->CreateTexture2D(&RtvTd, NULL, &m_DSVTexture);
-		if (FAILED(CreateRtRes) || !m_DSVTexture)
-		{
-			DeinitDevice();
-			return;
-		}
-
-		D3D11_DEPTH_STENCIL_VIEW_DESC RtvDesc = { };
-		RtvDesc.Format = DXGI_FORMAT_D16_UNORM;
-		RtvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		RtvDesc.Texture2D.MipSlice = 0;
-		const HRESULT CreateRtvRes = m_D3DDevice->CreateDepthStencilView(m_DSVTexture, &RtvDesc, &m_DSV);
-		if (FAILED(CreateRtvRes) || !m_DSV)
-		{
-			DeinitDevice();
-			return;
-		}
+		DeinitDevice();
+		return;
 	}
-#endif
 
 	if (!InitSharedObjects())
 	{
@@ -189,6 +162,9 @@ void HWD3DGame_DX12::DeinitDevice()
 {
 	FlushSwapChain();
 
+	m_DepthStencilViewProvider.DestroyView(m_DepthStencilView);
+	m_DepthStencilViewProvider.Deinit();
+	HWD3D_SafeRelease(m_DepthStencilTexture);
 	
 	for (auto& FrameData : m_FrameData)
 	{
@@ -229,13 +205,13 @@ bool HWD3DGame_DX12::BeginDraw()
 			m_CurrentFrameData->PrepareToDraw(*m_SwapChainCommandList);
 
 			const D3D12_CPU_DESCRIPTOR_HANDLE Rts[] = { m_CurrentFrameData->BufferDescriptor.CpuDescHandle };
-			m_SwapChainCommandList->OMSetRenderTargets(_countof(Rts), Rts, FALSE, NULL);
+			m_SwapChainCommandList->OMSetRenderTargets(_countof(Rts), Rts, FALSE, &m_DepthStencilView.CpuDescHandle);
 			if (m_bShouldClearAtStartOfNextFrame)
 			{
 				m_bShouldClearAtStartOfNextFrame = false;
 				const FLOAT ClearColor[] = { .4f , .4f , 1.f , 1.f };
 				m_SwapChainCommandList->ClearRenderTargetView(m_CurrentFrameData->BufferDescriptor.CpuDescHandle, ClearColor, 0, NULL);
-				// TODO Depth Stencil: m_SwapChainCommandList->ClearDepthStencilView(m_DepthStencilView, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0 NULL);
+				m_SwapChainCommandList->ClearDepthStencilView(m_DepthStencilView.CpuDescHandle, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, NULL);
 			}
 
 			//set the viewport
@@ -340,6 +316,7 @@ bool HWD3DGame_DX12::InitDescriptors()
 	}
 
 	m_RenderTargetViewProvider.Init(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, NUM_BACK_BUFFERS);
+	m_DepthStencilViewProvider.Init(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
 
 	return true;
 }
@@ -353,7 +330,7 @@ bool HWD3DGame_DX12::InitBackBuffer()
 
 	m_FrameData.resize(NUM_BACK_BUFFERS);
 
-	for (int BbIndex = 0; BbIndex < m_FrameData.size(); BbIndex++)
+	for (size_t BbIndex = 0; BbIndex < m_FrameData.size(); BbIndex++)
 	{
 		hwd3dFrameData& FrameData = m_FrameData[BbIndex];
 
@@ -389,6 +366,56 @@ bool HWD3DGame_DX12::InitBackBuffer()
 			return false;
 		}
 	}
+
+	return true;
+}
+
+bool HWD3DGame_DX12::InitDepthStencil()
+{
+	D3D12_HEAP_PROPERTIES HeapProps = { };
+	HeapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
+	HeapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	HeapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	HeapProps.CreationNodeMask = 0x1;
+	HeapProps.VisibleNodeMask = 0x1;
+
+	D3D12_HEAP_FLAGS HeapFlags = D3D12_HEAP_FLAG_NONE;
+
+	D3D12_RESOURCE_DESC RtvTd = { };
+	RtvTd.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	RtvTd.Width = m_ViewWidth;
+	RtvTd.Height = m_ViewHeight;
+	RtvTd.MipLevels = 1;
+	RtvTd.DepthOrArraySize = 1;
+	RtvTd.Format = DXGI_FORMAT_R16_TYPELESS;
+	RtvTd.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	RtvTd.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL|D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE; // If we wanted a readable depth stencil we wouldn't deny to shader resources.
+	RtvTd.SampleDesc.Quality = 0;
+	RtvTd.SampleDesc.Count = 1;
+
+	D3D12_CLEAR_VALUE DefaultClearValue = { };
+	DefaultClearValue.Format = DXGI_FORMAT_D16_UNORM;
+	DefaultClearValue.DepthStencil.Depth = 1.f;
+	DefaultClearValue.DepthStencil.Stencil = 0;
+
+	m_DepthStencilState = D3D12_RESOURCE_STATE_DEPTH_WRITE; // Since we aren't reading from depth stencil, we can start in DEPTH_WRITE and never have to worry about transitions.
+	const HRESULT CreateRtRes = m_D3DDevice->CreateCommittedResource(&HeapProps, HeapFlags, &RtvTd, m_DepthStencilState, &DefaultClearValue, IID_PPV_ARGS(&m_DepthStencilTexture));
+	if (FAILED(CreateRtRes) || !m_DepthStencilTexture)
+	{
+		return false;
+	}
+
+	D3D12_DEPTH_STENCIL_VIEW_DESC RtvDesc = { };
+	RtvDesc.Format = DXGI_FORMAT_D16_UNORM;
+	RtvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	RtvDesc.Texture2D.MipSlice = 0;
+	m_DepthStencilView = m_DepthStencilViewProvider.CreateView();
+	if (!m_DepthStencilView.IsValid())
+	{
+		return false;
+	}
+
+	m_D3DDevice->CreateDepthStencilView(m_DepthStencilTexture, &RtvDesc, m_DepthStencilView.CpuDescHandle);
 
 	return true;
 }

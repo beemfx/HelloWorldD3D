@@ -80,10 +80,15 @@ private:
 	HANDLE m_SwapChainFenceEventHandle = 0;
 
 	HWD3DViewProvider_DX12 m_RenderTargetViewProvider;
+	HWD3DViewProvider_DX12 m_DepthStencilViewProvider;
 
 	std::vector<hwd3dFrameData> m_FrameData;
 	UINT m_CurrentFrameDataIndex = 0xFFFFFFFF;
 	hwd3dFrameData* m_CurrentFrameData = nullptr;
+
+	ID3D12Resource* m_DepthStencilTexture = nullptr;
+	hwd3dViewDescriptor m_DepthStencilView;
+	D3D12_RESOURCE_STATES m_DepthStencilState = D3D12_RESOURCE_STATE_COMMON;
 
 	// ID3D12RootSignature* m_RootSig = nullptr;
 	ID3D12GraphicsCommandList* m_SwapChainCommandList = nullptr;
@@ -115,6 +120,7 @@ private:
 
 	bool InitDescriptors();
 	bool InitBackBuffer();
+	bool InitDepthStencil();
 
 	bool InitSharedObjects();
 
