@@ -1,6 +1,7 @@
 // D3D Hello World
 
 #include "HWD3DGame.h"
+#include "HWD3DViewProvider_DX12.h"
 #include <d3d12.h>
 #include <dxgi1_5.h>
 
@@ -10,50 +11,13 @@ private:
 	
 	static const int NUM_BACK_BUFFERS = 2;
 	
-	struct hwd3dDescriptor
-	{
-		D3D12_CPU_DESCRIPTOR_HANDLE CpuDescHandle = { };
-		D3D12_GPU_DESCRIPTOR_HANDLE GpuDescHandle = { };
-		D3D12_GPU_VIRTUAL_ADDRESS GpuVirtualPtr = 0;
-	};
-
-	struct hwd3dDescriptorHeap
-	{
-		ID3D12DescriptorHeap* Heap = nullptr;
-		std::vector<hwd3dDescriptor> Descriptors;
-		int NextDescriptor = 0;
-
-		~hwd3dDescriptorHeap()
-		{
-			HWD3D_SafeRelease(Heap);
-		}
-
-		void Destroy()
-		{
-			HWD3D_SafeRelease(Heap);
-			Descriptors.resize(0);
-			NextDescriptor = 0;
-		}
-
-		hwd3dDescriptor GetAvailableDesc()
-		{
-			if (NextDescriptor < Descriptors.size())
-			{
-				NextDescriptor++;
-				return Descriptors[NextDescriptor-1];
-			}
-
-			return hwd3dDescriptor();
-		}
-	};
-	
 	struct hwd3dFrameData
 	{
 		ID3D12Resource* BufferTexture = nullptr;
 		ID3D12CommandAllocator* CommandAlloc = nullptr;
 		UINT64 FrameFenceValue = 0;
 
-		hwd3dDescriptor BufferDescriptor;
+		hwd3dViewDescriptor BufferDescriptor;
 		D3D12_RESOURCE_STATES BufferState = D3D12_RESOURCE_STATE_COMMON;
 
 		void PrepareToDraw(ID3D12GraphicsCommandList& CmdList)
@@ -86,10 +50,17 @@ private:
 			}
 		}
 
-		~hwd3dFrameData()
+		void Deinit(HWD3DViewProvider_DX12& InVewProvider)
 		{
+			InVewProvider.DestroyView(BufferDescriptor);
+			BufferDescriptor.Invalidate();
 			HWD3D_SafeRelease(CommandAlloc);
 			HWD3D_SafeRelease(BufferTexture);
+		}
+
+		~hwd3dFrameData()
+		{
+			assert(!CommandAlloc && !BufferTexture && !BufferDescriptor.IsValid()); // Should have called Deinit before destroying.
 		}
 	};
 
@@ -108,7 +79,7 @@ private:
 	UINT64 m_SwapChainFenceValue = 0;
 	HANDLE m_SwapChainFenceEventHandle = 0;
 
-	hwd3dDescriptorHeap m_RenderTargetDescriptors;
+	HWD3DViewProvider_DX12 m_RenderTargetViewProvider;
 
 	std::vector<hwd3dFrameData> m_FrameData;
 	UINT m_CurrentFrameDataIndex = 0xFFFFFFFF;

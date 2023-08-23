@@ -144,26 +144,6 @@ void HWD3DGame_DX12::InitDevice(HWND TargetWnd)
 	}
 
 #if 0
-	// Back Buffer:
-	{
-		const HRESULT GetBbRes = m_SwapChain->GetBuffer(0, IID_PPV_ARGS(&m_RTVTexture));
-		if (FAILED(GetBbRes) || !m_RTVTexture)
-		{
-			return;
-		}
-
-		D3D11_RENDER_TARGET_VIEW_DESC RtvDesc = { };
-		RtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		RtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-		RtvDesc.Texture2D.MipSlice = 0;
-		const HRESULT CreateRtvRes = m_D3DDevice->CreateRenderTargetView(m_RTVTexture, &RtvDesc, &m_RTV);
-		if (FAILED(CreateRtvRes) || !m_RTV)
-		{
-			DeinitDevice();
-			return;
-		}
-	}
-
 	// Z-Buffer
 	{
 		D3D11_TEXTURE2D_DESC RtvTd = { };
@@ -209,9 +189,13 @@ void HWD3DGame_DX12::DeinitDevice()
 {
 	FlushSwapChain();
 
+	
+	for (auto& FrameData : m_FrameData)
+	{
+		FrameData.Deinit(m_RenderTargetViewProvider);
+	}
+	m_RenderTargetViewProvider.Deinit();
 	m_FrameData.resize(0);
-	HWD3D_SafeRelease(m_RenderTargetDescriptors.Heap);
-	m_RenderTargetDescriptors.Destroy();
 
 	HWD3D_SafeRelease(m_Shader);
 	HWD3D_SafeRelease(m_SwapChainCommandList);
@@ -355,43 +339,7 @@ bool HWD3DGame_DX12::InitDescriptors()
 		return false;
 	}
 
-	// Render Target Descriptors:
-	{
-		const bool bShaderVisible = false;
-
-		m_RenderTargetDescriptors.Descriptors.resize(NUM_BACK_BUFFERS);
-
-		D3D12_DESCRIPTOR_HEAP_DESC Dhd = {};
-		Dhd.NumDescriptors = m_RenderTargetDescriptors.Descriptors.size();
-		Dhd.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		Dhd.Flags = bShaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-
-		const HRESULT Res = m_D3DDevice->CreateDescriptorHeap(&Dhd, IID_PPV_ARGS(&m_RenderTargetDescriptors.Heap));
-		if (FAILED(Res) || !m_RenderTargetDescriptors.Heap)
-		{
-			return false;
-		}
-
-		const UINT IncrementSize = m_D3DDevice->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_RTV );
-
-		D3D12_CPU_DESCRIPTOR_HANDLE CpuHeapStart = m_RenderTargetDescriptors.Heap->GetCPUDescriptorHandleForHeapStart();
-		D3D12_GPU_DESCRIPTOR_HANDLE GpuHeapStart = { };
-		if (bShaderVisible)
-		{
-			m_RenderTargetDescriptors.Heap->GetGPUDescriptorHandleForHeapStart();
-		}
-
-		for( UINT i = 0; i< m_RenderTargetDescriptors.Descriptors.size(); i++ )
-		{
-			hwd3dDescriptor& Dst = m_RenderTargetDescriptors.Descriptors[i];
-
-			Dst.CpuDescHandle.ptr = CpuHeapStart.ptr + i*IncrementSize;
-			if (bShaderVisible)
-			{
-				Dst.GpuDescHandle.ptr = GpuHeapStart.ptr + i*IncrementSize;
-			}
-		}
-	}
+	m_RenderTargetViewProvider.Init(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, NUM_BACK_BUFFERS);
 
 	return true;
 }
@@ -416,7 +364,7 @@ bool HWD3DGame_DX12::InitBackBuffer()
 		}
 
 		FrameData.BufferState = D3D12_RESOURCE_STATE_PRESENT; // Back buffers start in Present state.
-		FrameData.BufferDescriptor = m_RenderTargetDescriptors.GetAvailableDesc();
+		FrameData.BufferDescriptor = m_RenderTargetViewProvider.CreateView();
 		m_D3DDevice->CreateRenderTargetView(FrameData.BufferTexture, nullptr, FrameData.BufferDescriptor.CpuDescHandle);
 
 		// Every back buffer needs an allocator.

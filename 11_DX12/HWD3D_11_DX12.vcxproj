@@ -29,6 +29,7 @@
     <ClCompile Include="Code\HWD3DMesh_DX12.cpp" />
     <ClCompile Include="Code\HWD3DRenderState_DX12.cpp" />
     <ClCompile Include="Code\HWD3DTexture_DX12.cpp" />
+    <ClCompile Include="Code\HWD3DViewProvider_DX12.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\_Common\Framework\HWD3DGame.h" />
@@ -41,6 +42,7 @@
     <ClInclude Include="Code\HWD3DMesh_DX12.h" />
     <ClInclude Include="Code\HWD3DRenderState_DX12.h" />
     <ClInclude Include="Code\HWD3DTexture_DX12.h" />
+    <ClInclude Include="Code\HWD3DViewProvider_DX12.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\_Common\Res\directx.ico" />
