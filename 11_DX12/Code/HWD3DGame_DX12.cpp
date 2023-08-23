@@ -438,7 +438,31 @@ bool HWD3DGame_DX12::InitSharedObjects()
 
 	// Root signature:
 	{
+		D3D12_STATIC_SAMPLER_DESC Ssd = { };
+		Ssd.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+		Ssd.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		Ssd.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		Ssd.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		Ssd.MipLODBias = 0.f;
+		Ssd.MaxAnisotropy = 16;
+		Ssd.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+		Ssd.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+		Ssd.ShaderRegister = 0;
+		Ssd.RegisterSpace = 0;
+		Ssd.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+		Ssd.MinLOD = 0.f;
+		Ssd.MaxLOD = FLT_MAX;
+
+		const D3D12_ROOT_SIGNATURE_FLAGS RootSigFlags =
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+
 		D3D12_ROOT_SIGNATURE_DESC RootSigDesc = { };
+		RootSigDesc.NumStaticSamplers = 1;
+		RootSigDesc.pStaticSamplers = &Ssd;
+		RootSigDesc.Flags = RootSigFlags;
 
 		ID3DBlob* SignatureBlob = nullptr;
 		ID3DBlob* ErrorBlob = nullptr;

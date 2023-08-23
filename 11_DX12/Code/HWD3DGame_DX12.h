@@ -105,6 +105,8 @@ private:
 public:
 	
 	ID3D12Device* GetDevice() const { return m_D3DDevice; }
+	ID3D12RootSignature* GetRootSig() const { return m_RootSig; }
+	ID3D12GraphicsCommandList* GetCommandList() const { return m_SwapChainCommandList; }
 
 private:
 

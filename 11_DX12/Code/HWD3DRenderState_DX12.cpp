@@ -15,32 +15,26 @@ void HWD3DRenderState_DX12::Release()
 
 void HWD3DRenderState_DX12::ApplyRenderState()
 {
-#if 0
-	ID3D11DeviceContext* Dev = m_Game ? m_Game->GetContext() : nullptr;
-	if (Dev && m_VS && m_IL && m_RS && m_SS && m_BS && m_DS)
+	ID3D12GraphicsCommandList* Cl = m_Game ? m_Game->GetCommandList() : nullptr;
+	if (Cl && m_State)
 	{
-		Dev->IASetInputLayout(m_IL);
-		Dev->VSSetShader(m_VS, nullptr, 0);
-		Dev->PSSetShader(m_PS, nullptr, 0);
-		Dev->RSSetState(m_RS);
-		Dev->PSSetSamplers(0, 1, &m_SS);
-		const float BlendFactor[] = { 1.f , 1.f , 1.f , 1.f };
-		Dev->OMSetBlendState(m_BS, BlendFactor, 0xFFFFFFFF);
-		Dev->OMSetDepthStencilState(m_DS, 0);
+		Cl->SetPipelineState(m_State);
 	}
-#endif
 }
 
 HWD3DRenderState_DX12::HWD3DRenderState_DX12(class HWD3DGame_DX12* InGame, const char* InVSFile, const char* InPSFile)
 	: m_Game(InGame)
 {
-#if 0
-	ID3D11Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	ID3D12Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	ID3D12RootSignature* RootSig = m_Game ? m_Game->GetRootSig() : nullptr;
 
-	if (!Dev)
+	if (!Dev || !RootSig)
 	{
 		return;
 	}
+
+	std::vector<BYTE> VSData;
+	std::vector<BYTE> PSData;
 
 	// Load Vertex Shader:
 	{
@@ -51,35 +45,13 @@ HWD3DRenderState_DX12::HWD3DRenderState_DX12(class HWD3DGame_DX12* InGame, const
 		}
 
 		const DWORD FileSize = GetFileSize(ShaderFile, NULL);
-		std::vector<BYTE> FileData;
-		FileData.resize(FileSize);
+		VSData.resize(FileSize);
 		DWORD NumRead = 0;
-		BOOL bRead = ReadFile(ShaderFile, FileData.data(), FileSize, &NumRead, NULL);
+		BOOL bRead = ReadFile(ShaderFile, VSData.data(), FileSize, &NumRead, NULL);
 		CloseHandle(ShaderFile);
 		if (!bRead || NumRead != FileSize)
 		{
 			return;
-		}
-
-		const HRESULT CreateRes = Dev->CreateVertexShader(reinterpret_cast<DWORD*>(FileData.data()), FileData.size(), nullptr, &m_VS);
-		if (FAILED(CreateRes) || !m_VS)
-		{
-			return;
-		}
-
-		// Vertex Declaration
-		{
-			static const D3D11_INPUT_ELEMENT_DESC Vd[] =
-			{
-				{ "SV_POSITION" , 0 , DXGI_FORMAT_R32G32B32_FLOAT , 0 , D3D11_APPEND_ALIGNED_ELEMENT , D3D11_INPUT_PER_VERTEX_DATA , 0 },
-				{ "NORMAL"      , 0 , DXGI_FORMAT_R32G32B32_FLOAT , 0 , D3D11_APPEND_ALIGNED_ELEMENT , D3D11_INPUT_PER_VERTEX_DATA , 0 },
-				{ "TEXCOORD"    , 0 , DXGI_FORMAT_R32G32_FLOAT    , 0 , D3D11_APPEND_ALIGNED_ELEMENT , D3D11_INPUT_PER_VERTEX_DATA , 0 },
-			};
-			const HRESULT CreateVdRes = Dev->CreateInputLayout(Vd, _countof(Vd), reinterpret_cast<const void*>(FileData.data()), FileData.size(), &m_IL);
-			if (FAILED(CreateVdRes) || !m_IL)
-			{
-				return;
-			}
 		}
 	}
 
@@ -92,109 +64,94 @@ HWD3DRenderState_DX12::HWD3DRenderState_DX12(class HWD3DGame_DX12* InGame, const
 		}
 
 		const DWORD FileSize = GetFileSize(ShaderFile, NULL);
-		std::vector<BYTE> FileData;
-		FileData.resize(FileSize);
+		PSData.resize(FileSize);
 		DWORD NumRead = 0;
-		BOOL bRead = ReadFile(ShaderFile, FileData.data(), FileSize, &NumRead, NULL);
+		BOOL bRead = ReadFile(ShaderFile, PSData.data(), FileSize, &NumRead, NULL);
 		CloseHandle(ShaderFile);
 		if (!bRead || NumRead != FileSize)
 		{
 			return;
 		}
-
-		const HRESULT CreateRes = Dev->CreatePixelShader(reinterpret_cast<DWORD*>(FileData.data()), FileData.size(), nullptr, &m_PS);
-		if (FAILED(CreateRes) || !m_VS)
-		{
-			return;
-		}
 	}
 
-	// Raster State:
+	// Vertex Declaration
+	static const D3D12_INPUT_ELEMENT_DESC Vd[] =
 	{
-		D3D11_RASTERIZER_DESC Rsd = { };
-		Rsd.FillMode = D3D11_FILL_SOLID;
-		Rsd.CullMode = D3D11_CULL_BACK;
-		Rsd.FrontCounterClockwise = FALSE;
-		Rsd.DepthBias = 0;
-		Rsd.DepthBiasClamp = 0.f;
-		Rsd.SlopeScaledDepthBias = 0.f;
-		Rsd.DepthClipEnable = TRUE;
-		Rsd.ScissorEnable = FALSE;
-		Rsd.MultisampleEnable = FALSE;
-		Rsd.AntialiasedLineEnable = FALSE;
-		const HRESULT Res = Dev->CreateRasterizerState(&Rsd, &m_RS);
-		if (FAILED(Res) || !m_RS)
-		{
-			return;
-		}
+		{ "SV_POSITION" , 0 , DXGI_FORMAT_R32G32B32_FLOAT , 0 , D3D12_APPEND_ALIGNED_ELEMENT , D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA , 0 },
+		{ "NORMAL"      , 0 , DXGI_FORMAT_R32G32B32_FLOAT , 0 , D3D12_APPEND_ALIGNED_ELEMENT , D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA , 0 },
+		{ "TEXCOORD"    , 0 , DXGI_FORMAT_R32G32_FLOAT    , 0 , D3D12_APPEND_ALIGNED_ELEMENT , D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA , 0 },
+	};
+
+	D3D12_RASTERIZER_DESC Rsd = { };
+	Rsd.FillMode = D3D12_FILL_MODE_SOLID;
+	Rsd.CullMode = D3D12_CULL_MODE_BACK;
+	Rsd.FrontCounterClockwise = FALSE;
+	Rsd.DepthBias = 0;
+	Rsd.DepthBiasClamp = 0.f;
+	Rsd.SlopeScaledDepthBias = 0.f;
+	Rsd.DepthClipEnable = TRUE;
+	Rsd.MultisampleEnable = FALSE;
+	Rsd.ForcedSampleCount = 0;
+	Rsd.MultisampleEnable = FALSE;
+	Rsd.AntialiasedLineEnable = FALSE;
+	Rsd.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+
+	D3D12_BLEND_DESC Bd = { };
+	Bd.AlphaToCoverageEnable = FALSE;
+	Bd.IndependentBlendEnable = FALSE;
+	for (auto& Rt : Bd.RenderTarget)
+	{
+		Rt.BlendEnable = TRUE;
+		Rt.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		Rt.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+		Rt.BlendOp = D3D12_BLEND_OP_ADD;
+		Rt.SrcBlendAlpha = D3D12_BLEND_ONE;
+		Rt.DestBlendAlpha = D3D12_BLEND_ZERO;
+		Rt.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		Rt.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	}
 
-	// Sampler State:
-	{
-		D3D11_SAMPLER_DESC Ssd = { };
-		Ssd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		Ssd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		Ssd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		Ssd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		Ssd.MipLODBias = 0.f;
-		Ssd.MaxAnisotropy = 16;
-		Ssd.ComparisonFunc = D3D11_COMPARISON_NEVER;
-		Ssd.BorderColor[0] = 0.f;
-		Ssd.BorderColor[1] = 0.f;
-		Ssd.BorderColor[2] = 0.f;
-		Ssd.BorderColor[3] = 0.f;
-		Ssd.MinLOD = 0.f;
-		Ssd.MaxLOD = FLT_MAX;
-
-		const HRESULT Res = Dev->CreateSamplerState(&Ssd, &m_SS);
-		if (FAILED(Res) || !m_SS)
-		{
-			return;
-		}
-	}
-
-	// Blend State:
-	{
-		D3D11_BLEND_DESC Bd = { };
-		Bd.AlphaToCoverageEnable = FALSE;
-		for (auto& Rt : Bd.RenderTarget)
-		{
-			Rt.BlendEnable = TRUE;
-			Rt.SrcBlend = D3D11_BLEND_SRC_ALPHA;
-			Rt.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-			Rt.BlendOp = D3D11_BLEND_OP_ADD;
-			Rt.SrcBlendAlpha = D3D11_BLEND_ONE;
-			Rt.DestBlendAlpha = D3D11_BLEND_ZERO;
-			Rt.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-			Rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-		}
-
-		const HRESULT Res = Dev->CreateBlendState(&Bd, &m_BS);
-		if (FAILED(Res) || !m_BS)
-		{
-			return;
-		}
-	}
-
-	// Depth Stencil State:
-	{
-		const D3D11_DEPTH_STENCIL_DESC Dsd = 
+	const D3D12_DEPTH_STENCIL_DESC Dsd = 
 		{ TRUE 
-			, D3D11_DEPTH_WRITE_MASK_ALL 
-			, D3D11_COMPARISON_LESS
-			, FALSE
-			, D3D11_DEFAULT_STENCIL_READ_MASK
-			, D3D11_DEFAULT_STENCIL_WRITE_MASK
-			, { D3D11_STENCIL_OP_KEEP , D3D11_STENCIL_OP_KEEP , D3D11_STENCIL_OP_KEEP , D3D11_COMPARISON_ALWAYS }
-		, { D3D11_STENCIL_OP_KEEP , D3D11_STENCIL_OP_KEEP , D3D11_STENCIL_OP_KEEP , D3D11_COMPARISON_ALWAYS } };
+		, D3D12_DEPTH_WRITE_MASK_ALL 
+		, D3D12_COMPARISON_FUNC_LESS
+		, FALSE
+		, D3D12_DEFAULT_STENCIL_READ_MASK
+		, D3D12_DEFAULT_STENCIL_WRITE_MASK
+		, { D3D12_STENCIL_OP_KEEP , D3D12_STENCIL_OP_KEEP , D3D12_STENCIL_OP_KEEP , D3D12_COMPARISON_FUNC_ALWAYS }
+		, { D3D12_STENCIL_OP_KEEP , D3D12_STENCIL_OP_KEEP , D3D12_STENCIL_OP_KEEP , D3D12_COMPARISON_FUNC_ALWAYS } };
 
-		const HRESULT Res = Dev->CreateDepthStencilState(&Dsd, &m_DS);
-		if (FAILED(Res) || !m_DS)
-		{
-			return;
-		}
+	DXGI_SAMPLE_DESC SampleDesc = { 1 , 0 };
+
+	D3D12_STREAM_OUTPUT_DESC Od = { };
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC GpsDesc = { };
+	GpsDesc.pRootSignature = RootSig;
+	GpsDesc.VS.pShaderBytecode = VSData.data();
+	GpsDesc.VS.BytecodeLength = VSData.size();
+	GpsDesc.PS.pShaderBytecode = PSData.data();
+	GpsDesc.PS.BytecodeLength = PSData.size();
+	GpsDesc.StreamOutput = Od;
+	GpsDesc.InputLayout.pInputElementDescs = Vd;
+	GpsDesc.InputLayout.NumElements = _countof(Vd);
+	GpsDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	GpsDesc.RasterizerState = Rsd;
+	GpsDesc.SampleDesc = SampleDesc;
+	GpsDesc.BlendState = Bd;
+	GpsDesc.DepthStencilState = Dsd;
+	GpsDesc.NumRenderTargets = 1;
+	GpsDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	GpsDesc.DSVFormat = DXGI_FORMAT_D16_UNORM;
+	GpsDesc.SampleMask = 0xFFFFFFFF;
+	GpsDesc.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+	GpsDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+
+	const HRESULT CreateStateRes = Dev->CreateGraphicsPipelineState(&GpsDesc, IID_PPV_ARGS(&m_State));
+	if (FAILED(CreateStateRes) || !m_State)
+	{
+		assert(false); // Bad pipeline state?
+		return;
 	}
-#endif
 }
 
 HWD3DRenderState_DX12::~HWD3DRenderState_DX12()
