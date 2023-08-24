@@ -165,6 +165,8 @@ void HWD3DGame_DX12::DeinitDevice()
 		FlushSwapChain();
 	}
 
+	m_BufferViewProvider.Deinit();
+
 	HWD3D_SafeRelease(m_RootSig);
 
 	m_DepthStencilViewProvider.DestroyView(m_DepthStencilView);
@@ -232,8 +234,20 @@ bool HWD3DGame_DX12::BeginDraw()
 			Vp.TopLeftX = 0;
 			Vp.TopLeftY = 0;
 			m_SwapChainCommandList->RSSetViewports(1, &Vp);
+
+			D3D12_RECT ScissorRect = { };
+			ScissorRect.left = 0;
+			ScissorRect.top = 0;
+			ScissorRect.right = m_ViewWidth;
+			ScissorRect.bottom = m_ViewHeight;
+			m_SwapChainCommandList->RSSetScissorRects(1, &ScissorRect);
 			
 			// m_D3DContext->VSSetConstantBuffers(0, 1, &m_VSConstBuffer);
+
+			if (m_RootSig)
+			{
+				m_SwapChainCommandList->SetGraphicsRootSignature(m_RootSig);
+			}
 
 			if (m_Shader)
 			{
@@ -326,6 +340,7 @@ bool HWD3DGame_DX12::InitDescriptors()
 
 	m_RenderTargetViewProvider.Init(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, NUM_BACK_BUFFERS);
 	m_DepthStencilViewProvider.Init(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
+	m_BufferViewProvider.Init(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NUM_RESOURCE_VIEWS);
 
 	return true;
 }

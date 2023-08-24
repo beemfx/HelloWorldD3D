@@ -10,19 +10,18 @@ HWD3DMesh* HWD3DMesh::CreateMesh(class HWD3DGame* InGame, const char* InFilename
 
 void HWD3DMesh_DX12::Draw()
 {
-#if 0
-	if (m_Game && m_Game->GetContext() && m_VB && m_IB)
-	{ 
-		static_assert(sizeof(hwd3d_vertex) == (sizeof(float)*8), "hwd3d_vertex has padding.");
-		ID3D11Buffer* Buffers[] = { m_VB };
-		const UINT Strides[] = { sizeof(hwd3d_vertex) };
-		const UINT Offsets[] = { 0 };
-		m_Game->GetContext()->IASetVertexBuffers(0, _countof(Buffers), Buffers, Strides, Offsets);
-		m_Game->GetContext()->IASetIndexBuffer(m_IB, DXGI_FORMAT_R16_UINT, 0);
-		m_Game->GetContext()->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_Game->GetContext()->DrawIndexed(m_Triangles.size()*3, 0, 0);
+	if (m_Game && m_Game->GetCommandList() && m_IBView.IsValid() && m_VBView.IsValid())
+	{
+		const D3D12_VERTEX_BUFFER_VIEW VbViews[] = 
+		{
+			{ m_VBView.GpuVirtualPtr , m_VBView.Size , sizeof(hwd3d_vertex) },
+		};
+		m_Game->GetCommandList()->IASetVertexBuffers(0, _countof(VbViews), VbViews);
+		D3D12_INDEX_BUFFER_VIEW IbView = { m_IBView.GpuVirtualPtr , m_IBView.Size , DXGI_FORMAT_R16_UINT };
+		m_Game->GetCommandList()->IASetIndexBuffer(&IbView);
+		m_Game->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_Game->GetCommandList()->DrawIndexedInstanced(m_Triangles.size()*3, 1, 0, 0, 0);
 	}
-#endif
 }
 
 HWD3DMesh_DX12::HWD3DMesh_DX12(class HWD3DGame_DX12* InGame, const char* InFilename)
@@ -34,39 +33,55 @@ HWD3DMesh_DX12::HWD3DMesh_DX12(class HWD3DGame_DX12* InGame, const char* InFilen
 
 HWD3DMesh_DX12::~HWD3DMesh_DX12()
 {
-#if 0
+	if (m_Game)
+	{
+		m_Game->GetBufferViewProvider().DestroyView(m_IBView);
+		m_Game->GetBufferViewProvider().DestroyView(m_VBView);
+	}
+
 	HWD3D_SafeRelease(m_IB);
 	HWD3D_SafeRelease(m_VB);
-#endif
 }
 
 bool HWD3DMesh_DX12::CreateBuffers()
 {
-#if 0
-	ID3D11Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	ID3D12Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!Dev)
 	{
 		return false;
 	}
 
-	const D3D11_USAGE Usage = D3D11_USAGE_IMMUTABLE;
+	// const D3D12_USAGE Usage = D3D12_USAGE_IMMUTABLE;
 	
+
 	// Fill Vertex Buffer
 	{
-		const UINT VbSize = m_Vertices.size()*sizeof(hwd3d_vertex);
-		D3D11_BUFFER_DESC Bd = { };
-		Bd.Usage = Usage;
-		Bd.ByteWidth = VbSize;
-		Bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		const D3D12_HEAP_PROPERTIES HeapProps = { D3D12_HEAP_TYPE_DEFAULT , D3D12_CPU_PAGE_PROPERTY_UNKNOWN , D3D12_MEMORY_POOL_UNKNOWN, 0x1 , 0x1 };
+		
+		const D3D12_HEAP_FLAGS HeapFlags = D3D12_HEAP_FLAG_NONE;
 
-		D3D11_SUBRESOURCE_DATA Data = { };
-		Data.pSysMem = m_Vertices.data();
-		const HRESULT CvbRes = Dev->CreateBuffer(&Bd, &Data, &m_VB);
-		if (FAILED(CvbRes) || !m_VB)
+		D3D12_RESOURCE_DESC ResDesc = { };
+		ResDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		ResDesc.Alignment = 0;
+		ResDesc.Width = m_Vertices.size()*sizeof(hwd3d_vertex);
+		ResDesc.Height = 1;
+		ResDesc.DepthOrArraySize = 1;
+		ResDesc.MipLevels = 1;
+		ResDesc.Format = DXGI_FORMAT_UNKNOWN;
+		ResDesc.SampleDesc = {1, 0};
+		ResDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		ResDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+		const HRESULT CreateRes = Dev->CreateCommittedResource(&HeapProps, HeapFlags, &ResDesc, D3D12_RESOURCE_STATE_COMMON, NULL, IID_PPV_ARGS(&m_VB));
+		if (FAILED(CreateRes) || !m_VB)
 		{
 			return false;
 		}
+
+		m_VBView = m_Game->GetBufferViewProvider().CreateView();
+		m_VBView.GpuVirtualPtr = m_VB->GetGPUVirtualAddress();
+		m_VBView.Size = m_Vertices.size()*sizeof(hwd3d_vertex);
 	}
 
 	// Fill index Buffer
@@ -82,19 +97,32 @@ bool HWD3DMesh_DX12::CreateBuffers()
 		}
 
 		const UINT IbSize = Indices.size()*sizeof(hwd3d_graphics_index);
-		D3D11_BUFFER_DESC Bd = { };
-		Bd.Usage = Usage;
-		Bd.ByteWidth = IbSize;
-		Bd.BindFlags = D3D10_BIND_INDEX_BUFFER;
+		const D3D12_HEAP_PROPERTIES HeapProps = { D3D12_HEAP_TYPE_DEFAULT , D3D12_CPU_PAGE_PROPERTY_UNKNOWN , D3D12_MEMORY_POOL_UNKNOWN, 0x1 , 0x1 };
 
-		D3D11_SUBRESOURCE_DATA Data = { };
-		Data.pSysMem = Indices.data();
-		const HRESULT CvbRes = Dev->CreateBuffer(&Bd, &Data, &m_IB);
-		if (FAILED(CvbRes) || !m_IB)
+		const D3D12_HEAP_FLAGS HeapFlags = D3D12_HEAP_FLAG_NONE;
+
+		D3D12_RESOURCE_DESC ResDesc = { };
+		ResDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		ResDesc.Alignment = 0;
+		ResDesc.Width = IbSize;
+		ResDesc.Height = 1;
+		ResDesc.DepthOrArraySize = 1;
+		ResDesc.MipLevels = 1;
+		ResDesc.Format = DXGI_FORMAT_UNKNOWN;
+		ResDesc.SampleDesc = {1, 0};
+		ResDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		ResDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+		const HRESULT CreateRes = Dev->CreateCommittedResource(&HeapProps, HeapFlags, &ResDesc, D3D12_RESOURCE_STATE_COMMON, NULL, IID_PPV_ARGS(&m_IB));
+		if (FAILED(CreateRes) || !m_IB)
 		{
 			return false;
 		}
+
+		m_IBView = m_Game->GetBufferViewProvider().CreateView();
+		m_IBView.GpuVirtualPtr = m_IB->GetGPUVirtualAddress();
+		m_IBView.Size = IbSize;
 	}
-#endif
+
 	return true;
 }

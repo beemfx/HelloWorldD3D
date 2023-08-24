@@ -14,6 +14,7 @@ struct hwd3dViewDescriptor
 	uintptr_t Owner = 0;
 	int InternalId = 0;
 	bool bInUse = false;
+	UINT Size = 0;
 
 	bool IsValid() const { return InternalId != 0; }
 	void Invalidate() { InternalId = 0; }

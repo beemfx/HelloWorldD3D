@@ -10,6 +10,7 @@ class HWD3DGame_DX12 : public HWD3DGame
 private:
 	
 	static const int NUM_BACK_BUFFERS = 2;
+	static const int NUM_RESOURCE_VIEWS = 128;  // Our little demo doesn't really use this many views but we may as well have enough.
 	
 	struct hwd3dFrameData
 	{
@@ -81,6 +82,7 @@ private:
 
 	HWD3DViewProvider_DX12 m_RenderTargetViewProvider;
 	HWD3DViewProvider_DX12 m_DepthStencilViewProvider;
+	HWD3DViewProvider_DX12 m_BufferViewProvider;
 
 	std::vector<hwd3dFrameData> m_FrameData;
 	UINT m_CurrentFrameDataIndex = 0xFFFFFFFF;
@@ -107,6 +109,7 @@ public:
 	ID3D12Device* GetDevice() const { return m_D3DDevice; }
 	ID3D12RootSignature* GetRootSig() const { return m_RootSig; }
 	ID3D12GraphicsCommandList* GetCommandList() const { return m_SwapChainCommandList; }
+	HWD3DViewProvider_DX12& GetBufferViewProvider() { return m_BufferViewProvider; }
 
 private:
 
