@@ -22,6 +22,21 @@ HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 	return Out;
 }
 
+void HWD3DGame_DX12::PreDraw()
+{
+	assert(m_CurrentFrameData && m_SwapChainCommandList); // This should only happen while building command list.
+	if (m_CurrentFrameData && m_SwapChainCommandList)
+	{
+		if (m_bConstantBufferDirty)
+		{
+			m_bConstantBufferDirty = false;
+			m_ConstantBuffer.SetBufferData(&m_ShaderWVP, sizeof(m_ShaderWVP));
+		}
+
+		m_ConstantBuffer.PrepareForDraw(*m_SwapChainCommandList, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER); // Always call PrepareForDraw since internally it'll transition if necessary.
+	}
+}
+
 void HWD3DGame_DX12::InitDevice(HWND TargetWnd)
 {
 	m_TargetWnd = TargetWnd;
@@ -165,6 +180,8 @@ void HWD3DGame_DX12::DeinitDevice()
 		FlushSwapChain();
 	}
 
+	m_ConstantBuffer.Deinit();
+
 	m_BufferViewProvider.Deinit();
 
 	HWD3D_SafeRelease(m_RootSig);
@@ -241,19 +258,15 @@ bool HWD3DGame_DX12::BeginDraw()
 			ScissorRect.right = m_ViewWidth;
 			ScissorRect.bottom = m_ViewHeight;
 			m_SwapChainCommandList->RSSetScissorRects(1, &ScissorRect);
-			
-			// m_D3DContext->VSSetConstantBuffers(0, 1, &m_VSConstBuffer);
 
-			if (m_RootSig)
-			{
-				m_SwapChainCommandList->SetGraphicsRootSignature(m_RootSig);
-			}
+			m_SwapChainCommandList->SetGraphicsRootSignature(m_RootSig);
+			m_SwapChainCommandList->SetGraphicsRootConstantBufferView(0, m_ConstantBuffer.GetReadViewAddress());
 
 			if (m_Shader)
 			{
 				m_Shader->ApplyRenderState();
 			}
-			
+
 			return true;
 		}
 	}
@@ -291,44 +304,29 @@ void HWD3DGame_DX12::Present()
 
 void HWD3DGame_DX12::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_matrix& InMatrix)
 {
-#if 0
-	if (m_D3DContext)
+	hwd3d_matrix* Mat = nullptr;
+
+	switch (InType)
 	{
-		hwd3d_matrix* Mat = nullptr;
-
-		switch (InType)
-		{
-		case HWD3DGame::hwd3d_transform_t::Proj:
-			Mat = &m_Proj;
-			break;
-		case HWD3DGame::hwd3d_transform_t::View:
-			Mat = &m_View;
-			break;
-		case HWD3DGame::hwd3d_transform_t::World:
-			Mat = &m_World;
-			break;
-		}
-
-		if (Mat)
-		{
-			*Mat = InMatrix;
-
-			// Optimally we wouldn't set this every time a matrix changed, but for Hello World sample this is acceptable.
-			m_ShaderWVP = HWD3DMatrix_Transpose(HWD3DMatrix_Multiply(m_World, HWD3DMatrix_Multiply(m_View, m_Proj)));
-
-			if (m_VSConstBuffer)
-			{
-				D3D11_MAPPED_SUBRESOURCE MappedRes = { };
-				const HRESULT MapRes = m_D3DContext->Map(m_VSConstBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedRes);
-				if (SUCCEEDED(MapRes) && MappedRes.pData)
-				{
-					memcpy(MappedRes.pData, &m_ShaderWVP, sizeof(m_ShaderWVP));
-					m_D3DContext->Unmap(m_VSConstBuffer, 0);
-				}
-			}
-		}
+	case HWD3DGame::hwd3d_transform_t::Proj:
+		Mat = &m_Proj;
+		break;
+	case HWD3DGame::hwd3d_transform_t::View:
+		Mat = &m_View;
+		break;
+	case HWD3DGame::hwd3d_transform_t::World:
+		Mat = &m_World;
+		break;
 	}
-#endif
+
+	if (Mat)
+	{
+		*Mat = InMatrix;
+
+		// Optimally we wouldn't set this every time a matrix changed, but for Hello World sample this is acceptable.
+		m_ShaderWVP = HWD3DMatrix_Transpose(HWD3DMatrix_Multiply(m_World, HWD3DMatrix_Multiply(m_View, m_Proj)));
+		m_bConstantBufferDirty = true;
+	}
 }
 
 bool HWD3DGame_DX12::InitDescriptors()
@@ -498,16 +496,6 @@ bool HWD3DGame_DX12::InitSharedObjects()
 			TexTableRanges.push_back(TexRange);
 		}
 
-		// One texture buffer:
-		{
-			D3D12_ROOT_PARAMETER Rp = { };
-			Rp.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			Rp.DescriptorTable.NumDescriptorRanges = TexTableRanges.size();
-			Rp.DescriptorTable.pDescriptorRanges = TexTableRanges.data();
-			Rp.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-			RootParams.push_back(Rp);
-		}
-
 		// One constant buffer:
 		{
 			D3D12_ROOT_PARAMETER Rp = { };
@@ -515,6 +503,16 @@ bool HWD3DGame_DX12::InitSharedObjects()
 			Rp.Descriptor.ShaderRegister = 0;
 			Rp.Descriptor.RegisterSpace = 0;
 			Rp.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			RootParams.push_back(Rp);
+		}
+
+		// One texture buffer:
+		{
+			D3D12_ROOT_PARAMETER Rp = { };
+			Rp.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			Rp.DescriptorTable.NumDescriptorRanges = TexTableRanges.size();
+			Rp.DescriptorTable.pDescriptorRanges = TexTableRanges.data();
+			Rp.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 			RootParams.push_back(Rp);
 		}
 
@@ -544,24 +542,8 @@ bool HWD3DGame_DX12::InitSharedObjects()
 		}
 	}
 
-#if 0
-
-	// Constant Buffer
-	{
-		D3D11_BUFFER_DESC Bd = { };
-		Bd.ByteWidth = sizeof(m_ShaderWVP);
-		Bd.Usage = D3D11_USAGE_DYNAMIC;
-		Bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		Bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		Bd.MiscFlags = 0;
-		const HRESULT CreateBufferRes = m_D3DDevice->CreateBuffer(&Bd, NULL, &m_VSConstBuffer);
-		if (FAILED(CreateBufferRes) || !m_VSConstBuffer)
-		{
-			return false;
-		}
-	}
-#endif
-
+	m_ConstantBuffer.Init(this, m_D3DDevice, sizeof(m_ShaderWVP), true);
+	m_ConstantBuffer.SetBufferData(&m_ShaderWVP, sizeof(m_ShaderWVP));
 	return true;
 }
 

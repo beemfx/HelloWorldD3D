@@ -2,6 +2,7 @@
 
 #include "HWD3DGame.h"
 #include "HWD3DViewProvider_DX12.h"
+#include "HWD3DBuffer_DX12.h"
 #include <d3d12.h>
 #include <dxgi1_5.h>
 
@@ -83,6 +84,7 @@ private:
 	HWD3DViewProvider_DX12 m_RenderTargetViewProvider;
 	HWD3DViewProvider_DX12 m_DepthStencilViewProvider;
 	HWD3DViewProvider_DX12 m_BufferViewProvider;
+	HWD3DBuffer_DX12 m_ConstantBuffer;
 
 	std::vector<hwd3dFrameData> m_FrameData;
 	UINT m_CurrentFrameDataIndex = 0xFFFFFFFF;
@@ -101,6 +103,7 @@ private:
 	hwd3d_matrix m_View = HWD3DMatrix_Ident;
 	hwd3d_matrix m_World = HWD3DMatrix_Ident;
 	hwd3d_matrix m_ShaderWVP = HWD3DMatrix_Ident;
+	bool m_bConstantBufferDirty = false;
 
 	bool m_bShouldClearAtStartOfNextFrame = false;
 
@@ -110,6 +113,8 @@ public:
 	ID3D12RootSignature* GetRootSig() const { return m_RootSig; }
 	ID3D12GraphicsCommandList* GetCommandList() const { return m_SwapChainCommandList; }
 	HWD3DViewProvider_DX12& GetBufferViewProvider() { return m_BufferViewProvider; }
+
+	void PreDraw();
 
 private:
 

@@ -12,6 +12,7 @@ void HWD3DMesh_DX12::Draw()
 {
 	if (m_Game && m_Game->GetCommandList() && m_VBBuffer.IsValid() && m_IBBuffer.IsValid())
 	{
+		m_Game->PreDraw();
 		m_VBBuffer.PrepareForDraw(*m_Game->GetCommandList(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 		m_IBBuffer.PrepareForDraw(*m_Game->GetCommandList(), D3D12_RESOURCE_STATE_INDEX_BUFFER);
 
@@ -49,7 +50,7 @@ bool HWD3DMesh_DX12::CreateBuffers()
 	// Vertex Buffer:
 	{
 		const int BufferSize = m_Vertices.size()*sizeof(hwd3d_vertex);
-		m_VBBuffer.Init(Dev, BufferSize);
+		m_VBBuffer.Init(m_Game, Dev, BufferSize, false);
 		m_VBBuffer.SetBufferData(m_Vertices.data(), BufferSize);
 	}
 	
@@ -68,7 +69,7 @@ bool HWD3DMesh_DX12::CreateBuffers()
 
 		const int BufferSize = Indices.size()*sizeof(hwd3d_graphics_index);
 		
-		m_IBBuffer.Init(Dev, BufferSize);
+		m_IBBuffer.Init(m_Game, Dev, BufferSize, false);
 		m_IBBuffer.SetBufferData(Indices.data(), BufferSize);
 	}
 

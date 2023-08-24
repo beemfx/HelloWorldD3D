@@ -1,12 +1,17 @@
 // D3D Hello World
 
 #include "HWD3DBuffer_DX12.h"
+#include "HWD3DBuffer_DX12.h"
+#include "HWD3DGame_DX12.h"
 
-void HWD3DBuffer_DX12::Init(ID3D12Device* InDev, int InSize)
+void HWD3DBuffer_DX12::Init(HWD3DGame_DX12* InGame, ID3D12Device* InDev, int InSize, bool bCanRead)
 {
+	m_Game = InGame;
 	assert(!m_GpuBuffer && !m_UploadBuffer && !m_GpuHeap && !m_UploadHeap && !m_bIsValid);
-
-	m_BufferByteSize = InSize;
+	
+	// Align our buffer to the size we want D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT is 256 so we can do some quick math.
+	m_BufferByteSize = ((static_cast<UINT>(InSize) + 0xFF - 1) & (~0xFF));
+	assert(m_BufferByteSize >= static_cast<UINT>(InSize) && ((m_BufferByteSize%D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT) == 0));
 
 	if (InDev)
 	{
@@ -55,6 +60,16 @@ void HWD3DBuffer_DX12::Init(ID3D12Device* InDev, int InSize)
 			{
 				Deinit();
 				return;
+			}
+
+			if (m_Game && bCanRead)
+			{
+				m_ReadView = m_Game->GetBufferViewProvider().CreateView();
+				m_ReadView.GpuVirtualPtr = m_GpuBuffer->GetGPUVirtualAddress();
+				D3D12_CONSTANT_BUFFER_VIEW_DESC Cvd = { };
+				Cvd.BufferLocation = m_ReadView.GpuVirtualPtr;
+				Cvd.SizeInBytes = m_BufferByteSize;
+				InDev->CreateConstantBufferView(&Cvd, m_ReadView.CpuDescHandle);
 			}
 		}
 
@@ -119,11 +134,20 @@ void HWD3DBuffer_DX12::Deinit()
 	m_UploadBufferState = D3D12_RESOURCE_STATE_COMMON;
 	m_GpuBufferState = D3D12_RESOURCE_STATE_COMMON;
 
+	if (m_ReadView.IsValid() && m_Game)
+	{
+		m_Game->GetBufferViewProvider().DestroyView(m_ReadView);
+	}
+
+	m_Game = nullptr;
+
 	m_bIsValid = false;
 }
 
 void HWD3DBuffer_DX12::SetBufferData(const void* SourceData, int SourceDataSize)
 {
+	assert(SourceDataSize <= m_BufferByteSize);
+
 	void* pMappedData = nullptr;
 	if (SUCCEEDED(m_UploadBuffer->Map(0, nullptr, &pMappedData)))
 	{
@@ -132,6 +156,11 @@ void HWD3DBuffer_DX12::SetBufferData(const void* SourceData, int SourceDataSize)
 	}
 
 	m_bBufferNeedsUpload = true;
+}
+
+UINT64 HWD3DBuffer_DX12::GetReadViewAddress() const
+{
+	return m_ReadView.GpuVirtualPtr;
 }
 
 UINT64 HWD3DBuffer_DX12::GetGpuVirtualAddress() const
