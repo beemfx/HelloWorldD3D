@@ -146,7 +146,7 @@ void HWD3DBuffer_DX12::Deinit()
 
 void HWD3DBuffer_DX12::SetBufferData(const void* SourceData, int SourceDataSize)
 {
-	assert(SourceDataSize <= m_BufferByteSize);
+	assert(static_cast<UINT>(SourceDataSize) <= m_BufferByteSize);
 
 	void* pMappedData = nullptr;
 	if (SUCCEEDED(m_UploadBuffer->Map(0, nullptr, &pMappedData)))
@@ -193,5 +193,53 @@ void HWD3DBuffer_DX12::TransitionBuffer(ID3D12GraphicsCommandList& Context, D3D1
 		Barrier.Transition.StateAfter = TargetState;
 		m_GpuBufferState = TargetState;
 		Context.ResourceBarrier(1, &Barrier);
+	}
+}
+
+void HWD3DPerFrameBuffer::Init(class HWD3DGame_DX12* InGame, int InDataSize)
+{
+	m_Game = InGame;
+	m_DataSize = InDataSize;
+}
+
+void HWD3DPerFrameBuffer::Deinit()
+{
+	for (auto* Item : m_Buffers)
+	{
+		Item->Deinit();
+		delete Item;
+	}
+}
+
+void HWD3DPerFrameBuffer::BeginFrame()
+{
+	m_NextBuffer = 0;
+}
+
+void HWD3DPerFrameBuffer::SetData(ID3D12GraphicsCommandList& Context, const void* SourceData, int SourceDataSize)
+{
+	assert(SourceDataSize <= m_DataSize);
+
+	if (0 <= m_NextBuffer && m_NextBuffer < static_cast<int>(m_Buffers.size()))
+	{
+		HWD3DBuffer_DX12* Buffer = m_Buffers[m_NextBuffer];
+		m_NextBuffer++;
+		Buffer->SetBufferData(SourceData, SourceDataSize);
+		Context.SetGraphicsRootConstantBufferView(0, Buffer->GetReadViewAddress());
+		Buffer->PrepareForDraw(Context,  D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+	}
+	else
+	{
+		// Need a new buffer, so create one:
+		HWD3DBuffer_DX12* NewBuffer = new HWD3DBuffer_DX12;
+		if (NewBuffer)
+		{
+			m_Buffers.push_back(NewBuffer);
+			m_NextBuffer = m_Buffers.size();
+			NewBuffer->Init(m_Game, m_Game->GetDevice(), m_DataSize, true);
+			NewBuffer->SetBufferData(SourceData, SourceDataSize);
+			Context.SetGraphicsRootConstantBufferView(0, NewBuffer->GetReadViewAddress());
+			NewBuffer->PrepareForDraw(Context,  D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+		}
 	}
 }

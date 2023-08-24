@@ -19,6 +19,8 @@ private:
 		ID3D12CommandAllocator* CommandAlloc = nullptr;
 		UINT64 FrameFenceValue = 0;
 
+		HWD3DPerFrameBuffer ConstantBuffer;
+
 		hwd3dViewDescriptor BufferDescriptor;
 		D3D12_RESOURCE_STATES BufferState = D3D12_RESOURCE_STATE_COMMON;
 
@@ -56,6 +58,7 @@ private:
 		{
 			InVewProvider.DestroyView(BufferDescriptor);
 			BufferDescriptor.Invalidate();
+			ConstantBuffer.Deinit();
 			HWD3D_SafeRelease(CommandAlloc);
 			HWD3D_SafeRelease(BufferTexture);
 		}
@@ -84,7 +87,6 @@ private:
 	HWD3DViewProvider_DX12 m_RenderTargetViewProvider;
 	HWD3DViewProvider_DX12 m_DepthStencilViewProvider;
 	HWD3DViewProvider_DX12 m_BufferViewProvider;
-	HWD3DBuffer_DX12 m_ConstantBuffer;
 
 	std::vector<hwd3dFrameData> m_FrameData;
 	UINT m_CurrentFrameDataIndex = 0xFFFFFFFF;

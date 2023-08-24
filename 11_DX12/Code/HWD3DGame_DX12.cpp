@@ -30,10 +30,9 @@ void HWD3DGame_DX12::PreDraw()
 		if (m_bConstantBufferDirty)
 		{
 			m_bConstantBufferDirty = false;
-			m_ConstantBuffer.SetBufferData(&m_ShaderWVP, sizeof(m_ShaderWVP));
-		}
 
-		m_ConstantBuffer.PrepareForDraw(*m_SwapChainCommandList, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER); // Always call PrepareForDraw since internally it'll transition if necessary.
+			m_CurrentFrameData->ConstantBuffer.SetData(*m_SwapChainCommandList, &m_ShaderWVP, sizeof(m_ShaderWVP));
+		}
 	}
 }
 
@@ -180,10 +179,6 @@ void HWD3DGame_DX12::DeinitDevice()
 		FlushSwapChain();
 	}
 
-	m_ConstantBuffer.Deinit();
-
-	m_BufferViewProvider.Deinit();
-
 	HWD3D_SafeRelease(m_RootSig);
 
 	m_DepthStencilViewProvider.DestroyView(m_DepthStencilView);
@@ -196,6 +191,8 @@ void HWD3DGame_DX12::DeinitDevice()
 	}
 	m_RenderTargetViewProvider.Deinit();
 	m_FrameData.resize(0);
+
+	m_BufferViewProvider.Deinit();
 
 	HWD3D_SafeRelease(m_Shader);
 	HWD3D_SafeRelease(m_SwapChainCommandList);
@@ -260,12 +257,14 @@ bool HWD3DGame_DX12::BeginDraw()
 			m_SwapChainCommandList->RSSetScissorRects(1, &ScissorRect);
 
 			m_SwapChainCommandList->SetGraphicsRootSignature(m_RootSig);
-			m_SwapChainCommandList->SetGraphicsRootConstantBufferView(0, m_ConstantBuffer.GetReadViewAddress());
 
 			if (m_Shader)
 			{
 				m_Shader->ApplyRenderState();
 			}
+
+			m_bConstantBufferDirty = true;
+			m_CurrentFrameData->ConstantBuffer.BeginFrame();
 
 			return true;
 		}
@@ -365,6 +364,8 @@ bool HWD3DGame_DX12::InitBackBuffer()
 		FrameData.BufferState = D3D12_RESOURCE_STATE_PRESENT; // Back buffers start in Present state.
 		FrameData.BufferDescriptor = m_RenderTargetViewProvider.CreateView();
 		m_D3DDevice->CreateRenderTargetView(FrameData.BufferTexture, nullptr, FrameData.BufferDescriptor.CpuDescHandle);
+
+		FrameData.ConstantBuffer.Init(this, sizeof(m_ShaderWVP));
 
 		// Every back buffer needs an allocator.
 		const HRESULT CcaRes = m_D3DDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&FrameData.CommandAlloc));
@@ -542,8 +543,6 @@ bool HWD3DGame_DX12::InitSharedObjects()
 		}
 	}
 
-	m_ConstantBuffer.Init(this, m_D3DDevice, sizeof(m_ShaderWVP), true);
-	m_ConstantBuffer.SetBufferData(&m_ShaderWVP, sizeof(m_ShaderWVP));
 	return true;
 }
 

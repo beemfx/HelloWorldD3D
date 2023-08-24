@@ -42,3 +42,19 @@ private:
 	void TransitionBuffer(ID3D12GraphicsCommandList& Context, D3D12_RESOURCE_STATES TargetState);
 };
 
+class HWD3DPerFrameBuffer
+{
+private:
+	
+	class HWD3DGame_DX12* m_Game = nullptr;
+	int m_DataSize = 0;
+	std::vector<HWD3DBuffer_DX12*> m_Buffers;
+	int m_NextBuffer = 0;
+
+public:
+	
+	void Init(class HWD3DGame_DX12* InGame, int InSize);
+	void Deinit();
+	void BeginFrame();
+	void SetData(ID3D12GraphicsCommandList& Context, const void* SourceData, int SourceDataSize);
+};
