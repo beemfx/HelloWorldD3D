@@ -40,6 +40,9 @@
     <ClCompile Include="..\_Common\Framework\HWD3DTimer.cpp">
       <Filter>Common\Framework</Filter>
     </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DObject.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\HWD3DShellGame.h">
@@ -61,6 +64,9 @@
       <Filter>Common\Framework</Filter>
     </ClInclude>
     <ClInclude Include="..\_Common\Framework\HWD3DTimer.h">
+      <Filter>Common\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DObject.h">
       <Filter>Common\Framework</Filter>
     </ClInclude>
   </ItemGroup>

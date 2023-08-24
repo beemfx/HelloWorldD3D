@@ -52,6 +52,9 @@
     <ClCompile Include="Code\HWD3DTexture_DX11.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="..\_Common\Framework\HWD3DObject.cpp">
+      <Filter>Common\Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\_Common\Framework\HWD3DGame.h">
@@ -83,6 +86,9 @@
     </ClInclude>
     <ClInclude Include="Code\HWD3DTexture_DX11.h">
       <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="..\_Common\Framework\HWD3DObject.h">
+      <Filter>Common\Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

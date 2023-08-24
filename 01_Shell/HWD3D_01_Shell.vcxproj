@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\_Common\Framework\HWD3DGame.cpp" />
     <ClCompile Include="..\_Common\Framework\HWD3DMesh.cpp" />
+    <ClCompile Include="..\_Common\Framework\HWD3DObject.cpp" />
     <ClCompile Include="..\_Common\Framework\HWD3DTexture.cpp" />
     <ClCompile Include="..\_Common\Framework\HWD3DTimer.cpp" />
     <ClCompile Include="..\_Common\Framework\HWD3DTypes.cpp" />
@@ -30,6 +31,7 @@
   <ItemGroup>
     <ClInclude Include="..\_Common\Framework\HWD3DGame.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DMesh.h" />
+    <ClInclude Include="..\_Common\Framework\HWD3DObject.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DSysInclude.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTexture.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTimer.h" />
