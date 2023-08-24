@@ -8,11 +8,6 @@ HWD3DRenderState_DX10* HWD3DRenderState_DX10::CreateRenderState(class HWD3DGame*
 	return new HWD3DRenderState_DX10(dynamic_cast<HWD3DGame_DX10*>(InGame), InVSFile, InPSFile);
 }
 
-void HWD3DRenderState_DX10::Release()
-{
-	delete this;
-}
-
 void HWD3DRenderState_DX10::ApplyRenderState()
 {
 	ID3D10Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;

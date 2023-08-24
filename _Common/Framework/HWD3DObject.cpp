@@ -12,6 +12,7 @@ void HWD3DObject::Release()
 	m_NumObjectRefs--;
 	if (m_NumObjectRefs == 0)
 	{
+		OnObjectDestruct();
 		delete this;
 	}
 }

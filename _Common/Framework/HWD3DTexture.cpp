@@ -2,11 +2,6 @@
 
 #include "HWD3DTexture.h"
 
-void HWD3DTexture::Release()
-{
-	delete this;
-}
-
 void HWD3DTexture::LoadTextureFile(const char* InFilename)
 {
 	ClearImage();

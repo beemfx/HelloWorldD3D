@@ -8,11 +8,6 @@ HWD3DRenderState_DX11* HWD3DRenderState_DX11::CreateRenderState(class HWD3DGame*
 	return new HWD3DRenderState_DX11(dynamic_cast<HWD3DGame_DX11*>(InGame), InVSFile, InPSFile);
 }
 
-void HWD3DRenderState_DX11::Release()
-{
-	delete this;
-}
-
 void HWD3DRenderState_DX11::ApplyRenderState()
 {
 	ID3D11DeviceContext* Dev = m_Game ? m_Game->GetContext() : nullptr;

@@ -1,11 +1,12 @@
 // D3D Hello World
 
+#include "HWD3DObject.h"
 #include "HWD3DTypes.h"
 #include <d3d12.h>
 
 #pragma once
 
-class HWD3DRenderState_DX12
+class HWD3DRenderState_DX12 : public HWD3DObject
 {
 public:
 	

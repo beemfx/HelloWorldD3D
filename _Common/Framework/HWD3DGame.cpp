@@ -4,13 +4,6 @@
 #include "HWD3DMesh.h"
 #include "HWD3DTexture.h"
 
-void HWD3DGame::Release()
-{
-	Deinit();
-
-	delete this;
-}
-
 void HWD3DGame::Init(HWND InMainWnd)
 {
 	RECT TargetWndRc = {};
@@ -27,6 +20,11 @@ void HWD3DGame::Deinit()
 {
 	DestroyScene();
 	DeinitDevice();
+}
+
+void HWD3DGame::OnObjectDestruct()
+{
+	Deinit();
 }
 
 void HWD3DGame::CreateScene()

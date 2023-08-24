@@ -2,9 +2,10 @@
 
 #pragma once
 
+#include "HWD3DObject.h"
 #include "HWD3DTypes.h"
 
-class HWD3DMesh
+class HWD3DMesh : public HWD3DObject
 {
 public:
 
@@ -16,14 +17,8 @@ protected:
 	std::vector<hwd3d_triangle> m_Triangles;
 
 public:
-
-	void Release();
-
+	
 	virtual void Draw() { }
-
-protected:
-
-	virtual ~HWD3DMesh() { }
 
 protected:
 

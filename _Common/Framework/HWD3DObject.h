@@ -19,4 +19,6 @@ protected:
 	
 	HWD3DObject() : m_NumObjectRefs(1) { }
 	virtual ~HWD3DObject() { }
+
+	virtual void OnObjectDestruct() { }
 };

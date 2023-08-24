@@ -2,9 +2,10 @@
 
 #pragma once
 
+#include "HWD3DObject.h"
 #include "HWD3DTypes.h"
 
-class HWD3DGame
+class HWD3DGame : public HWD3DObject
 {
 public:
 	
@@ -44,12 +45,13 @@ private:
 
 public:
 	
-	void Release();
-
 	void Update(float DeltaTime);
 	void DrawScene();
 
 protected:
+	
+
+	virtual void OnObjectDestruct() override;
 
 	void CreateScene();
 	void DestroyScene();

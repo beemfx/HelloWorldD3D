@@ -2,9 +2,10 @@
 
 #pragma once
 
+#include "HWD3DObject.h"
 #include "HWD3DTypes.h"
 
-class HWD3DTexture
+class HWD3DTexture : public HWD3DObject
 {
 public:
 	
@@ -18,8 +19,6 @@ protected:
 
 public:
 	
-	void Release();
-
 	virtual void SetTexture() { }
 
 protected:

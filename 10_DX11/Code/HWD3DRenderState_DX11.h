@@ -1,11 +1,12 @@
 // D3D Hello World
 
+#include "HWD3DObject.h"
 #include "HWD3DTypes.h"
 #include <d3d11.h>
 
 #pragma once
 
-class HWD3DRenderState_DX11
+class HWD3DRenderState_DX11 : public HWD3DObject
 {
 public:
 	
@@ -24,8 +25,6 @@ protected:
 
 public:
 	
-	void Release();
-
 	void ApplyRenderState();
 
 protected:
