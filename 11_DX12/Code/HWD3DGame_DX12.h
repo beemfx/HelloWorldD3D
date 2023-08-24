@@ -14,57 +14,32 @@ private:
 	
 	struct hwd3dFrameData
 	{
-		ID3D12Resource* BufferTexture = nullptr;
+		HWD3DBufferRenderTarget_DX12* RenderTarget = nullptr;
 		ID3D12CommandAllocator* CommandAlloc = nullptr;
 		UINT64 FrameFenceValue = 0;
 
 		HWD3DPerFrameConstantBuffer ConstantBuffer;
 
-		hwd3dViewDescriptor BufferDescriptor;
-		D3D12_RESOURCE_STATES BufferState = D3D12_RESOURCE_STATE_COMMON;
-
 		void PrepareToDraw(ID3D12GraphicsCommandList& CmdList)
 		{
-			if( BufferState != D3D12_RESOURCE_STATE_RENDER_TARGET )
-			{
-				D3D12_RESOURCE_BARRIER Barrier = { };
-				Barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-				Barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-				Barrier.Transition.pResource = BufferTexture;
-				Barrier.Transition.StateBefore = BufferState;
-				Barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-				BufferState = D3D12_RESOURCE_STATE_RENDER_TARGET;
-				CmdList.ResourceBarrier( 1 , &Barrier );
-			}
+			RenderTarget->TransitionBuffer(CmdList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		}
 
 		void PrepareToPresent(ID3D12GraphicsCommandList& CmdList)
 		{
-			if( BufferState != D3D12_RESOURCE_STATE_PRESENT )
-			{
-				D3D12_RESOURCE_BARRIER Barrier = { };
-				Barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-				Barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-				Barrier.Transition.pResource = BufferTexture;
-				Barrier.Transition.StateBefore = BufferState;
-				Barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-				BufferState = D3D12_RESOURCE_STATE_PRESENT;
-				CmdList.ResourceBarrier( 1 , &Barrier );
-			}
+			RenderTarget->TransitionBuffer(CmdList, D3D12_RESOURCE_STATE_PRESENT);
 		}
 
 		void Deinit(HWD3DViewProvider_DX12& InVewProvider)
 		{
-			InVewProvider.DestroyView(BufferDescriptor);
-			BufferDescriptor.Invalidate();
 			ConstantBuffer.Deinit();
 			HWD3D_SafeRelease(CommandAlloc);
-			HWD3D_SafeRelease(BufferTexture);
+			HWD3D_SafeRelease(RenderTarget);
 		}
 
 		~hwd3dFrameData()
 		{
-			assert(!CommandAlloc && !BufferTexture && !BufferDescriptor.IsValid()); // Should have called Deinit before destroying.
+			assert(!CommandAlloc && !RenderTarget); // Should have called Deinit before destroying.
 		}
 	};
 
@@ -91,9 +66,7 @@ private:
 	UINT m_CurrentFrameDataIndex = 0xFFFFFFFF;
 	hwd3dFrameData* m_CurrentFrameData = nullptr;
 
-	ID3D12Resource* m_DepthStencilTexture = nullptr;
-	hwd3dViewDescriptor m_DepthStencilView;
-	D3D12_RESOURCE_STATES m_DepthStencilState = D3D12_RESOURCE_STATE_COMMON;
+	HWD3DBufferDepthStencil_DX12* m_DepthStencil = nullptr;
 
 	ID3D12RootSignature* m_RootSig = nullptr;
 	ID3D12GraphicsCommandList* m_SwapChainCommandList = nullptr;

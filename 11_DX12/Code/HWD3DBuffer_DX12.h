@@ -21,6 +21,54 @@ struct hwd3dTextureFormat
 	int Height = 0;
 };
 
+class HWD3DBufferBase_DX12 : public HWD3DObject
+{
+protected:
+	
+	ID3D12Heap* m_GpuHeap = nullptr;
+	ID3D12Resource* m_GpuBuffer = nullptr;
+	HWD3DViewProvider_DX12* m_ViewProvider = nullptr;
+	DXGI_FORMAT m_GpuBufferFormat = DXGI_FORMAT_UNKNOWN;
+	D3D12_RESOURCE_STATES m_GpuBufferState = D3D12_RESOURCE_STATE_COMMON;
+	hwd3dViewDescriptor m_GpuView;
+
+public:
+	
+	void TransitionBuffer(ID3D12GraphicsCommandList& Context, D3D12_RESOURCE_STATES TargetState);
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCpuDescHandle() const { return m_GpuView.CpuDescHandle; }
+
+protected:
+	
+	virtual ~HWD3DBufferBase_DX12() override;
+};
+
+class HWD3DBufferRenderTarget_DX12 : public HWD3DBufferBase_DX12
+{
+private:
+	
+	
+
+public:
+	
+	static HWD3DBufferRenderTarget_DX12* CreateRenderTarget(IDXGISwapChain1& InSwapChain, UINT BackBufferIndex, ID3D12Device& InDevice, class HWD3DViewProvider_DX12& InViewProvider);
+
+protected:
+	
+	void InitRenderTarget(IDXGISwapChain1& InSwapChain, UINT InBackBufferIndex, ID3D12Device& InDevice, class HWD3DViewProvider_DX12& InViewProvider);
+};
+
+
+class HWD3DBufferDepthStencil_DX12 : public HWD3DBufferBase_DX12
+{
+public:
+
+	static HWD3DBufferDepthStencil_DX12* CreateDepthStencil(DXGI_FORMAT InFormat, int InWidth, int InHeight, ID3D12Device& InDevice, class HWD3DViewProvider_DX12& InViewProvider);
+
+protected:
+
+	void InitDepthStencil(DXGI_FORMAT InFormat, int InWidth, int InHeight, ID3D12Device& InDevice, class HWD3DViewProvider_DX12& InViewProvider);
+};
+
 class HWD3DBuffer_DX12 : public HWD3DObject
 {
 private:
