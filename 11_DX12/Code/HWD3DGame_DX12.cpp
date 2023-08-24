@@ -2,6 +2,7 @@
 
 #include "HWD3DGame_DX12.h"
 #include "HWD3DRenderState_DX12.h"
+#include "HWD3DViewProvider_DX12.h"
 
 extern "C" { _declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; }
 extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }
@@ -181,19 +182,24 @@ void HWD3DGame_DX12::DeinitDevice()
 
 	HWD3D_SafeRelease(m_RootSig);
 
-	m_DepthStencilViewProvider.DestroyView(m_DepthStencilView);
-	m_DepthStencilViewProvider.Deinit();
+	if (m_DepthStencilViewProvider)
+	{
+		m_DepthStencilViewProvider->DestroyView(m_DepthStencilView);
+	}
+	HWD3D_SafeRelease(m_DepthStencilViewProvider);
 	HWD3D_SafeRelease(m_DepthStencilTexture);
 	
-	for (auto& FrameData : m_FrameData)
+	if (m_RenderTargetViewProvider)
 	{
-		FrameData.Deinit(m_RenderTargetViewProvider);
+		for (auto& FrameData : m_FrameData)
+		{
+			FrameData.Deinit(*m_RenderTargetViewProvider);
+		}
 	}
-	m_RenderTargetViewProvider.Deinit();
+	HWD3D_SafeRelease(m_RenderTargetViewProvider);
 	m_FrameData.resize(0);
 
-	m_BufferViewProvider.Deinit();
-
+	HWD3D_SafeRelease(m_BufferViewProvider);
 	HWD3D_SafeRelease(m_Shader);
 	HWD3D_SafeRelease(m_SwapChainCommandList);
 	HWD3D_SafeRelease(m_SwapChain);
@@ -258,7 +264,7 @@ bool HWD3DGame_DX12::BeginDraw()
 
 			m_SwapChainCommandList->SetGraphicsRootSignature(m_RootSig);
 
-			ID3D12DescriptorHeap* TextureHeaps[] = { m_BufferViewProvider.GetHeap() };
+			ID3D12DescriptorHeap* TextureHeaps[] = { m_BufferViewProvider->GetHeap() };
 			m_SwapChainCommandList->SetDescriptorHeaps(_countof(TextureHeaps), TextureHeaps);
 
 			if (m_Shader)
@@ -338,16 +344,16 @@ bool HWD3DGame_DX12::InitDescriptors()
 		return false;
 	}
 
-	m_RenderTargetViewProvider.Init(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, NUM_BACK_BUFFERS);
-	m_DepthStencilViewProvider.Init(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
-	m_BufferViewProvider.Init(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NUM_RESOURCE_VIEWS);
+	m_RenderTargetViewProvider = HWD3DViewProvider_DX12::CreateViewProvider(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, NUM_BACK_BUFFERS);
+	m_DepthStencilViewProvider = HWD3DViewProvider_DX12::CreateViewProvider(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
+	m_BufferViewProvider = HWD3DViewProvider_DX12::CreateViewProvider(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NUM_RESOURCE_VIEWS);
 
 	return true;
 }
 
 bool HWD3DGame_DX12::InitBackBuffer()
 {
-	if (!m_SwapChain || !m_D3DDevice)
+	if (!m_SwapChain || !m_D3DDevice || !m_RenderTargetViewProvider)
 	{
 		return false;
 	}
@@ -365,7 +371,7 @@ bool HWD3DGame_DX12::InitBackBuffer()
 		}
 
 		FrameData.BufferState = D3D12_RESOURCE_STATE_PRESENT; // Back buffers start in Present state.
-		FrameData.BufferDescriptor = m_RenderTargetViewProvider.CreateView();
+		FrameData.BufferDescriptor = m_RenderTargetViewProvider->CreateView();
 		m_D3DDevice->CreateRenderTargetView(FrameData.BufferTexture, nullptr, FrameData.BufferDescriptor.CpuDescHandle);
 
 		FrameData.ConstantBuffer.Init(this, sizeof(m_ShaderWVP));
@@ -398,6 +404,11 @@ bool HWD3DGame_DX12::InitBackBuffer()
 
 bool HWD3DGame_DX12::InitDepthStencil()
 {
+	if (!m_D3DDevice || !m_DepthStencilViewProvider)
+	{
+		return false;
+	}
+
 	D3D12_HEAP_PROPERTIES HeapProps = { };
 	HeapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
 	HeapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
@@ -435,7 +446,7 @@ bool HWD3DGame_DX12::InitDepthStencil()
 	RtvDesc.Format = DXGI_FORMAT_D16_UNORM;
 	RtvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	RtvDesc.Texture2D.MipSlice = 0;
-	m_DepthStencilView = m_DepthStencilViewProvider.CreateView();
+	m_DepthStencilView = m_DepthStencilViewProvider->CreateView();
 	if (!m_DepthStencilView.IsValid())
 	{
 		return false;

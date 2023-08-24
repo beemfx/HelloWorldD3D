@@ -2,6 +2,17 @@
 
 #include "HWD3DViewProvider_DX12.h"
 
+HWD3DViewProvider_DX12* HWD3DViewProvider_DX12::CreateViewProvider(ID3D12Device& InDevice, D3D12_DESCRIPTOR_HEAP_TYPE InHeapType, int InMaxDescs)
+{
+	HWD3DViewProvider_DX12* Out = new HWD3DViewProvider_DX12;
+	if (Out)
+	{
+		Out->Init(InDevice, InHeapType, InMaxDescs);
+	}
+
+	return Out;
+}
+
 void HWD3DViewProvider_DX12::Init(ID3D12Device& InDevice, D3D12_DESCRIPTOR_HEAP_TYPE InHeapType, int InMaxDescs)
 {
 	m_HeapType = InHeapType;

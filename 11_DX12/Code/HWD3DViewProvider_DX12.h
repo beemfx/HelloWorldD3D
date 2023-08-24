@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "HWD3DObject.h"
 #include "HWD3DTypes.h"
 #include <d3d12.h>
 
@@ -20,18 +21,25 @@ struct hwd3dViewDescriptor
 	void Invalidate() { InternalId = 0; }
 };
 
-class HWD3DViewProvider_DX12
+class HWD3DViewProvider_DX12 : public HWD3DObject
 {
+public:
+	
+	static HWD3DViewProvider_DX12* CreateViewProvider(ID3D12Device& InDevice, D3D12_DESCRIPTOR_HEAP_TYPE InHeapType, int InMaxDescs);
+
 private:
 	
 	ID3D12DescriptorHeap* m_Heap = nullptr;
 	std::vector<hwd3dViewDescriptor> m_Descriptors;
 	D3D12_DESCRIPTOR_HEAP_TYPE m_HeapType = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 
-public:
+protected:
 	
+	virtual void OnObjectDestruct() override { Deinit(); }
 	void Init(ID3D12Device& InDevice, D3D12_DESCRIPTOR_HEAP_TYPE InHeapType, int InMaxDescs);
 	void Deinit();
+
+public:
 
 	ID3D12DescriptorHeap* GetHeap() const { return m_Heap; }
 	

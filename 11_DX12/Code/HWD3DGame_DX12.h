@@ -1,7 +1,6 @@
 // D3D Hello World
 
 #include "HWD3DGame.h"
-#include "HWD3DViewProvider_DX12.h"
 #include "HWD3DBuffer_DX12.h"
 #include <d3d12.h>
 #include <dxgi1_5.h>
@@ -84,9 +83,9 @@ private:
 	UINT64 m_SwapChainFenceValue = 0;
 	HANDLE m_SwapChainFenceEventHandle = 0;
 
-	HWD3DViewProvider_DX12 m_RenderTargetViewProvider;
-	HWD3DViewProvider_DX12 m_DepthStencilViewProvider;
-	HWD3DViewProvider_DX12 m_BufferViewProvider;
+	class HWD3DViewProvider_DX12* m_RenderTargetViewProvider;
+	class HWD3DViewProvider_DX12* m_DepthStencilViewProvider;
+	class HWD3DViewProvider_DX12* m_BufferViewProvider;
 
 	std::vector<hwd3dFrameData> m_FrameData;
 	UINT m_CurrentFrameDataIndex = 0xFFFFFFFF;
@@ -114,7 +113,7 @@ public:
 	ID3D12Device* GetDevice() const { return m_D3DDevice; }
 	ID3D12RootSignature* GetRootSig() const { return m_RootSig; }
 	ID3D12GraphicsCommandList* GetCommandList() const { return m_SwapChainCommandList; }
-	HWD3DViewProvider_DX12& GetBufferViewProvider() { return m_BufferViewProvider; }
+	HWD3DViewProvider_DX12& GetBufferViewProvider() { return *m_BufferViewProvider; }
 
 	void PreDraw();
 
