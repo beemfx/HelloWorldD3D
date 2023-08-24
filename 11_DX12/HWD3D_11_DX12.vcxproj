@@ -42,6 +42,7 @@
     <ClInclude Include="..\_Common\Framework\HWD3DTimer.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTypes.h" />
     <ClInclude Include="Code\HWD3DBuffer_DX12.h" />
+    <ClInclude Include="Code\HWD3DCore_DX12.h" />
     <ClInclude Include="Code\HWD3DGame_DX12.h" />
     <ClInclude Include="Code\HWD3DMesh_DX12.h" />
     <ClInclude Include="Code\HWD3DRenderState_DX12.h" />

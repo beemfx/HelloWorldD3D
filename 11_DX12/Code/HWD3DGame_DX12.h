@@ -1,9 +1,9 @@
 // D3D Hello World
 
 #include "HWD3DGame.h"
+#include "HWD3DCore_DX12.h"
 #include "HWD3DBuffer_DX12.h"
-#include <d3d12.h>
-#include <dxgi1_5.h>
+#include "HWD3DViewProvider_DX12.h"
 
 class HWD3DGame_DX12 : public HWD3DGame
 {

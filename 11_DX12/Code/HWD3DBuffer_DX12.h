@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include "HWD3DTypes.h"
-#include "HWD3DViewProvider_DX12.h"
-#include <d3d12.h>
+#include "HWD3DObject.h"
+#include "HWD3DCore_DX12.h"
 
 enum class hwd3d_buffer_t
 {
@@ -22,7 +21,7 @@ struct hwd3dTextureFormat
 	int Height = 0;
 };
 
-class HWD3DBuffer_DX12
+class HWD3DBuffer_DX12 : public HWD3DObject
 {
 private:
 
