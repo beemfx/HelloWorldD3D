@@ -55,6 +55,9 @@
     <ClCompile Include="Code\HWD3DViewProvider_DX12.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="Code\HWD3DBuffer_DX12.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\_Common\Framework\HWD3DGame.h">
@@ -88,6 +91,9 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\HWD3DViewProvider_DX12.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\HWD3DBuffer_DX12.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>
