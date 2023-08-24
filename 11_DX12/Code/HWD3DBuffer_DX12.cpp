@@ -4,14 +4,34 @@
 #include "HWD3DBuffer_DX12.h"
 #include "HWD3DGame_DX12.h"
 
-void HWD3DBuffer_DX12::Init(HWD3DGame_DX12* InGame, ID3D12Device* InDev, int InSize, bool bCanRead)
+void HWD3DBuffer_DX12::Init(HWD3DGame_DX12* InGame, ID3D12Device* InDev, int InSize, hwd3d_buffer_t InBufferType, const hwd3dTextureFormat* InTextureFormat)
 {
 	m_Game = InGame;
-	assert(!m_GpuBuffer && !m_UploadBuffer && !m_GpuHeap && !m_UploadHeap && !m_bIsValid);
+	assert(!m_GpuBuffer && !m_UploadBuffer && !m_GpuHeap && !m_UploadHeap && !m_bIsValid && m_Game);
+
+	if (!m_Game)
+	{
+		return;
+	}
+
+	if (InTextureFormat)
+	{
+		m_TextureFormat = *InTextureFormat;
+	}
+
+	m_BufferType = InBufferType;
 	
-	// Align our buffer to the size we want D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT is 256 so we can do some quick math.
-	m_BufferByteSize = ((static_cast<UINT>(InSize) + 0xFF - 1) & (~0xFF));
-	assert(m_BufferByteSize >= static_cast<UINT>(InSize) && ((m_BufferByteSize%D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT) == 0));
+	if (m_BufferType == hwd3d_buffer_t::Texture && InTextureFormat)
+	{
+		assert(InTextureFormat->Format == DXGI_FORMAT_R8G8B8A8_UNORM);
+		m_BufferByteSize = InTextureFormat->Width * InTextureFormat->Height * 4; // Assuming R8G8B8A8_UNORM;
+	}
+	else
+	{
+		// Align our buffer to the size we want D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT is 256 so we can do some quick math.
+		m_BufferByteSize = ((static_cast<UINT>(InSize) + 0xFF - 1) & (~0xFF));
+		assert(m_BufferByteSize >= static_cast<UINT>(InSize) && ((m_BufferByteSize%D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT) == 0));
+	}
 
 	if (InDev)
 	{
@@ -39,18 +59,39 @@ void HWD3DBuffer_DX12::Init(HWD3DGame_DX12* InGame, ID3D12Device* InDev, int InS
 		// GPU Buffer
 		{
 			// Fill in a buffer description.
-
 			D3D12_RESOURCE_DESC Desc = {};
-			Desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-			Desc.Alignment = 0;
-			Desc.Width = m_BufferByteSize;
-			Desc.Height = 1;
-			Desc.DepthOrArraySize = 1;
-			Desc.MipLevels = 1;
-			Desc.Format = DXGI_FORMAT_UNKNOWN;
-			Desc.SampleDesc = { 1, 0 };
-			Desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-			Desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+			if (m_BufferType == hwd3d_buffer_t::Texture && InTextureFormat)
+			{
+				Desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+				Desc.Alignment = 0;
+				Desc.Width = InTextureFormat->Width;
+				Desc.Height = InTextureFormat->Height;
+				Desc.DepthOrArraySize = 1;
+				Desc.MipLevels = 1;
+				Desc.Format = InTextureFormat->Format;
+				Desc.SampleDesc = { 1, 0 };
+				Desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+				Desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+				UINT64 RequiredSize = 0;
+
+				InDev->GetCopyableFootprints(&Desc, 0, 1, 0, nullptr, nullptr, nullptr, &RequiredSize);
+				RequiredSize = RequiredSize;
+				assert(RequiredSize == m_BufferByteSize); // Created heap of wrong size, we need to rethink this.
+			}
+			else
+			{
+				Desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+				Desc.Alignment = 0;
+				Desc.Width = m_BufferByteSize;
+				Desc.Height = 1;
+				Desc.DepthOrArraySize = 1;
+				Desc.MipLevels = 1;
+				Desc.Format = DXGI_FORMAT_UNKNOWN;
+				Desc.SampleDesc = { 1, 0 };
+				Desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+				Desc.Flags = D3D12_RESOURCE_FLAG_NONE;
+			}
 
 			m_GpuBufferState = D3D12_RESOURCE_STATE_COMMON;
 
@@ -60,16 +101,6 @@ void HWD3DBuffer_DX12::Init(HWD3DGame_DX12* InGame, ID3D12Device* InDev, int InS
 			{
 				Deinit();
 				return;
-			}
-
-			if (m_Game && bCanRead)
-			{
-				m_ReadView = m_Game->GetBufferViewProvider().CreateView();
-				m_ReadView.GpuVirtualPtr = m_GpuBuffer->GetGPUVirtualAddress();
-				D3D12_CONSTANT_BUFFER_VIEW_DESC Cvd = { };
-				Cvd.BufferLocation = m_ReadView.GpuVirtualPtr;
-				Cvd.SizeInBytes = m_BufferByteSize;
-				InDev->CreateConstantBufferView(&Cvd, m_ReadView.CpuDescHandle);
 			}
 		}
 
@@ -121,6 +152,36 @@ void HWD3DBuffer_DX12::Init(HWD3DGame_DX12* InGame, ID3D12Device* InDev, int InS
 		}
 	}
 
+
+	if (m_BufferType == hwd3d_buffer_t::ConstantBuffer)
+	{
+		// m_ReadView = m_Game->GetBufferViewProvider().CreateView();
+		// m_ReadView.GpuVirtualPtr = m_GpuBuffer->GetGPUVirtualAddress();
+		// D3D12_CONSTANT_BUFFER_VIEW_DESC Cvd = { };
+		// Cvd.BufferLocation = m_ReadView.GpuVirtualPtr;
+		// Cvd.SizeInBytes = m_BufferByteSize;
+		// InDev->CreateConstantBufferView(&Cvd, m_ReadView.CpuDescHandle);
+		m_ReadView.GpuVirtualPtr = m_GpuBuffer->GetGPUVirtualAddress();
+	}
+	else if (m_BufferType == hwd3d_buffer_t::Texture && InTextureFormat)
+	{
+		m_ReadView = m_Game->GetBufferViewProvider().CreateView();
+		D3D12_SHADER_RESOURCE_VIEW_DESC Svd = { };
+		Svd.Format = InTextureFormat->Format;
+		Svd.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		Svd.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		Svd.Texture2D.MostDetailedMip = 0;
+		Svd.Texture2D.MipLevels = 1;
+		Svd.Texture2D.PlaneSlice = 0;
+		Svd.Texture2D.ResourceMinLODClamp = 0.f;
+
+		InDev->CreateShaderResourceView(m_GpuBuffer, &Svd, m_ReadView.CpuDescHandle);
+	}
+	else
+	{
+		m_ReadView.GpuVirtualPtr = m_GpuBuffer->GetGPUVirtualAddress();
+	}
+
 	m_bIsValid = true;
 }
 
@@ -158,14 +219,14 @@ void HWD3DBuffer_DX12::SetBufferData(const void* SourceData, int SourceDataSize)
 	m_bBufferNeedsUpload = true;
 }
 
-UINT64 HWD3DBuffer_DX12::GetReadViewAddress() const
-{
-	return m_ReadView.GpuVirtualPtr;
-}
-
 UINT64 HWD3DBuffer_DX12::GetGpuVirtualAddress() const
 {
 	return m_GpuBuffer ? m_GpuBuffer->GetGPUVirtualAddress() : 0;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE HWD3DBuffer_DX12::GetGpuView() const
+{
+	return m_ReadView.GpuDescHandle;
 }
 
 void HWD3DBuffer_DX12::PrepareForDraw(ID3D12GraphicsCommandList& Context, D3D12_RESOURCE_STATES TargetState)
@@ -174,8 +235,32 @@ void HWD3DBuffer_DX12::PrepareForDraw(ID3D12GraphicsCommandList& Context, D3D12_
 	{
 		m_bBufferNeedsUpload = false;
 
-		TransitionBuffer(Context, D3D12_RESOURCE_STATE_COPY_DEST);
-		Context.CopyBufferRegion(m_GpuBuffer, 0, m_UploadBuffer, 0, m_BufferByteSize);
+		if (m_BufferType == hwd3d_buffer_t::Texture)
+		{
+			TransitionBuffer(Context, D3D12_RESOURCE_STATE_COPY_DEST);
+			D3D12_TEXTURE_COPY_LOCATION CopyDst = { };
+			CopyDst.pResource = m_GpuBuffer;
+			CopyDst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+			CopyDst.SubresourceIndex = 0;
+			D3D12_TEXTURE_COPY_LOCATION CopySrc = { };
+			CopySrc.pResource = m_UploadBuffer;
+			CopySrc.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+
+			CopySrc.PlacedFootprint.Offset = 0;
+			CopySrc.PlacedFootprint.Footprint.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			CopySrc.PlacedFootprint.Footprint.Width = m_TextureFormat.Width;
+			CopySrc.PlacedFootprint.Footprint.Height = m_TextureFormat.Height;
+			CopySrc.PlacedFootprint.Footprint.RowPitch = m_TextureFormat.Width * 4;
+			CopySrc.PlacedFootprint.Footprint.Depth = 1;
+
+			// D3D12_BOX CopyBox = { 0 , 0 , 0 , m_TextureFormat.Width , m_TextureFormat.Height , 1 };
+			Context.CopyTextureRegion(&CopyDst, 0, 0, 0, &CopySrc, NULL);//&CopyBox);
+		}
+		else
+		{
+			TransitionBuffer(Context, D3D12_RESOURCE_STATE_COPY_DEST);
+			Context.CopyBufferRegion(m_GpuBuffer, 0, m_UploadBuffer, 0, m_BufferByteSize);
+		}
 	}
 
 	TransitionBuffer(Context, TargetState);
@@ -196,13 +281,13 @@ void HWD3DBuffer_DX12::TransitionBuffer(ID3D12GraphicsCommandList& Context, D3D1
 	}
 }
 
-void HWD3DPerFrameBuffer::Init(class HWD3DGame_DX12* InGame, int InDataSize)
+void HWD3DPerFrameConstantBuffer::Init(class HWD3DGame_DX12* InGame, int InDataSize)
 {
 	m_Game = InGame;
 	m_DataSize = InDataSize;
 }
 
-void HWD3DPerFrameBuffer::Deinit()
+void HWD3DPerFrameConstantBuffer::Deinit()
 {
 	for (auto* Item : m_Buffers)
 	{
@@ -211,12 +296,12 @@ void HWD3DPerFrameBuffer::Deinit()
 	}
 }
 
-void HWD3DPerFrameBuffer::BeginFrame()
+void HWD3DPerFrameConstantBuffer::BeginFrame()
 {
 	m_NextBuffer = 0;
 }
 
-void HWD3DPerFrameBuffer::SetData(ID3D12GraphicsCommandList& Context, const void* SourceData, int SourceDataSize)
+void HWD3DPerFrameConstantBuffer::SetData(ID3D12GraphicsCommandList& Context, const void* SourceData, int SourceDataSize)
 {
 	assert(SourceDataSize <= m_DataSize);
 
@@ -225,7 +310,7 @@ void HWD3DPerFrameBuffer::SetData(ID3D12GraphicsCommandList& Context, const void
 		HWD3DBuffer_DX12* Buffer = m_Buffers[m_NextBuffer];
 		m_NextBuffer++;
 		Buffer->SetBufferData(SourceData, SourceDataSize);
-		Context.SetGraphicsRootConstantBufferView(0, Buffer->GetReadViewAddress());
+		Context.SetGraphicsRootConstantBufferView(0, Buffer->GetGpuVirtualAddress());
 		Buffer->PrepareForDraw(Context,  D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 	}
 	else
@@ -236,9 +321,9 @@ void HWD3DPerFrameBuffer::SetData(ID3D12GraphicsCommandList& Context, const void
 		{
 			m_Buffers.push_back(NewBuffer);
 			m_NextBuffer = m_Buffers.size();
-			NewBuffer->Init(m_Game, m_Game->GetDevice(), m_DataSize, true);
+			NewBuffer->Init(m_Game, m_Game->GetDevice(), m_DataSize, hwd3d_buffer_t::ConstantBuffer, nullptr);
 			NewBuffer->SetBufferData(SourceData, SourceDataSize);
-			Context.SetGraphicsRootConstantBufferView(0, NewBuffer->GetReadViewAddress());
+			Context.SetGraphicsRootConstantBufferView(0, NewBuffer->GetGpuVirtualAddress());
 			NewBuffer->PrepareForDraw(Context,  D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 		}
 	}

@@ -23,14 +23,12 @@ HWD3DTexture_DX12::HWD3DTexture_DX12(class HWD3DGame_DX12* InGame)
 
 HWD3DTexture_DX12::~HWD3DTexture_DX12()
 {
-	// HWD3D_SafeRelease(m_View);
-	// HWD3D_SafeRelease(m_Texture);
+	m_TextureBuffer.Deinit();
 }
 
 void HWD3DTexture_DX12::InitTexture()
 {
-#if 0
-	ID3D11Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
+	ID3D12Device* Dev = m_Game ? m_Game->GetDevice() : nullptr;
 
 	if (!Dev)
 	{
@@ -57,51 +55,20 @@ void HWD3DTexture_DX12::InitTexture()
 			}
 		}
 
-		D3D11_TEXTURE2D_DESC TxDesc = { };
-		TxDesc.Width = m_Width;
-		TxDesc.Height = m_Height;
-		TxDesc.MipLevels = 1;
-		TxDesc.ArraySize = 1;
-		TxDesc.Format = DXGI_FORMAT_R8G8B8A8_TYPELESS;
-		TxDesc.Usage = D3D11_USAGE_IMMUTABLE;
-		TxDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		TxDesc.SampleDesc.Quality = 0;
-		TxDesc.SampleDesc.Count = 1;
-
-		D3D11_SUBRESOURCE_DATA Data = { };
-		Data.pSysMem = TexturePixels.data();
-		Data.SysMemPitch = m_Width*sizeof(DWORD);
-		Data.SysMemSlicePitch = m_Width * m_Height * sizeof(DWORD);
-
-		const HRESULT Res = Dev->CreateTexture2D(&TxDesc, &Data, &m_Texture);
-		if (FAILED(Res) || !m_Texture)
-		{
-			return;
-		}
+		hwd3dTextureFormat Format;
+		Format.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		Format.Width = m_Width;
+		Format.Height = m_Height;
+		m_TextureBuffer.Init(m_Game,  Dev, TexturePixels.size(), hwd3d_buffer_t::Texture, &Format);
+		m_TextureBuffer.SetBufferData(TexturePixels.data(), TexturePixels.size()*4);
 	}
-
-	// Create View:
-	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC ViewDesc = { };
-		ViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		ViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		ViewDesc.Texture2D.MipLevels = 1;
-		ViewDesc.Texture2D.MostDetailedMip = 0;
-		const HRESULT Res = Dev->CreateShaderResourceView(m_Texture, &ViewDesc, &m_View);
-		if (FAILED(Res) || !m_View)
-		{
-			return;
-		}
-	}
-#endif
 }
 
 void HWD3DTexture_DX12::SetTexture()
 {
-#if 0
-	if (m_Game && m_Game->GetContext() && m_Texture && m_View)
+	if (m_Game && m_Game->GetCommandList() && m_TextureBuffer.IsValid())
 	{
-		m_Game->GetContext()->PSSetShaderResources(0, 1 , &m_View);
+		m_TextureBuffer.PrepareForDraw(*m_Game->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		m_Game->GetCommandList()->SetGraphicsRootDescriptorTable(1, m_TextureBuffer.GetGpuView());
 	}
-#endif
 }

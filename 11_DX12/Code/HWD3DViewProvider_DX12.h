@@ -32,6 +32,8 @@ public:
 	
 	void Init(ID3D12Device& InDevice, D3D12_DESCRIPTOR_HEAP_TYPE InHeapType, int InMaxDescs);
 	void Deinit();
+
+	ID3D12DescriptorHeap* GetHeap() const { return m_Heap; }
 	
 	hwd3dViewDescriptor CreateView();
 	void DestroyView(const hwd3dViewDescriptor& InDesc);

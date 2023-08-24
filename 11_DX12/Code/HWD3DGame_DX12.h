@@ -19,7 +19,7 @@ private:
 		ID3D12CommandAllocator* CommandAlloc = nullptr;
 		UINT64 FrameFenceValue = 0;
 
-		HWD3DPerFrameBuffer ConstantBuffer;
+		HWD3DPerFrameConstantBuffer ConstantBuffer;
 
 		hwd3dViewDescriptor BufferDescriptor;
 		D3D12_RESOURCE_STATES BufferState = D3D12_RESOURCE_STATE_COMMON;

@@ -6,6 +6,22 @@
 #include "HWD3DViewProvider_DX12.h"
 #include <d3d12.h>
 
+enum class hwd3d_buffer_t
+{
+	None ,
+	VertexBuffer ,
+	IndexBuffer ,
+	ConstantBuffer ,
+	Texture ,
+};
+
+struct hwd3dTextureFormat
+{
+	DXGI_FORMAT Format = DXGI_FORMAT_UNKNOWN;
+	int Width = 0;
+	int Height = 0;
+};
+
 class HWD3DBuffer_DX12
 {
 private:
@@ -15,6 +31,8 @@ private:
 	ID3D12Heap* m_UploadHeap = nullptr;
 	ID3D12Resource* m_GpuBuffer = nullptr;
 	ID3D12Resource* m_UploadBuffer = nullptr;
+	hwd3d_buffer_t m_BufferType = hwd3d_buffer_t::None;
+	hwd3dTextureFormat m_TextureFormat;
 	hwd3dViewDescriptor m_ReadView;
 
 	UINT m_BufferByteSize = 0;
@@ -26,15 +44,15 @@ private:
 
 public:
 
-	void Init(class HWD3DGame_DX12* InGame, ID3D12Device* InDev, int InSize, bool bCanRead);
+	void Init(class HWD3DGame_DX12* InGame, ID3D12Device* InDev, int InSize, hwd3d_buffer_t InBufferType, const hwd3dTextureFormat* InTextureFormat);
 	void Deinit();
 	bool IsValid() const { return m_bIsValid; }
 
 	void SetBufferData(const void* SourceData, int SourceDataSize);
 
-	UINT64 GetReadViewAddress() const;
 	UINT64 GetGpuVirtualAddress() const;
 	UINT GetBufferByteSize() const { return m_BufferByteSize; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGpuView() const;
 	void PrepareForDraw(ID3D12GraphicsCommandList& Context, D3D12_RESOURCE_STATES TargetState);
 
 private:
@@ -42,7 +60,7 @@ private:
 	void TransitionBuffer(ID3D12GraphicsCommandList& Context, D3D12_RESOURCE_STATES TargetState);
 };
 
-class HWD3DPerFrameBuffer
+class HWD3DPerFrameConstantBuffer
 {
 private:
 	

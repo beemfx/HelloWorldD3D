@@ -258,6 +258,9 @@ bool HWD3DGame_DX12::BeginDraw()
 
 			m_SwapChainCommandList->SetGraphicsRootSignature(m_RootSig);
 
+			ID3D12DescriptorHeap* TextureHeaps[] = { m_BufferViewProvider.GetHeap() };
+			m_SwapChainCommandList->SetDescriptorHeaps(_countof(TextureHeaps), TextureHeaps);
+
 			if (m_Shader)
 			{
 				m_Shader->ApplyRenderState();
