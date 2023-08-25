@@ -3,9 +3,6 @@
 #include "HWD3DGame_DX11.h"
 #include "HWD3DRenderState_DX11.h"
 
-extern "C" { _declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; }
-extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }
-
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 

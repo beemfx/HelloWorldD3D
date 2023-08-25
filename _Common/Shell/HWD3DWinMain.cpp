@@ -3,6 +3,10 @@
 #include "HWD3DGame.h"
 #include "HWD3DTimer.h"
 
+// Hackery that tells NVIDIA and AMD to prioritize use of 3D Accelerated Adapters (Notebooks will generally use a less powerful adapter by default)
+extern "C" { _declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; }
+extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }
+
 #define IDM_EXIT 1
 
 static const WCHAR WinMain_Title[] = L"Hello World D3D";
