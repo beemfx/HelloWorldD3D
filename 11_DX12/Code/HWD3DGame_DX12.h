@@ -58,8 +58,6 @@ public:
 	ID3D12GraphicsCommandList* GetCommandList() const { return m_SwapChainCommandList; }
 	HWD3DViewProvider_DX12& GetTextureBufferViewProvider() { return *m_TextureBufferViewProvider; }
 
-	void PreDrawMesh(); // Call this before every mesh draw to ensure constant buffer is up to date.
-
 private:
 
 	virtual void InitDevice( HWND TargetWnd) override;

@@ -24,20 +24,6 @@ HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 	return Out;
 }
 
-void HWD3DGame_DX12::PreDrawMesh()
-{
-	assert(m_CurrentFrameData && m_SwapChainCommandList); // This should only happen while building command list.
-	if (m_CurrentFrameData && m_SwapChainCommandList)
-	{
-		if (m_bConstantBufferDirty)
-		{
-			m_bConstantBufferDirty = false;
-
-			m_CurrentFrameData->UpdateConstantBuffer(*m_SwapChainCommandList, &m_ShaderWVP, sizeof(m_ShaderWVP));
-		}
-	}
-}
-
 void HWD3DGame_DX12::InitDevice(HWND TargetWnd)
 {
 	m_TargetWnd = TargetWnd;
@@ -328,6 +314,13 @@ void HWD3DGame_DX12::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_ma
 		// Optimally we wouldn't set this every time a matrix changed, but for Hello World sample this is acceptable.
 		m_ShaderWVP = HWD3DMatrix_Transpose(HWD3DMatrix_Multiply(m_World, HWD3DMatrix_Multiply(m_View, m_Proj)));
 		m_bConstantBufferDirty = true;
+
+		// Optimally we wouldn't set this every time a matrix changed, just before we do a draw, 
+		// but for Hello World sample this is acceptable, with the understanding that it should be optimized.
+		if (m_CurrentFrameData && m_SwapChainCommandList)
+		{
+			m_CurrentFrameData->UpdateConstantBuffer(*m_SwapChainCommandList, &m_ShaderWVP, sizeof(m_ShaderWVP));
+		}
 	}
 }
 

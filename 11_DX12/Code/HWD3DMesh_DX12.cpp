@@ -13,7 +13,6 @@ void HWD3DMesh_DX12::Draw()
 {
 	if (m_Game && m_Game->GetCommandList() && m_VBBuffer && m_IBBuffer)
 	{
-		m_Game->PreDrawMesh();
 		m_VBBuffer->PrepareForDraw(*m_Game->GetCommandList());
 		m_IBBuffer->PrepareForDraw(*m_Game->GetCommandList());
 
