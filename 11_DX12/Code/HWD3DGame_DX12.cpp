@@ -33,7 +33,7 @@ void HWD3DGame_DX12::PreDraw()
 		{
 			m_bConstantBufferDirty = false;
 
-			m_CurrentFrameData->ConstantBuffer.SetData(*m_SwapChainCommandList, &m_ShaderWVP, sizeof(m_ShaderWVP));
+			m_CurrentFrameData->UpdateConstantBuffer(*m_SwapChainCommandList, &m_ShaderWVP, sizeof(m_ShaderWVP));
 		}
 	}
 }
@@ -185,12 +185,9 @@ void HWD3DGame_DX12::DeinitDevice()
 	HWD3D_SafeRelease(m_DepthStencil);
 	HWD3D_SafeRelease(m_DepthStencilViewProvider);
 	
-	if (m_RenderTargetViewProvider)
+	for (auto& FrameData : m_FrameData)
 	{
-		for (auto& FrameData : m_FrameData)
-		{
-			FrameData.Deinit(*m_RenderTargetViewProvider);
-		}
+		FrameData.Deinit();
 	}
 
 	HWD3D_SafeRelease(m_RenderTargetViewProvider);
@@ -221,25 +218,25 @@ bool HWD3DGame_DX12::BeginDraw()
 {
 	if (0 <= m_CurrentFrameDataIndex && m_CurrentFrameDataIndex < m_FrameData.size())
 	{
-		hwd3dFrameData& FrameData = m_FrameData[m_CurrentFrameDataIndex];
-		SwapChainWaitForFenceValue(FrameData.FrameFenceValue);
+		HWD3DFrameData_DX12& FrameData = m_FrameData[m_CurrentFrameDataIndex];
+		SwapChainWaitForFenceValue(FrameData.GetFrameFencValue());
 
-		if (FrameData.CommandAlloc)
+		if (FrameData.GetCommandAlloc())
 		{
-			FrameData.CommandAlloc->Reset();
-			m_SwapChainCommandList->Reset(FrameData.CommandAlloc, nullptr);
+			FrameData.GetCommandAlloc()->Reset();
+			m_SwapChainCommandList->Reset(FrameData.GetCommandAlloc(), nullptr);
 			m_CurrentFrameData = &FrameData;
 
 			m_CurrentFrameData->PrepareToDraw(*m_SwapChainCommandList);
 
-			const D3D12_CPU_DESCRIPTOR_HANDLE Rts[] = { m_CurrentFrameData->RenderTarget->GetCpuDescHandle() };
+			const D3D12_CPU_DESCRIPTOR_HANDLE Rts[] = { m_CurrentFrameData->GetRenderTargetCpuDescHandle() };
 			const D3D12_CPU_DESCRIPTOR_HANDLE DepthView = m_DepthStencil->GetCpuDescHandle();
 			m_SwapChainCommandList->OMSetRenderTargets(_countof(Rts), Rts, FALSE, &DepthView);
 			if (m_bShouldClearAtStartOfNextFrame)
 			{
 				m_bShouldClearAtStartOfNextFrame = false;
 				const FLOAT ClearColor[] = { .4f , .4f , 1.f , 1.f };
-				m_SwapChainCommandList->ClearRenderTargetView(m_CurrentFrameData->RenderTarget->GetCpuDescHandle(), ClearColor, 0, NULL);
+				m_SwapChainCommandList->ClearRenderTargetView(m_CurrentFrameData->GetRenderTargetCpuDescHandle(), ClearColor, 0, NULL);
 				m_SwapChainCommandList->ClearDepthStencilView(m_DepthStencil->GetCpuDescHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, NULL);
 			}
 
@@ -271,7 +268,7 @@ bool HWD3DGame_DX12::BeginDraw()
 			}
 
 			m_bConstantBufferDirty = true;
-			m_CurrentFrameData->ConstantBuffer.BeginFrame();
+			m_CurrentFrameData->BeginFrame();
 
 			return true;
 		}
@@ -291,7 +288,7 @@ void HWD3DGame_DX12::EndDraw()
 			m_SwapChainCommandList ,
 		};
 		m_CommandQueue->ExecuteCommandLists(_countof(CommandLists), CommandLists);
-		m_CurrentFrameData->FrameFenceValue = SwapChainSignal();
+		m_CurrentFrameData->SetFrameFenceValue(SwapChainSignal());
 		m_CurrentFrameData = nullptr;
 	}
 }
@@ -360,19 +357,10 @@ bool HWD3DGame_DX12::InitBackBuffer()
 
 	for (size_t BbIndex = 0; BbIndex < m_FrameData.size(); BbIndex++)
 	{
-		hwd3dFrameData& FrameData = m_FrameData[BbIndex];
-
-		FrameData.RenderTarget = HWD3DBufferRenderTarget_DX12::CreateRenderTarget(*m_SwapChain, BbIndex, *m_D3DDevice, *m_RenderTargetViewProvider);
-		if (!FrameData.RenderTarget)
-		{
-			return false;
-		}
-
-		FrameData.ConstantBuffer.Init(this, sizeof(m_ShaderWVP));
-
-		// Every back buffer needs an allocator.
-		const HRESULT CcaRes = m_D3DDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&FrameData.CommandAlloc));
-		if (FAILED(CcaRes) && !FrameData.CommandAlloc)
+		HWD3DFrameData_DX12& FrameData = m_FrameData[BbIndex];
+		const UINT ConstantBufferSize = sizeof(m_ShaderWVP);
+		const bool bSuccess = FrameData.Init(this, *m_SwapChain, BbIndex, *m_D3DDevice, *m_RenderTargetViewProvider, ConstantBufferSize);
+		if (!bSuccess)
 		{
 			return false;
 		}
@@ -381,7 +369,7 @@ bool HWD3DGame_DX12::InitBackBuffer()
 	// Single command list
 	{
 		// Initialize with frame 0's command allocator (this changes every frame, that's why we close it right away)
-		const HRESULT CclRes = m_D3DDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_FrameData[0].CommandAlloc, nullptr, IID_PPV_ARGS(&m_SwapChainCommandList));
+		const HRESULT CclRes = m_D3DDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_FrameData[0].GetCommandAlloc(), nullptr, IID_PPV_ARGS(&m_SwapChainCommandList));
 		if (SUCCEEDED(CclRes) && m_SwapChainCommandList)
 		{
 			const HRESULT ClCloseRes = m_SwapChainCommandList->Close();

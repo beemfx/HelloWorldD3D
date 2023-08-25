@@ -1,9 +1,10 @@
 // D3D Hello World
 
+#pragma once
+
 #include "HWD3DGame.h"
 #include "HWD3DCore_DX12.h"
-#include "HWD3DBufferConstant_DX12.h"
-#include "HWD3DBufferRenderTarget_DX12.h"
+#include "HWD3DFrameData_DX12.h"
 #include "HWD3DViewProvider_DX12.h"
 
 class HWD3DGame_DX12 : public HWD3DGame
@@ -13,37 +14,6 @@ private:
 	static const int NUM_BACK_BUFFERS = 2;
 	static const int NUM_RESOURCE_VIEWS = 128;  // Our little demo doesn't really use this many views but we may as well have enough.
 	
-	struct hwd3dFrameData
-	{
-		HWD3DBufferRenderTarget_DX12* RenderTarget = nullptr;
-		ID3D12CommandAllocator* CommandAlloc = nullptr;
-		UINT64 FrameFenceValue = 0;
-
-		HWD3DPerFrameConstantBuffer ConstantBuffer;
-
-		void PrepareToDraw(ID3D12GraphicsCommandList& CmdList)
-		{
-			RenderTarget->TransitionBuffer(CmdList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		}
-
-		void PrepareToPresent(ID3D12GraphicsCommandList& CmdList)
-		{
-			RenderTarget->TransitionBuffer(CmdList, D3D12_RESOURCE_STATE_PRESENT);
-		}
-
-		void Deinit(HWD3DViewProvider_DX12& InVewProvider)
-		{
-			ConstantBuffer.Deinit();
-			HWD3D_SafeRelease(CommandAlloc);
-			HWD3D_SafeRelease(RenderTarget);
-		}
-
-		~hwd3dFrameData()
-		{
-			assert(!CommandAlloc && !RenderTarget); // Should have called Deinit before destroying.
-		}
-	};
-
 private:
 	
 	HWND m_TargetWnd = nullptr;
@@ -63,9 +33,9 @@ private:
 	class HWD3DViewProvider_DX12* m_DepthStencilViewProvider;
 	class HWD3DViewProvider_DX12* m_BufferViewProvider;
 
-	std::vector<hwd3dFrameData> m_FrameData;
+	std::vector<HWD3DFrameData_DX12> m_FrameData;
 	UINT m_CurrentFrameDataIndex = 0xFFFFFFFF;
-	hwd3dFrameData* m_CurrentFrameData = nullptr;
+	HWD3DFrameData_DX12* m_CurrentFrameData = nullptr;
 
 	class HWD3DBufferDepthStencil_DX12* m_DepthStencil = nullptr;
 

@@ -31,6 +31,7 @@
     <ClCompile Include="Code\HWD3DBufferRenderTarget_DX12.cpp" />
     <ClCompile Include="Code\HWD3DBufferTexture_DX12.cpp" />
     <ClCompile Include="Code\HWD3DBuffer_DX12.cpp" />
+    <ClCompile Include="Code\HWD3DFrameData_DX12.cpp" />
     <ClCompile Include="Code\HWD3DGame_DX12.cpp" />
     <ClCompile Include="Code\HWD3DMesh_DX12.cpp" />
     <ClCompile Include="Code\HWD3DRenderState_DX12.cpp" />
@@ -51,6 +52,7 @@
     <ClInclude Include="Code\HWD3DBufferTexture_DX12.h" />
     <ClInclude Include="Code\HWD3DBuffer_DX12.h" />
     <ClInclude Include="Code\HWD3DCore_DX12.h" />
+    <ClInclude Include="Code\HWD3DFrameData_DX12.h" />
     <ClInclude Include="Code\HWD3DGame_DX12.h" />
     <ClInclude Include="Code\HWD3DMesh_DX12.h" />
     <ClInclude Include="Code\HWD3DRenderState_DX12.h" />

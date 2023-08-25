@@ -2,7 +2,7 @@
 
 #include "HWD3DMesh_DX12.h"
 #include "HWD3DGame_DX12.h"
-#include "HWD3DBuffer_DX12.h"
+#include "HWD3DBufferConstant_DX12.h"
 
 HWD3DMesh* HWD3DMesh::CreateMesh(class HWD3DGame* InGame, const char* InFilename)
 {
