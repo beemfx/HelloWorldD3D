@@ -4,32 +4,33 @@
 
 #include "HWD3DCore_DX12.h"
 
-class HWD3DPerFrameConstantBufferManager_DX12
-{
-private:
-
-	class HWD3DGame_DX12* m_Game = nullptr;
-	int m_DataSize = 0;
-	std::vector<class HWD3DBufferConstant_DX12*> m_Buffers;
-	int m_NextBuffer = 0;
-
-public:
-
-	void Init(class HWD3DGame_DX12* InGame, int InSize);
-	void Deinit();
-	void BeginFrame();
-	void SetData(ID3D12GraphicsCommandList& Context, const void* SourceData, int SourceDataSize);
-};
-
-
 class HWD3DFrameData_DX12
 {
+private:
+	
+	class HWD3DDrawBuffers
+	{
+	private:
+
+		ID3D12Device* m_Device = nullptr;
+		int m_DataSize = 0;
+		std::vector<class HWD3DBufferConstant_DX12*> m_Buffers;
+		int m_NextBuffer = 0;
+
+	public:
+
+		void Init(ID3D12Device* InDevice, int InSize);
+		void Deinit();
+		void BeginFrame();
+		void SetData(ID3D12GraphicsCommandList& Context, const void* SourceData, int SourceDataSize);
+	};
+
 private:
 	
 	class HWD3DBufferRenderTarget_DX12* m_RenderTarget = nullptr;
 	ID3D12CommandAllocator* m_CommandAlloc = nullptr;
 	UINT64 m_FrameFenceValue = 0;
-	HWD3DPerFrameConstantBufferManager_DX12 m_CBMgr;
+	HWD3DDrawBuffers m_CBMgr;
 
 public:
 	
@@ -38,7 +39,7 @@ public:
 		assert(!m_CommandAlloc && !m_RenderTarget); // Should have called Deinit before destroying.
 	}
 
-	bool Init(class HWD3DGame_DX12* InOwner, IDXGISwapChain4& InSwapChain, UINT InBbIndex, ID3D12Device& InDev, class HWD3DViewProvider_DX12& InViewProvider, UINT InConstantBufferSize);
+	bool Init(class HWD3DGame_DX12& InOwner, IDXGISwapChain4& InSwapChain, UINT InBbIndex, ID3D12Device& InDev, class HWD3DViewProvider_DX12& InViewProvider, UINT InConstantBufferSize);
 	void Deinit();
 
 	UINT64 GetFrameFencValue() const { return m_FrameFenceValue; }

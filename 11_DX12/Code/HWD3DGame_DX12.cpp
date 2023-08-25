@@ -358,7 +358,7 @@ bool HWD3DGame_DX12::InitBackBuffer()
 	{
 		HWD3DFrameData_DX12& FrameData = m_FrameData[BbIndex];
 		const UINT ConstantBufferSize = sizeof(m_ShaderWVP);
-		const bool bSuccess = FrameData.Init(this, *m_SwapChain, BbIndex, *m_D3DDevice, *m_RenderTargetViewProvider, ConstantBufferSize);
+		const bool bSuccess = FrameData.Init(*this, *m_SwapChain, BbIndex, *m_D3DDevice, *m_RenderTargetViewProvider, ConstantBufferSize);
 		if (!bSuccess)
 		{
 			return false;

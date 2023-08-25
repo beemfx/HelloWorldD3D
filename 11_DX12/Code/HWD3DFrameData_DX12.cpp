@@ -5,7 +5,7 @@
 #include "HWD3DBufferConstant_DX12.h"
 #include "HWD3DGame_DX12.h"
 
-bool HWD3DFrameData_DX12::Init(class HWD3DGame_DX12* InOwner, IDXGISwapChain4& InSwapChain, UINT InBbIndex, ID3D12Device& InDev, class HWD3DViewProvider_DX12& InViewProvider, UINT InConstantBufferSize)
+bool HWD3DFrameData_DX12::Init(class HWD3DGame_DX12& InOwner, IDXGISwapChain4& InSwapChain, UINT InBbIndex, ID3D12Device& InDev, class HWD3DViewProvider_DX12& InViewProvider, UINT InConstantBufferSize)
 {
 	m_RenderTarget = HWD3DBufferRenderTarget_DX12::CreateRenderTarget(InSwapChain, InBbIndex, InDev, InViewProvider);
 	if (!m_RenderTarget)
@@ -13,7 +13,7 @@ bool HWD3DFrameData_DX12::Init(class HWD3DGame_DX12* InOwner, IDXGISwapChain4& I
 		return false;
 	}
 
-	m_CBMgr.Init(InOwner, InConstantBufferSize);
+	m_CBMgr.Init(InOwner.GetDevice(), InConstantBufferSize);
 
 	// Every back buffer needs an allocator.
 	const HRESULT CcaRes = InDev.CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAlloc));
@@ -63,13 +63,13 @@ void HWD3DFrameData_DX12::UpdateConstantBuffer(ID3D12GraphicsCommandList& CmdLis
 	m_CBMgr.SetData(CmdList, BufferData, DataSize);
 }
 
-void HWD3DPerFrameConstantBufferManager_DX12::Init(class HWD3DGame_DX12* InGame, int InDataSize)
+void HWD3DFrameData_DX12::HWD3DDrawBuffers::Init(ID3D12Device* InDevice, int InSize)
 {
-	m_Game = InGame;
-	m_DataSize = InDataSize;
+	m_Device = InDevice;
+	m_DataSize = InSize;
 }
 
-void HWD3DPerFrameConstantBufferManager_DX12::Deinit()
+void HWD3DFrameData_DX12::HWD3DDrawBuffers::Deinit()
 {
 	for (auto* Item : m_Buffers)
 	{
@@ -78,14 +78,18 @@ void HWD3DPerFrameConstantBufferManager_DX12::Deinit()
 	m_Buffers.resize(0);
 }
 
-void HWD3DPerFrameConstantBufferManager_DX12::BeginFrame()
+void HWD3DFrameData_DX12::HWD3DDrawBuffers::BeginFrame()
 {
 	m_NextBuffer = 0;
 }
 
-void HWD3DPerFrameConstantBufferManager_DX12::SetData(ID3D12GraphicsCommandList& Context, const void* SourceData, int SourceDataSize)
+void HWD3DFrameData_DX12::HWD3DDrawBuffers::SetData(ID3D12GraphicsCommandList& Context, const void* SourceData, int SourceDataSize)
 {
 	assert(SourceDataSize <= m_DataSize);
+	if (!m_Device)
+	{
+		return;
+	}
 
 	if (0 <= m_NextBuffer && m_NextBuffer < static_cast<int>(m_Buffers.size()))
 	{
@@ -98,7 +102,7 @@ void HWD3DPerFrameConstantBufferManager_DX12::SetData(ID3D12GraphicsCommandList&
 	else
 	{
 		// Need a new buffer, so create one:
-		HWD3DBufferConstant_DX12* NewBuffer = HWD3DBufferConstant_DX12::CreateConstantBuffer(hwd3d_constant_buffer_t::ConstantBuffer, m_DataSize, *m_Game->GetDevice());;
+		HWD3DBufferConstant_DX12* NewBuffer = HWD3DBufferConstant_DX12::CreateConstantBuffer(hwd3d_constant_buffer_t::ConstantBuffer, m_DataSize, *m_Device);
 		if (NewBuffer)
 		{
 			m_Buffers.push_back(NewBuffer);
