@@ -26,6 +26,7 @@
     <ClCompile Include="..\_Common\Framework\HWD3DTimer.cpp" />
     <ClCompile Include="..\_Common\Framework\HWD3DTypes.cpp" />
     <ClCompile Include="..\_Common\Shell\HWD3DWinMain.cpp" />
+    <ClCompile Include="Code\HWD3DBufferConstant_DX12.cpp" />
     <ClCompile Include="Code\HWD3DBufferDepthStencil_DX12.cpp" />
     <ClCompile Include="Code\HWD3DBufferRenderTarget_DX12.cpp" />
     <ClCompile Include="Code\HWD3DBufferTexture_DX12.cpp" />
@@ -44,6 +45,7 @@
     <ClInclude Include="..\_Common\Framework\HWD3DTexture.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTimer.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTypes.h" />
+    <ClInclude Include="Code\HWD3DBufferConstant_DX12.h" />
     <ClInclude Include="Code\HWD3DBufferDepthStencil_DX12.h" />
     <ClInclude Include="Code\HWD3DBufferRenderTarget_DX12.h" />
     <ClInclude Include="Code\HWD3DBufferTexture_DX12.h" />

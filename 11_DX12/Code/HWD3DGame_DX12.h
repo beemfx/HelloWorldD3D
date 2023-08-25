@@ -2,7 +2,7 @@
 
 #include "HWD3DGame.h"
 #include "HWD3DCore_DX12.h"
-#include "HWD3DBuffer_DX12.h"
+#include "HWD3DBufferConstant_DX12.h"
 #include "HWD3DBufferRenderTarget_DX12.h"
 #include "HWD3DViewProvider_DX12.h"
 
