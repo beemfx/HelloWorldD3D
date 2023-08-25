@@ -27,7 +27,7 @@ void HWD3DGame_DX9_SM3::InitDevice(HWND TargetWnd)
 	const int ScreenWidth = TargetWndRc.right - TargetWndRc.left;
 	const int ScreenHeight = TargetWndRc.bottom - TargetWndRc.top;
 
-	// Init DirectDraw and obtain Direct3D
+	// Init Device
 	{
 		m_D3D = Direct3DCreate9(D3D_SDK_VERSION);
 		if (!m_D3D)

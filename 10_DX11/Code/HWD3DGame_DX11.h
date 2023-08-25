@@ -1,5 +1,7 @@
 // D3D Hello World
 
+#pragma once
+
 #include "HWD3DGame.h"
 #include <d3d11.h>
 

@@ -27,7 +27,7 @@ void HWD3DGame_DX10::InitDevice(HWND TargetWnd)
 	m_ViewWidth = TargetWndRc.right - TargetWndRc.left;
 	m_ViewHeight = TargetWndRc.bottom - TargetWndRc.top;
 
-	// Init DirectDraw and obtain Direct3D
+	// Init Device and Swap Chain
 	{
 		DXGI_SWAP_CHAIN_DESC ScDesc = { };
 		ScDesc.BufferCount = 2;
