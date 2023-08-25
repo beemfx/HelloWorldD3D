@@ -38,7 +38,7 @@ public:
 		assert(!m_CommandAlloc && !m_RenderTarget); // Should have called Deinit before destroying.
 	}
 
-	bool Init(class HWD3DGame_DX12* InOwner, IDXGISwapChain1& InSwapChain, UINT InBbIndex, ID3D12Device& InDev, class HWD3DViewProvider_DX12& InViewProvider, UINT InConstantBufferSize);
+	bool Init(class HWD3DGame_DX12* InOwner, IDXGISwapChain4& InSwapChain, UINT InBbIndex, ID3D12Device& InDev, class HWD3DViewProvider_DX12& InViewProvider, UINT InConstantBufferSize);
 	void Deinit();
 
 	UINT64 GetFrameFencValue() const { return m_FrameFenceValue; }

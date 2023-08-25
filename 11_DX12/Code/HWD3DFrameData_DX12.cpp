@@ -5,7 +5,7 @@
 #include "HWD3DBufferConstant_DX12.h"
 #include "HWD3DGame_DX12.h"
 
-bool HWD3DFrameData_DX12::Init(class HWD3DGame_DX12* InOwner, IDXGISwapChain1& InSwapChain, UINT InBbIndex, ID3D12Device& InDev, class HWD3DViewProvider_DX12& InViewProvider, UINT InConstantBufferSize)
+bool HWD3DFrameData_DX12::Init(class HWD3DGame_DX12* InOwner, IDXGISwapChain4& InSwapChain, UINT InBbIndex, ID3D12Device& InDev, class HWD3DViewProvider_DX12& InViewProvider, UINT InConstantBufferSize)
 {
 	m_RenderTarget = HWD3DBufferRenderTarget_DX12::CreateRenderTarget(InSwapChain, InBbIndex, InDev, InViewProvider);
 	if (!m_RenderTarget)

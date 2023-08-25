@@ -5,14 +5,13 @@
 #include "HWD3DGame.h"
 #include "HWD3DCore_DX12.h"
 #include "HWD3DFrameData_DX12.h"
-#include "HWD3DViewProvider_DX12.h"
 
 class HWD3DGame_DX12 : public HWD3DGame
 {
 private:
 	
 	static const int NUM_BACK_BUFFERS = 2;
-	static const int NUM_RESOURCE_VIEWS = 128;  // Our little demo doesn't really use this many views but we may as well have enough.
+	static const int MAX_TEXTURE_VIEWS = 128;  // Our little demo doesn't really use this many textures but we may as well have enough.
 	
 private:
 	
@@ -31,7 +30,7 @@ private:
 
 	class HWD3DViewProvider_DX12* m_RenderTargetViewProvider;
 	class HWD3DViewProvider_DX12* m_DepthStencilViewProvider;
-	class HWD3DViewProvider_DX12* m_BufferViewProvider;
+	class HWD3DViewProvider_DX12* m_TextureBufferViewProvider;
 
 	std::vector<HWD3DFrameData_DX12> m_FrameData;
 	UINT m_CurrentFrameDataIndex = 0xFFFFFFFF;
@@ -57,9 +56,9 @@ public:
 	ID3D12Device* GetDevice() const { return m_D3DDevice; }
 	ID3D12RootSignature* GetRootSig() const { return m_RootSig; }
 	ID3D12GraphicsCommandList* GetCommandList() const { return m_SwapChainCommandList; }
-	HWD3DViewProvider_DX12& GetBufferViewProvider() { return *m_BufferViewProvider; }
+	HWD3DViewProvider_DX12& GetTextureBufferViewProvider() { return *m_TextureBufferViewProvider; }
 
-	void PreDraw();
+	void PreDrawMesh(); // Call this before every mesh draw to ensure constant buffer is up to date.
 
 private:
 

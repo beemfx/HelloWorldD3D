@@ -61,7 +61,7 @@ void HWD3DTexture_DX12::InitTexture()
 		Format.Width = m_Width;
 		Format.Height = m_Height;
 
-		m_TextureBuffer = HWD3DBufferTexture_DX12::CreateTexture(*Dev, m_Game->GetBufferViewProvider(), Format);
+		m_TextureBuffer = HWD3DBufferTexture_DX12::CreateTexture(*Dev, m_Game->GetTextureBufferViewProvider(), Format);
 		if (m_TextureBuffer)
 		{
 			m_TextureBuffer->SetBufferData(TexturePixels.data(), TexturePixels.size()*4);

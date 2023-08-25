@@ -3,7 +3,7 @@
 #include "HWD3DBufferRenderTarget_DX12.h"
 #include "HWD3DViewProvider_DX12.h"
 
-HWD3DBufferRenderTarget_DX12* HWD3DBufferRenderTarget_DX12::CreateRenderTarget(IDXGISwapChain1& InSwapChain, UINT InBackBufferIndex, ID3D12Device& InDevice, class HWD3DViewProvider_DX12& InViewProvider)
+HWD3DBufferRenderTarget_DX12* HWD3DBufferRenderTarget_DX12::CreateRenderTarget(IDXGISwapChain4& InSwapChain, UINT InBackBufferIndex, ID3D12Device& InDevice, class HWD3DViewProvider_DX12& InViewProvider)
 {
 	HWD3DBufferRenderTarget_DX12* Out = new HWD3DBufferRenderTarget_DX12;
 	if (Out)
@@ -13,7 +13,7 @@ HWD3DBufferRenderTarget_DX12* HWD3DBufferRenderTarget_DX12::CreateRenderTarget(I
 	return Out;
 }
 
-void HWD3DBufferRenderTarget_DX12::InitRenderTarget(IDXGISwapChain1& InSwapChain, UINT InBackBufferIndex, ID3D12Device& InDevice, class HWD3DViewProvider_DX12& InViewProvider)
+void HWD3DBufferRenderTarget_DX12::InitRenderTarget(IDXGISwapChain4& InSwapChain, UINT InBackBufferIndex, ID3D12Device& InDevice, class HWD3DViewProvider_DX12& InViewProvider)
 {
 	const HRESULT GetBufferRes = InSwapChain.GetBuffer(InBackBufferIndex, IID_PPV_ARGS(&m_GpuBuffer));
 	if (FAILED(GetBufferRes) || !m_GpuBuffer)

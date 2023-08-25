@@ -24,7 +24,7 @@ HWD3DGame* HWD3DGame::CreateGame(HWND InMainWnd)
 	return Out;
 }
 
-void HWD3DGame_DX12::PreDraw()
+void HWD3DGame_DX12::PreDrawMesh()
 {
 	assert(m_CurrentFrameData && m_SwapChainCommandList); // This should only happen while building command list.
 	if (m_CurrentFrameData && m_SwapChainCommandList)
@@ -189,11 +189,10 @@ void HWD3DGame_DX12::DeinitDevice()
 	{
 		FrameData.Deinit();
 	}
-
-	HWD3D_SafeRelease(m_RenderTargetViewProvider);
 	m_FrameData.resize(0);
 
-	HWD3D_SafeRelease(m_BufferViewProvider);
+	HWD3D_SafeRelease(m_RenderTargetViewProvider);
+	HWD3D_SafeRelease(m_TextureBufferViewProvider);
 	HWD3D_SafeRelease(m_Shader);
 	HWD3D_SafeRelease(m_SwapChainCommandList);
 	HWD3D_SafeRelease(m_SwapChain);
@@ -259,7 +258,7 @@ bool HWD3DGame_DX12::BeginDraw()
 
 			m_SwapChainCommandList->SetGraphicsRootSignature(m_RootSig);
 
-			ID3D12DescriptorHeap* TextureHeaps[] = { m_BufferViewProvider->GetHeap() };
+			ID3D12DescriptorHeap* TextureHeaps[] = { m_TextureBufferViewProvider->GetHeap() };
 			m_SwapChainCommandList->SetDescriptorHeaps(_countof(TextureHeaps), TextureHeaps);
 
 			if (m_Shader)
@@ -341,7 +340,7 @@ bool HWD3DGame_DX12::InitDescriptors()
 
 	m_RenderTargetViewProvider = HWD3DViewProvider_DX12::CreateViewProvider(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, NUM_BACK_BUFFERS);
 	m_DepthStencilViewProvider = HWD3DViewProvider_DX12::CreateViewProvider(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
-	m_BufferViewProvider = HWD3DViewProvider_DX12::CreateViewProvider(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NUM_RESOURCE_VIEWS);
+	m_TextureBufferViewProvider = HWD3DViewProvider_DX12::CreateViewProvider(*m_D3DDevice, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, MAX_TEXTURE_VIEWS);
 
 	return true;
 }

@@ -2,6 +2,7 @@
 
 #include "HWD3DBuffer_DX12.h"
 #include "HWD3DGame_DX12.h"
+#include "HWD3DViewProvider_DX12.h"
 
 void HWD3DBufferBase_DX12::TransitionBuffer(ID3D12GraphicsCommandList& Context, D3D12_RESOURCE_STATES TargetState)
 {

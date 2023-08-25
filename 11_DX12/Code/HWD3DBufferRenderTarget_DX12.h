@@ -8,9 +8,9 @@ class HWD3DBufferRenderTarget_DX12 : public HWD3DBufferBase_DX12
 {
 public:
 
-	static HWD3DBufferRenderTarget_DX12* CreateRenderTarget(IDXGISwapChain1& InSwapChain, UINT BackBufferIndex, ID3D12Device& InDevice, class HWD3DViewProvider_DX12& InViewProvider);
+	static HWD3DBufferRenderTarget_DX12* CreateRenderTarget(IDXGISwapChain4& InSwapChain, UINT BackBufferIndex, ID3D12Device& InDevice, class HWD3DViewProvider_DX12& InViewProvider);
 
 protected:
 
-	void InitRenderTarget(IDXGISwapChain1& InSwapChain, UINT InBackBufferIndex, ID3D12Device& InDevice, class HWD3DViewProvider_DX12& InViewProvider);
+	void InitRenderTarget(IDXGISwapChain4& InSwapChain, UINT InBackBufferIndex, ID3D12Device& InDevice, class HWD3DViewProvider_DX12& InViewProvider);
 };
