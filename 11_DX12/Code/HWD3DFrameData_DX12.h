@@ -47,7 +47,6 @@ public:
 	ID3D12CommandAllocator* GetCommandAlloc() const { return m_CommandAlloc; }
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetCpuDescHandle() const;
 
-	void BeginFrame();
 	void PrepareToDraw(ID3D12GraphicsCommandList& CmdList);
 	void PrepareToPresent(ID3D12GraphicsCommandList& CmdList);
 	void UpdateConstantBuffer(ID3D12GraphicsCommandList& CmdList, const void* BufferData, UINT DataSize);

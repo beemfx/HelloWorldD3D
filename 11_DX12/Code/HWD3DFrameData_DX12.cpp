@@ -37,13 +37,10 @@ D3D12_CPU_DESCRIPTOR_HANDLE HWD3DFrameData_DX12::GetRenderTargetCpuDescHandle() 
 	return m_RenderTarget ? m_RenderTarget->GetCpuDescHandle() : D3D12_CPU_DESCRIPTOR_HANDLE { 0 };
 }
 
-void HWD3DFrameData_DX12::BeginFrame()
-{
-	m_CBMgr.BeginFrame();
-}
-
 void HWD3DFrameData_DX12::PrepareToDraw(ID3D12GraphicsCommandList& CmdList)
 {
+	m_CBMgr.BeginFrame();
+
 	if (m_RenderTarget)
 	{
 		m_RenderTarget->TransitionBuffer(CmdList, D3D12_RESOURCE_STATE_RENDER_TARGET);

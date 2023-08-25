@@ -249,8 +249,6 @@ bool HWD3DGame_DX12::BeginDraw()
 				m_Shader->ApplyRenderState();
 			}
 
-			m_CurrentFrameData->BeginFrame();
-
 			// We could initialize the constant buffer by calling SetTransformMatrix, but we know that'll happen before every Draw call so there is no reason to.
 			// SetTransformMatrix(HWD3DGame::hwd3d_transform_t::World, HWD3DMatrix_Ident);
 
