@@ -112,5 +112,7 @@ void HWD3DTexture_DX6::SetTexture()
 		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_DESTBLEND, D3DBLEND_INVSRCALPHA);
 		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_WRAPU, FALSE);
 		m_Game->GetDevice()->SetRenderState(D3DRENDERSTATE_WRAPV, FALSE);
+		m_Game->GetDevice()->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTFG_LINEAR); 
+		m_Game->GetDevice()->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTFN_LINEAR); 
 	}
 }

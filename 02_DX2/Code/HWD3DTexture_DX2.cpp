@@ -113,7 +113,7 @@ void HWD3DTexture_DX2::InitTexture()
 		m_ExecBufferDesc.dwSize = sizeof(m_ExecBufferDesc);
 		m_ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
 		static const int NUM_INSTR = 2;
-		static const int NUM_RENDER_STATES = 3;
+		static const int NUM_RENDER_STATES = 5;
 		m_ExecBufferDesc.dwBufferSize = sizeof(D3DINSTRUCTION)*NUM_INSTR + sizeof(D3DSTATE)*NUM_RENDER_STATES;
 		const HRESULT CreateExecBufferRes = Dev->CreateExecuteBuffer(&m_ExecBufferDesc, &m_ExecBuffer, nullptr);
 		if (FAILED(CreateExecBufferRes) || !m_ExecBuffer)
@@ -133,6 +133,8 @@ void HWD3DTexture_DX2::InitTexture()
 			STATE_DATA(D3DRENDERSTATE_TEXTUREHANDLE, m_TextureHandle, lpPointer);
 			STATE_DATA(D3DRENDERSTATE_WRAPU, FALSE, lpPointer);
 			STATE_DATA(D3DRENDERSTATE_WRAPV, FALSE, lpPointer);
+			STATE_DATA(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_LINEAR, lpPointer);
+			STATE_DATA(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_LINEAR, lpPointer);
 
 			OP_EXIT(lpPointer);
 

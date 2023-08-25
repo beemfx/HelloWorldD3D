@@ -83,8 +83,10 @@ void HWD3DTexture_DX8::SetTexture()
 		m_Game->GetDevice()->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		m_Game->GetDevice()->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m_Game->GetDevice()->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		m_Game->GetDevice()->SetTextureStageState(0, D3DTSS_ADDRESSU, D3DTEXTUREADDRESS::D3DTADDRESS_WRAP);
-		m_Game->GetDevice()->SetTextureStageState(0, D3DTSS_ADDRESSV, D3DTEXTUREADDRESS::D3DTADDRESS_WRAP);
+		m_Game->GetDevice()->SetTextureStageState(0, D3DTSS_ADDRESSU, D3DTADDRESS_WRAP);
+		m_Game->GetDevice()->SetTextureStageState(0, D3DTSS_ADDRESSV, D3DTADDRESS_WRAP);
+		m_Game->GetDevice()->SetTextureStageState(0, D3DTSS_MINFILTER, D3DTEXF_LINEAR);
+		m_Game->GetDevice()->SetTextureStageState(0, D3DTSS_MAGFILTER, D3DTEXF_LINEAR);
 		m_Game->GetDevice()->SetRenderState(D3DRS_LIGHTING, FALSE);
 	}
 }
