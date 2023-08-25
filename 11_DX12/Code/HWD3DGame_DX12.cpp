@@ -249,8 +249,10 @@ bool HWD3DGame_DX12::BeginDraw()
 				m_Shader->ApplyRenderState();
 			}
 
-			m_bConstantBufferDirty = true;
 			m_CurrentFrameData->BeginFrame();
+
+			// We could initialize the constant buffer by calling SetTransformMatrix, but we know that'll happen before every Draw call so there is no reason to.
+			// SetTransformMatrix(HWD3DGame::hwd3d_transform_t::World, HWD3DMatrix_Ident);
 
 			return true;
 		}
@@ -308,13 +310,14 @@ void HWD3DGame_DX12::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_ma
 	{
 		*Mat = InMatrix;
 
-		// Optimally we wouldn't set this every time a matrix changed, but for Hello World sample this is acceptable.
 		m_ShaderWVP = HWD3DMatrix_Transpose(HWD3DMatrix_Multiply(m_World, HWD3DMatrix_Multiply(m_View, m_Proj)));
-		m_bConstantBufferDirty = true;
 
-		// Optimally we wouldn't set this every time a matrix changed, just before we do a draw, 
+		// Optimally we wouldn't update the constant buffer every time a matrix changed, just before we do a draw, 
 		// but for Hello World sample this is acceptable, with the understanding that it should be optimized.
-		if (m_CurrentFrameData && m_SwapChainCommandList)
+		// We do have a slight optimization in that in this program we know that setting the world matrix
+		// indicates that a draw is a bout to happen.
+		const bool bShouldUpdateCosntantBuffer = InType == hwd3d_transform_t::World;
+		if (m_CurrentFrameData && m_SwapChainCommandList && bShouldUpdateCosntantBuffer)
 		{
 			m_CurrentFrameData->UpdateConstantBuffer(*m_SwapChainCommandList, &m_ShaderWVP, sizeof(m_ShaderWVP));
 		}

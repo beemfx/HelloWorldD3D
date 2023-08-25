@@ -141,10 +141,17 @@ void HWD3DGame_DX9_SM3::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d
 		{
 			*Mat = InMatrix;
 
-			// Optimally we wouldn't set this every time a matrix changed, but for Hello World sample this is acceptable.
 			m_ShaderWVP = HWD3DMatrix_Transpose(HWD3DMatrix_Multiply(m_World, HWD3DMatrix_Multiply(m_View, m_Proj)));
 
-			m_D3DDevice->SetVertexShaderConstantF(0, reinterpret_cast<const float*>(&m_ShaderWVP), 4);
+			// Optimally we wouldn't update the constant buffer every time a matrix changed, just before we do a draw, 
+			// but for Hello World sample this is acceptable, with the understanding that it should be optimized.
+			// We do have a slight optimization in that in this program we know that setting the world matrix
+			// indicates that a draw is a bout to happen.
+			const bool bShouldUpdateCosntantBuffer = InType == hwd3d_transform_t::World;
+			if (bShouldUpdateCosntantBuffer)
+			{
+				m_D3DDevice->SetVertexShaderConstantF(0, reinterpret_cast<const float*>(&m_ShaderWVP), 4);
+			}
 		}
 	}
 }

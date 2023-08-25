@@ -204,11 +204,14 @@ void HWD3DGame_DX10::SetTransformMatrix(hwd3d_transform_t InType, const hwd3d_ma
 		if (Mat)
 		{
 			*Mat = InMatrix;
-
-			// Optimally we wouldn't set this every time a matrix changed, but for Hello World sample this is acceptable.
 			m_ShaderWVP = HWD3DMatrix_Transpose(HWD3DMatrix_Multiply(m_World, HWD3DMatrix_Multiply(m_View, m_Proj)));
 
-			if (m_VSConstBuffer)
+			// Optimally we wouldn't update the constant buffer every time a matrix changed, just before we do a draw, 
+			// but for Hello World sample this is acceptable, with the understanding that it should be optimized.
+			// We do have a slight optimization in that in this program we know that setting the world matrix
+			// indicates that a draw is a bout to happen.
+			const bool bShouldUpdateCosntantBuffer = InType == hwd3d_transform_t::World;
+			if (m_VSConstBuffer && bShouldUpdateCosntantBuffer)
 			{
 				void* Dest = nullptr;
 				const HRESULT MapRes = m_VSConstBuffer->Map(D3D10_MAP_WRITE_DISCARD, 0, &Dest);

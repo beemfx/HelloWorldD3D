@@ -47,8 +47,6 @@ private:
 	hwd3d_matrix m_View = HWD3DMatrix_Ident;
 	hwd3d_matrix m_World = HWD3DMatrix_Ident;
 	hwd3d_matrix m_ShaderWVP = HWD3DMatrix_Ident;
-	bool m_bConstantBufferDirty = false;
-
 	bool m_bShouldClearAtStartOfNextFrame = false;
 
 public:
