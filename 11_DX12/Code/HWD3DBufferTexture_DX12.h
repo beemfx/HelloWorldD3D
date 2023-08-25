@@ -4,6 +4,13 @@
 
 #include "HWD3DBuffer_DX12.h"
 
+struct hwd3dTextureFormat
+{
+	DXGI_FORMAT Format = DXGI_FORMAT_UNKNOWN;
+	int Width = 0;
+	int Height = 0;
+};
+
 class HWD3DBufferTexture_DX12 : public HWD3DBufferBase_DX12
 {
 private:

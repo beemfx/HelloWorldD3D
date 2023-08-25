@@ -2,6 +2,7 @@
 
 #include "HWD3DMesh_DX12.h"
 #include "HWD3DGame_DX12.h"
+#include "HWD3DBuffer_DX12.h"
 
 HWD3DMesh* HWD3DMesh::CreateMesh(class HWD3DGame* InGame, const char* InFilename)
 {
@@ -10,15 +11,15 @@ HWD3DMesh* HWD3DMesh::CreateMesh(class HWD3DGame* InGame, const char* InFilename
 
 void HWD3DMesh_DX12::Draw()
 {
-	if (m_Game && m_Game->GetCommandList() && m_VBBuffer.IsValid() && m_IBBuffer.IsValid())
+	if (m_Game && m_Game->GetCommandList() && m_VBBuffer && m_IBBuffer)
 	{
 		m_Game->PreDraw();
-		m_VBBuffer.PrepareForDraw(*m_Game->GetCommandList(), D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-		m_IBBuffer.PrepareForDraw(*m_Game->GetCommandList(), D3D12_RESOURCE_STATE_INDEX_BUFFER);
+		m_VBBuffer->PrepareForDraw(*m_Game->GetCommandList());
+		m_IBBuffer->PrepareForDraw(*m_Game->GetCommandList());
 
-		const D3D12_VERTEX_BUFFER_VIEW VbViews[] = { { m_VBBuffer.GetGpuVirtualAddress() , m_VBBuffer.GetBufferByteSize() , sizeof(hwd3d_vertex) }, };
+		const D3D12_VERTEX_BUFFER_VIEW VbViews[] = { { m_VBBuffer->GetGpuVirtualAddress() , m_VBBuffer->GetBufferSize() , sizeof(hwd3d_vertex) }, };
 		m_Game->GetCommandList()->IASetVertexBuffers(0, _countof(VbViews), VbViews);
-		const D3D12_INDEX_BUFFER_VIEW IbView = { m_IBBuffer.GetGpuVirtualAddress() , m_IBBuffer.GetBufferByteSize() , DXGI_FORMAT_R16_UINT };
+		const D3D12_INDEX_BUFFER_VIEW IbView = { m_IBBuffer->GetGpuVirtualAddress() , m_IBBuffer->GetBufferSize() , DXGI_FORMAT_R16_UINT };
 		m_Game->GetCommandList()->IASetIndexBuffer(&IbView);
 		m_Game->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_Game->GetCommandList()->DrawIndexedInstanced(m_Triangles.size()*3, 1, 0, 0, 0);
@@ -34,8 +35,8 @@ HWD3DMesh_DX12::HWD3DMesh_DX12(class HWD3DGame_DX12* InGame, const char* InFilen
 
 HWD3DMesh_DX12::~HWD3DMesh_DX12()
 {
-	m_IBBuffer.Deinit();
-	m_VBBuffer.Deinit();
+	HWD3D_SafeRelease(m_IBBuffer);
+	HWD3D_SafeRelease(m_VBBuffer);
 }
 
 bool HWD3DMesh_DX12::CreateBuffers()
@@ -50,8 +51,11 @@ bool HWD3DMesh_DX12::CreateBuffers()
 	// Vertex Buffer:
 	{
 		const int BufferSize = m_Vertices.size()*sizeof(hwd3d_vertex);
-		m_VBBuffer.Init(m_Game, Dev, BufferSize, hwd3d_buffer_t::VertexBuffer, nullptr);
-		m_VBBuffer.SetBufferData(m_Vertices.data(), BufferSize);
+		m_VBBuffer = HWD3DBufferConstant_DX12::CreateConstantBuffer(hwd3d_constant_buffer_t::VertexBuffer, BufferSize, *Dev);
+		if (m_VBBuffer)
+		{
+			m_VBBuffer->SetBufferData(m_Vertices.data(), BufferSize);
+		}
 	}
 	
 
@@ -68,9 +72,11 @@ bool HWD3DMesh_DX12::CreateBuffers()
 		}
 
 		const int BufferSize = Indices.size()*sizeof(hwd3d_graphics_index);
-		
-		m_IBBuffer.Init(m_Game, Dev, BufferSize, hwd3d_buffer_t::IndexBuffer, nullptr);
-		m_IBBuffer.SetBufferData(Indices.data(), BufferSize);
+		m_IBBuffer = HWD3DBufferConstant_DX12::CreateConstantBuffer(hwd3d_constant_buffer_t::IndexBuffer, BufferSize, *Dev);
+		if (m_IBBuffer)
+		{
+			m_IBBuffer->SetBufferData(Indices.data(), BufferSize);
+		}
 	}
 
 	return true;
