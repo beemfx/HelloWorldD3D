@@ -19,6 +19,21 @@ void HWD3DBufferBase_DX12::TransitionBuffer(ID3D12GraphicsCommandList& Context, 
 	}
 }
 
+void HWD3DBufferBase_DX12::SetBufferData(const void* SourceData, int SourceDataSize)
+{
+	assert(m_UploadBuffer); // This type of buffer doesn't accept setting data
+	assert(static_cast<UINT>(SourceDataSize) <= m_BufferByteSize);
+
+	void* pMappedData = nullptr;
+	if (SUCCEEDED(m_UploadBuffer->Map(0, nullptr, &pMappedData)))
+	{
+		memcpy(pMappedData, SourceData, SourceDataSize);
+		m_UploadBuffer->Unmap(0, nullptr);
+	}
+
+	m_bBufferNeedsUpload = true;
+}
+
 HWD3DBufferBase_DX12::~HWD3DBufferBase_DX12()
 {
 	HWD3D_SafeRelease(m_GpuBuffer);
@@ -28,6 +43,9 @@ HWD3DBufferBase_DX12::~HWD3DBufferBase_DX12()
 		m_ViewProvider->DestroyView(m_GpuView);
 	}
 	HWD3D_SafeRelease(m_ViewProvider);
+
+	HWD3D_SafeRelease(m_UploadBuffer);
+	HWD3D_SafeRelease(m_UploadHeap);
 }
 
 void HWD3DBuffer_DX12::Init(HWD3DGame_DX12* InGame, ID3D12Device* InDev, int InSize, hwd3d_buffer_t InBufferType, const hwd3dTextureFormat* InTextureFormat)

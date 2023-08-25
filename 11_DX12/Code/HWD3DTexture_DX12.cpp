@@ -2,6 +2,7 @@
 
 #include "HWD3DTexture_DX12.h"
 #include "HWD3DGame_DX12.h"
+#include "HWD3DBufferTexture_DX12.h"
 
 HWD3DTexture* HWD3DTexture::CreateTexture(class HWD3DGame* InGame, const char* InFilename)
 {
@@ -23,7 +24,7 @@ HWD3DTexture_DX12::HWD3DTexture_DX12(class HWD3DGame_DX12* InGame)
 
 HWD3DTexture_DX12::~HWD3DTexture_DX12()
 {
-	m_TextureBuffer.Deinit();
+	HWD3D_SafeRelease(m_TextureBuffer);
 }
 
 void HWD3DTexture_DX12::InitTexture()
@@ -59,16 +60,20 @@ void HWD3DTexture_DX12::InitTexture()
 		Format.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		Format.Width = m_Width;
 		Format.Height = m_Height;
-		m_TextureBuffer.Init(m_Game,  Dev, TexturePixels.size(), hwd3d_buffer_t::Texture, &Format);
-		m_TextureBuffer.SetBufferData(TexturePixels.data(), TexturePixels.size()*4);
+
+		m_TextureBuffer = HWD3DBufferTexture_DX12::CreateTexture(*Dev, m_Game->GetBufferViewProvider(), Format);
+		if (m_TextureBuffer)
+		{
+			m_TextureBuffer->SetBufferData(TexturePixels.data(), TexturePixels.size()*4);
+		}
 	}
 }
 
 void HWD3DTexture_DX12::SetTexture()
 {
-	if (m_Game && m_Game->GetCommandList() && m_TextureBuffer.IsValid())
+	if (m_Game && m_Game->GetCommandList() && m_TextureBuffer && m_TextureBuffer->GetGpuDescHandle().ptr != 0)
 	{
-		m_TextureBuffer.PrepareForDraw(*m_Game->GetCommandList(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-		m_Game->GetCommandList()->SetGraphicsRootDescriptorTable(1, m_TextureBuffer.GetGpuView());
+		m_TextureBuffer->PrepareForDraw(*m_Game->GetCommandList());
+		m_Game->GetCommandList()->SetGraphicsRootDescriptorTable(1, m_TextureBuffer->GetGpuDescHandle());
 	}
 }

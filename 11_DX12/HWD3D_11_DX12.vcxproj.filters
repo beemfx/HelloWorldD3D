@@ -67,6 +67,9 @@
     <ClCompile Include="Code\HWD3DBufferDepthStencil_DX12.cpp">
       <Filter>Code</Filter>
     </ClCompile>
+    <ClCompile Include="Code\HWD3DBufferTexture_DX12.cpp">
+      <Filter>Code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\_Common\Framework\HWD3DGame.h">
@@ -115,6 +118,9 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\HWD3DBufferDepthStencil_DX12.h">
+      <Filter>Code</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\HWD3DBufferTexture_DX12.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>
