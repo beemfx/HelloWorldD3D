@@ -13,7 +13,6 @@ private:
 	UINT m_ViewWidth = 0;
 	UINT m_ViewHeight = 0;
 
-	IDXGIFactory* m_GiFactory = nullptr;
 	IDXGIAdapter* m_GiAdapter = nullptr;
 	IDXGISwapChain* m_SwapChain = nullptr;
 	ID3D11Device* m_D3DDevice = nullptr;

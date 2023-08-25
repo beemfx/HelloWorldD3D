@@ -54,60 +54,20 @@ void HWD3DGame_DX11::InitDevice(HWND TargetWnd)
 		const D3D_FEATURE_LEVEL FeatureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
 		D3D_FEATURE_LEVEL FeatureLevel = D3D_FEATURE_LEVEL_1_0_CORE;
 
-		const bool bUseManualSwapChainCreation = true;
+		// Device, Context, and Swap Chain:
+		const HRESULT CreateDevRes = D3D11CreateDeviceAndSwapChain(
+			NULL, 
+			D3D_DRIVER_TYPE_HARDWARE, 
+			NULL, 
+			Flags, 
+			FeatureLevels, _countof(FeatureLevels), 
+			D3D11_SDK_VERSION, &ScDesc, 
+			&m_SwapChain, &m_D3DDevice, &FeatureLevel, &m_D3DContext);
 
-		if (bUseManualSwapChainCreation)
+		if (FAILED(CreateDevRes) || !m_D3DDevice || !m_SwapChain || !m_D3DContext)
 		{
-			const HRESULT CreateFactRes = CreateDXGIFactory(IID_PPV_ARGS(&m_GiFactory));
-			if (FAILED(CreateFactRes) || !m_GiFactory)
-			{
-				DeinitDevice();
-				return;
-			}
-
-			m_GiAdapter = PickAdapter();
-
-			// Device and Context:
-			const HRESULT CreateDevRes = D3D11CreateDevice(
-				m_GiAdapter,
-				m_GiAdapter ? D3D_DRIVER_TYPE_UNKNOWN : D3D_DRIVER_TYPE_HARDWARE,
-				NULL, 
-				Flags, 
-				FeatureLevels, _countof(FeatureLevels), 
-				D3D11_SDK_VERSION,
-				&m_D3DDevice, &FeatureLevel, &m_D3DContext);
-
-			if (FAILED(CreateDevRes) || !m_D3DDevice || !m_D3DContext)
-			{
-				DeinitDevice();
-				return;
-			}
-
-			// Swap Chain:
-			const HRESULT CreateScRes = m_GiFactory->CreateSwapChain(m_D3DDevice, &ScDesc, &m_SwapChain);
-			if (FAILED(CreateScRes) || !m_SwapChain)
-			{
-				DeinitDevice();
-				return;
-			}
-		}
-		else
-		{
-			// Device, Context, and Swap Chain:
-			const HRESULT CreateDevRes = D3D11CreateDeviceAndSwapChain(
-				NULL, 
-				D3D_DRIVER_TYPE_HARDWARE, 
-				NULL, 
-				Flags, 
-				FeatureLevels, _countof(FeatureLevels), 
-				D3D11_SDK_VERSION, &ScDesc, 
-				&m_SwapChain, &m_D3DDevice, &FeatureLevel, &m_D3DContext);
-
-			if (FAILED(CreateDevRes) || !m_D3DDevice || !m_SwapChain || !m_D3DContext)
-			{
-				DeinitDevice();
-				return;
-			}
+			DeinitDevice();
+			return;
 		}
 
 		DisableAltEnter();
@@ -184,7 +144,6 @@ void HWD3DGame_DX11::DeinitDevice()
 	HWD3D_SafeRelease(m_D3DContext);
 	HWD3D_SafeRelease(m_D3DDevice);
 	HWD3D_SafeRelease(m_GiAdapter);
-	HWD3D_SafeRelease(m_GiFactory);
 }
 
 void HWD3DGame_DX11::ClearViewport()
@@ -302,31 +261,6 @@ bool HWD3DGame_DX11::InitSharedObjects()
 	}
 
 	return true;
-}
-
-IDXGIAdapter* HWD3DGame_DX11::PickAdapter()
-{
-	if (!m_GiFactory)
-	{
-		return nullptr;
-	}
-
-	IDXGIAdapter* PotentialAdapter = nullptr;
-	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != m_GiFactory->EnumAdapters(i, &PotentialAdapter); i++)
-	{
-		DXGI_ADAPTER_DESC AdapterDesc = { };
-		PotentialAdapter->GetDesc( &AdapterDesc );
-
-		// We'll actually just take the first adapter we find:
-		if (i == 0)
-		{
-			return PotentialAdapter;
-		}
-
-		HWD3D_SafeRelease(PotentialAdapter);
-	}
-
-	return nullptr;
 }
 
 void HWD3DGame_DX11::DisableAltEnter()
