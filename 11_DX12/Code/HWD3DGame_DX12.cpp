@@ -51,7 +51,7 @@ void HWD3DGame_DX12::InitDevice(HWND TargetWnd)
 			return;
 		}
 
-		m_GiAdapter = PickAdapter();
+		m_GiAdapter = PickAdapter(); // We don't actually need to pick an adapter, if we use nullptr the default device will be created.
 
 		// Device and Context:
 		const HRESULT CreateDevRes = D3D12CreateDevice(
@@ -539,8 +539,8 @@ IDXGIAdapter* HWD3DGame_DX12::PickAdapter()
 	IDXGIAdapter* PotentialAdapter = nullptr;
 	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != m_GiFactory->EnumAdapters(i, &PotentialAdapter); i++)
 	{
-		DXGI_ADAPTER_DESC AdapterDesc = { };
-		PotentialAdapter->GetDesc(&AdapterDesc);
+		// DXGI_ADAPTER_DESC AdapterDesc = { };
+		// PotentialAdapter->GetDesc(&AdapterDesc);
 
 		// We'll actually just take the first adapter we find:
 		if (i == 0)
