@@ -3,6 +3,7 @@
 #include "HWD3DGame.h"
 #include "HWD3DCore_DX12.h"
 #include "HWD3DBuffer_DX12.h"
+#include "HWD3DBufferRenderTarget_DX12.h"
 #include "HWD3DViewProvider_DX12.h"
 
 class HWD3DGame_DX12 : public HWD3DGame
@@ -66,7 +67,7 @@ private:
 	UINT m_CurrentFrameDataIndex = 0xFFFFFFFF;
 	hwd3dFrameData* m_CurrentFrameData = nullptr;
 
-	HWD3DBufferDepthStencil_DX12* m_DepthStencil = nullptr;
+	class HWD3DBufferDepthStencil_DX12* m_DepthStencil = nullptr;
 
 	ID3D12RootSignature* m_RootSig = nullptr;
 	ID3D12GraphicsCommandList* m_SwapChainCommandList = nullptr;

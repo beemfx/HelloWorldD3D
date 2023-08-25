@@ -3,6 +3,7 @@
 #include "HWD3DGame_DX12.h"
 #include "HWD3DRenderState_DX12.h"
 #include "HWD3DViewProvider_DX12.h"
+#include "HWD3DBufferDepthStencil_DX12.h"
 
 extern "C" { _declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; }
 extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }
