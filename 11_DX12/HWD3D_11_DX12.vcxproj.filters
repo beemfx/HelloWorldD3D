@@ -73,9 +73,6 @@
     <ClCompile Include="Code\HWD3DBufferConstant_DX12.cpp">
       <Filter>Code</Filter>
     </ClCompile>
-    <ClCompile Include="Code\HWD3DFrameData_DX12.cpp">
-      <Filter>Code</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\_Common\Framework\HWD3DGame.h">
@@ -130,9 +127,6 @@
       <Filter>Code</Filter>
     </ClInclude>
     <ClInclude Include="Code\HWD3DBufferConstant_DX12.h">
-      <Filter>Code</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\HWD3DFrameData_DX12.h">
       <Filter>Code</Filter>
     </ClInclude>
   </ItemGroup>
