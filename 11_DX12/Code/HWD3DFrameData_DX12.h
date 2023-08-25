@@ -14,7 +14,7 @@ private:
 
 		ID3D12Device* m_Device = nullptr;
 		int m_DataSize = 0;
-		std::vector<class HWD3DBufferConstant_DX12*> m_Buffers;
+		std::vector<class HWD3DBufferConstant_DX12*> m_PerUpdateBuffers;
 		int m_NextBuffer = 0;
 
 	public:

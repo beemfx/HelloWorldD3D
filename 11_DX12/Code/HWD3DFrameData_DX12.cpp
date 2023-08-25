@@ -71,11 +71,11 @@ void HWD3DFrameData_DX12::HWD3DDrawBuffers::Init(ID3D12Device* InDevice, int InS
 
 void HWD3DFrameData_DX12::HWD3DDrawBuffers::Deinit()
 {
-	for (auto* Item : m_Buffers)
+	for (auto* Item : m_PerUpdateBuffers)
 	{
 		HWD3D_SafeRelease(Item);
 	}
-	m_Buffers.resize(0);
+	m_PerUpdateBuffers.resize(0);
 }
 
 void HWD3DFrameData_DX12::HWD3DDrawBuffers::BeginFrame()
@@ -91,9 +91,9 @@ void HWD3DFrameData_DX12::HWD3DDrawBuffers::SetData(ID3D12GraphicsCommandList& C
 		return;
 	}
 
-	if (0 <= m_NextBuffer && m_NextBuffer < static_cast<int>(m_Buffers.size()))
+	if (0 <= m_NextBuffer && m_NextBuffer < static_cast<int>(m_PerUpdateBuffers.size()))
 	{
-		HWD3DBufferConstant_DX12* Buffer = m_Buffers[m_NextBuffer];
+		HWD3DBufferConstant_DX12* Buffer = m_PerUpdateBuffers[m_NextBuffer];
 		m_NextBuffer++;
 		Buffer->SetBufferData(SourceData, SourceDataSize);
 		Context.SetGraphicsRootConstantBufferView(0, Buffer->GetGpuVirtualAddress());
@@ -105,8 +105,8 @@ void HWD3DFrameData_DX12::HWD3DDrawBuffers::SetData(ID3D12GraphicsCommandList& C
 		HWD3DBufferConstant_DX12* NewBuffer = HWD3DBufferConstant_DX12::CreateConstantBuffer(hwd3d_constant_buffer_t::ConstantBuffer, m_DataSize, *m_Device);
 		if (NewBuffer)
 		{
-			m_Buffers.push_back(NewBuffer);
-			m_NextBuffer = m_Buffers.size();
+			m_PerUpdateBuffers.push_back(NewBuffer);
+			m_NextBuffer = m_PerUpdateBuffers.size();
 			NewBuffer->SetBufferData(SourceData, SourceDataSize);
 			Context.SetGraphicsRootConstantBufferView(0, NewBuffer->GetGpuVirtualAddress());
 			NewBuffer->PrepareForDraw(Context);
