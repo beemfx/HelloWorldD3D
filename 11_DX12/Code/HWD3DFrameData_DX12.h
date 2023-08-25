@@ -4,7 +4,7 @@
 
 #include "HWD3DCore_DX12.h"
 
-class HWD3DPerFrameConstantBuffer
+class HWD3DPerFrameConstantBufferManager_DX12
 {
 private:
 
@@ -29,7 +29,7 @@ private:
 	class HWD3DBufferRenderTarget_DX12* m_RenderTarget = nullptr;
 	ID3D12CommandAllocator* m_CommandAlloc = nullptr;
 	UINT64 m_FrameFenceValue = 0;
-	HWD3DPerFrameConstantBuffer m_ConstantBuffer;
+	HWD3DPerFrameConstantBufferManager_DX12 m_CBMgr;
 
 public:
 	

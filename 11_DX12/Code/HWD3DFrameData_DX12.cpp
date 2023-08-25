@@ -13,7 +13,7 @@ bool HWD3DFrameData_DX12::Init(class HWD3DGame_DX12* InOwner, IDXGISwapChain4& I
 		return false;
 	}
 
-	m_ConstantBuffer.Init(InOwner, InConstantBufferSize);
+	m_CBMgr.Init(InOwner, InConstantBufferSize);
 
 	// Every back buffer needs an allocator.
 	const HRESULT CcaRes = InDev.CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_CommandAlloc));
@@ -27,7 +27,7 @@ bool HWD3DFrameData_DX12::Init(class HWD3DGame_DX12* InOwner, IDXGISwapChain4& I
 
 void HWD3DFrameData_DX12::Deinit()
 {
-	m_ConstantBuffer.Deinit();
+	m_CBMgr.Deinit();
 	HWD3D_SafeRelease(m_CommandAlloc);
 	HWD3D_SafeRelease(m_RenderTarget);
 }
@@ -39,7 +39,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE HWD3DFrameData_DX12::GetRenderTargetCpuDescHandle() 
 
 void HWD3DFrameData_DX12::BeginFrame()
 {
-	m_ConstantBuffer.BeginFrame();
+	m_CBMgr.BeginFrame();
 }
 
 void HWD3DFrameData_DX12::PrepareToDraw(ID3D12GraphicsCommandList& CmdList)
@@ -60,16 +60,16 @@ void HWD3DFrameData_DX12::PrepareToPresent(ID3D12GraphicsCommandList& CmdList)
 
 void HWD3DFrameData_DX12::UpdateConstantBuffer(ID3D12GraphicsCommandList& CmdList, const void* BufferData, UINT DataSize)
 {
-	m_ConstantBuffer.SetData(CmdList, BufferData, DataSize);
+	m_CBMgr.SetData(CmdList, BufferData, DataSize);
 }
 
-void HWD3DPerFrameConstantBuffer::Init(class HWD3DGame_DX12* InGame, int InDataSize)
+void HWD3DPerFrameConstantBufferManager_DX12::Init(class HWD3DGame_DX12* InGame, int InDataSize)
 {
 	m_Game = InGame;
 	m_DataSize = InDataSize;
 }
 
-void HWD3DPerFrameConstantBuffer::Deinit()
+void HWD3DPerFrameConstantBufferManager_DX12::Deinit()
 {
 	for (auto* Item : m_Buffers)
 	{
@@ -78,12 +78,12 @@ void HWD3DPerFrameConstantBuffer::Deinit()
 	m_Buffers.resize(0);
 }
 
-void HWD3DPerFrameConstantBuffer::BeginFrame()
+void HWD3DPerFrameConstantBufferManager_DX12::BeginFrame()
 {
 	m_NextBuffer = 0;
 }
 
-void HWD3DPerFrameConstantBuffer::SetData(ID3D12GraphicsCommandList& Context, const void* SourceData, int SourceDataSize)
+void HWD3DPerFrameConstantBufferManager_DX12::SetData(ID3D12GraphicsCommandList& Context, const void* SourceData, int SourceDataSize)
 {
 	assert(SourceDataSize <= m_DataSize);
 
