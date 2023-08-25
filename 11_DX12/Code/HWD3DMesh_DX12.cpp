@@ -21,7 +21,7 @@ void HWD3DMesh_DX12::Draw()
 		const D3D12_INDEX_BUFFER_VIEW IbView = { m_IBBuffer->GetGpuVirtualAddress() , m_IBBuffer->GetBufferSize() , DXGI_FORMAT_R16_UINT };
 		m_Game->GetCommandList()->IASetIndexBuffer(&IbView);
 		m_Game->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_Game->GetCommandList()->DrawIndexedInstanced(m_Triangles.size()*3, 1, 0, 0, 0);
+		m_Game->GetCommandList()->DrawIndexedInstanced(static_cast<UINT>(m_Triangles.size())*3, 1, 0, 0, 0);
 	}
 }
 
@@ -49,7 +49,7 @@ bool HWD3DMesh_DX12::CreateBuffers()
 
 	// Vertex Buffer:
 	{
-		const int BufferSize = m_Vertices.size()*sizeof(hwd3d_vertex);
+		const int BufferSize = static_cast<int>(m_Vertices.size())*sizeof(hwd3d_vertex);
 		m_VBBuffer = HWD3DBufferConstant_DX12::CreateConstantBuffer(hwd3d_constant_buffer_t::VertexBuffer, BufferSize, *Dev);
 		if (m_VBBuffer)
 		{
@@ -70,7 +70,7 @@ bool HWD3DMesh_DX12::CreateBuffers()
 			Indices.push_back(m_Triangles[i].v3);
 		}
 
-		const int BufferSize = Indices.size()*sizeof(hwd3d_graphics_index);
+		const int BufferSize = static_cast<int>(Indices.size())*sizeof(hwd3d_graphics_index);
 		m_IBBuffer = HWD3DBufferConstant_DX12::CreateConstantBuffer(hwd3d_constant_buffer_t::IndexBuffer, BufferSize, *Dev);
 		if (m_IBBuffer)
 		{

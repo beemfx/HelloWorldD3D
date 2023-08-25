@@ -16,7 +16,7 @@ void HWD3DMesh_DX9::Draw()
 		m_Game->GetDevice()->SetStreamSource(0, m_VB, 0, sizeof(hwd3d_vertex));
 		m_Game->GetDevice()->SetIndices(m_IB);
 		m_Game->GetDevice()->SetFVF(m_FVF);
-		const HRESULT Res = m_Game->GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, m_Vertices.size(), 0, m_Triangles.size());
+		const HRESULT Res = m_Game->GetDevice()->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, static_cast<UINT>(m_Vertices.size()), 0, static_cast<UINT>(m_Triangles.size()));
 		assert(SUCCEEDED(Res));
 	}
 }
@@ -45,7 +45,7 @@ bool HWD3DMesh_DX9::CreateBuffers()
 
 	const DWORD Usage = 0;// D3DUSAGE_DYNAMIC;
 	
-	const UINT VbSize = m_Vertices.size()*sizeof(hwd3d_vertex);
+	const UINT VbSize = static_cast<UINT>(m_Vertices.size())*sizeof(hwd3d_vertex);
 	const HRESULT CvbRes = Dev->CreateVertexBuffer(VbSize, Usage, m_FVF, D3DPOOL_DEFAULT, &m_VB, NULL);
 	if (FAILED(CvbRes) || !m_VB)
 	{
@@ -63,7 +63,7 @@ bool HWD3DMesh_DX9::CreateBuffers()
 		}
 	}
 
-	const HRESULT CibRes = Dev->CreateIndexBuffer(m_Triangles.size()*3*sizeof(hwd3d_graphics_index), Usage, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &m_IB, NULL);
+	const HRESULT CibRes = Dev->CreateIndexBuffer(static_cast<UINT>(m_Triangles.size())*3*sizeof(hwd3d_graphics_index), Usage, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &m_IB, NULL);
 	if (FAILED(CibRes) || !m_IB)
 	{
 		return false;
@@ -73,7 +73,7 @@ bool HWD3DMesh_DX9::CreateBuffers()
 	{
 		static_assert(sizeof(hwd3d_graphics_index) == 2, "Padding on hwd3d_graphics_index");
 		hwd3d_graphics_index* DstIdxs = nullptr;
-		const HRESULT LockRes = m_IB->Lock(0, m_Triangles.size()*3*sizeof(hwd3d_graphics_index), reinterpret_cast<void**>(&DstIdxs), 0);
+		const HRESULT LockRes = m_IB->Lock(0, static_cast<UINT>(m_Triangles.size())*3*sizeof(hwd3d_graphics_index), reinterpret_cast<void**>(&DstIdxs), 0);
 		if (SUCCEEDED(LockRes) && DstIdxs)
 		{
 			for (int i = 0; i < static_cast<int>(m_Triangles.size()); i++)

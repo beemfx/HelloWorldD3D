@@ -19,7 +19,7 @@ void HWD3DMesh_DX10::Draw()
 		m_Game->GetDevice()->IASetVertexBuffers(0, _countof(Buffers), Buffers, Strides, Offsets);
 		m_Game->GetDevice()->IASetIndexBuffer(m_IB, DXGI_FORMAT_R16_UINT, 0);
 		m_Game->GetDevice()->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		m_Game->GetDevice()->DrawIndexed(m_Triangles.size()*3, 0, 0);
+		m_Game->GetDevice()->DrawIndexed(static_cast<UINT>(m_Triangles.size())*3, 0, 0);
 	}
 }
 
@@ -49,7 +49,7 @@ bool HWD3DMesh_DX10::CreateBuffers()
 	
 	// Fill Vertex Buffer
 	{
-		const UINT VbSize = m_Vertices.size()*sizeof(hwd3d_vertex);
+		const UINT VbSize = static_cast<UINT>(m_Vertices.size())*sizeof(hwd3d_vertex);
 		D3D10_BUFFER_DESC Bd = { };
 		Bd.Usage = Usage;
 		Bd.ByteWidth = VbSize;
@@ -76,7 +76,7 @@ bool HWD3DMesh_DX10::CreateBuffers()
 			Indices.push_back(m_Triangles[i].v3);
 		}
 
-		const UINT IbSize = Indices.size()*sizeof(hwd3d_graphics_index);
+		const UINT IbSize = static_cast<UINT>(Indices.size())*sizeof(hwd3d_graphics_index);
 		D3D10_BUFFER_DESC Bd = { };
 		Bd.Usage = Usage;
 		Bd.ByteWidth = IbSize;

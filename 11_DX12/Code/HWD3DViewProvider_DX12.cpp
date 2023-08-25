@@ -22,7 +22,7 @@ void HWD3DViewProvider_DX12::Init(ID3D12Device& InDevice, D3D12_DESCRIPTOR_HEAP_
 	m_Descriptors.resize(InMaxDescs);
 
 	D3D12_DESCRIPTOR_HEAP_DESC Dhd = { };
-	Dhd.NumDescriptors = m_Descriptors.size();
+	Dhd.NumDescriptors = static_cast<UINT>(m_Descriptors.size());
 	Dhd.Type = m_HeapType;
 	Dhd.Flags = bShaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 

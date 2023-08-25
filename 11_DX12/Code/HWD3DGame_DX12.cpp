@@ -347,7 +347,7 @@ bool HWD3DGame_DX12::InitBackBuffer()
 
 	m_FrameData.resize(NUM_BACK_BUFFERS);
 
-	for (size_t BbIndex = 0; BbIndex < m_FrameData.size(); BbIndex++)
+	for (UINT BbIndex = 0; BbIndex < static_cast<UINT>(m_FrameData.size()); BbIndex++)
 	{
 		HWD3DFrameData& FrameData = m_FrameData[BbIndex];
 		const UINT ConstantBufferSize = sizeof(m_ShaderWVP);
@@ -460,13 +460,13 @@ bool HWD3DGame_DX12::InitSharedObjects()
 		{
 			D3D12_ROOT_PARAMETER Rp = { };
 			Rp.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			Rp.DescriptorTable.NumDescriptorRanges = TexTableRanges.size();
+			Rp.DescriptorTable.NumDescriptorRanges = static_cast<UINT>(TexTableRanges.size());
 			Rp.DescriptorTable.pDescriptorRanges = TexTableRanges.data();
 			Rp.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 			RootParams.push_back(Rp);
 		}
 
-		RootSigDesc.NumParameters = RootParams.size();
+		RootSigDesc.NumParameters = static_cast<UINT>(RootParams.size());
 		RootSigDesc.pParameters = RootParams.data();
 
 		RootSigDesc.Flags = RootSigFlags;
@@ -660,7 +660,7 @@ void HWD3DGame_DX12::HWD3DFrameData::HWD3DDrawBuffers::SetData(ID3D12GraphicsCom
 		if (NewBuffer)
 		{
 			m_PerUpdateBuffers.push_back(NewBuffer);
-			m_NextBuffer = m_PerUpdateBuffers.size();
+			m_NextBuffer = static_cast<int>(m_PerUpdateBuffers.size());
 			NewBuffer->SetBufferData(SourceData, SourceDataSize);
 			Context.SetGraphicsRootConstantBufferView(0, NewBuffer->GetGpuVirtualAddress());
 			NewBuffer->PrepareForDraw(Context);
