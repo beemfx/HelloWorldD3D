@@ -98,9 +98,13 @@ struct hwd3d_vertex
 
 typedef unsigned short hwd3d_graphics_index;
 
+#include <pshpack1.h>
 struct hwd3d_triangle
 {
 	hwd3d_graphics_index v1;
 	hwd3d_graphics_index v2;
 	hwd3d_graphics_index v3;
 };
+#include <poppack.h>
+
+static_assert( sizeof(hwd3d_triangle) == 3*2 , "Triangle has padding." );
