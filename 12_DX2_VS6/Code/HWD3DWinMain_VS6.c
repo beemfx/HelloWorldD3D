@@ -42,7 +42,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 		wcex.lpszMenuName = "IDC_APPMENU";
 		wcex.lpszClassName = WinMain_WindowClass;
-		wcex.hIconSm = LoadIcon(wcex.hInstance, "IDI_APPICON");
+		wcex.hIconSm = LoadIconA(wcex.hInstance, "IDI_APPICON");
 
 		ATOM RegisterClassAtom = RegisterClassExA(&wcex);
 		if (!RegisterClassAtom)
