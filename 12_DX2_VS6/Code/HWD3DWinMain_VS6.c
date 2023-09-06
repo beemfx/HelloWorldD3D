@@ -1,33 +1,25 @@
 // D3D Hello World
 
-#include "HWD3DGame.h"
-#include "HWD3DTimer.h"
-
-// Hackery that tells NVIDIA and AMD to prioritize use of 3D Accelerated Adapters (Notebooks will generally use a less powerful adapter by default)
-extern "C" { _declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 0x00000001; }
-extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }
+#include "HWD3DSysInclude_VS6.h"
+// #include "HWD3DGame.h"
+// #include "HWD3DTimer.h"
 
 #define IDM_EXIT 1
 
-static const WCHAR WinMain_Title[] = L"Hello World D3D";
-static const WCHAR WinMain_WindowClass[] = L"HelloWorldD3D";
+static const char WinMain_Title[] = "Hello World D3D";
+static const char WinMain_WindowClass[] = "HelloWorldD3D";
 
-namespace HWD3DWinMain
+static LRESULT CALLBACK HWD3DWinMain_WndProc(HWND, UINT, WPARAM, LPARAM);
+static BOOL HWD3DWinMain_ChangeToContentDirectory();
+static void HWD3DWinMain_SetDPIAware();
+
+int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
-	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-	static bool ChangeToContentDirectory();
-	static void SetDPIAware();
-}
-
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
-{
-	using namespace HWD3DWinMain;
-
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	SetDPIAware();
-	ChangeToContentDirectory();
+	HWD3DWinMain_SetDPIAware();
+	HWD3DWinMain_ChangeToContentDirectory();
 
 	const POINT DisplayRes = { 800, 600 }; // TODO: Command Line Parameter
 	const float GameUpdateRate = 1.f / 60.f;
@@ -37,21 +29,22 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	// Register Window Class:
 	{
-		WNDCLASSEXW wcex = { };
+		WNDCLASSEXA wcex;
+		ZeroMemory(&wcex, sizeof(wcex));
 		wcex.cbSize = sizeof(wcex);
 		wcex.style = CS_HREDRAW | CS_VREDRAW;
-		wcex.lpfnWndProc = WndProc;
+		wcex.lpfnWndProc = HWD3DWinMain_WndProc;
 		wcex.cbClsExtra = 0;
 		wcex.cbWndExtra = 0;
 		wcex.hInstance = hInstance;
-		wcex.hIcon = LoadIconW(hInstance, L"IDI_APPICON");
-		wcex.hCursor = LoadCursorW(nullptr, IDC_ARROW);
+		wcex.hIcon = LoadIconA(hInstance, "IDI_APPICON");
+		wcex.hCursor = LoadCursorA(NULL, IDC_ARROW);
 		wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-		wcex.lpszMenuName = L"IDC_APPMENU";
+		wcex.lpszMenuName = "IDC_APPMENU";
 		wcex.lpszClassName = WinMain_WindowClass;
-		wcex.hIconSm = LoadIcon(wcex.hInstance, L"IDI_APPICON");
+		wcex.hIconSm = LoadIcon(wcex.hInstance, "IDI_APPICON");
 
-		ATOM RegisterClassAtom = RegisterClassExW(&wcex);
+		ATOM RegisterClassAtom = RegisterClassExA(&wcex);
 		if (!RegisterClassAtom)
 		{
 			return -1;
@@ -60,7 +53,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 
 	// Create Main Window
 	{
-		MainWnd = CreateWindowW(WinMain_WindowClass, WinMain_Title, WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+		MainWnd = CreateWindowA(WinMain_WindowClass, WinMain_Title, WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
 		if (!MainWnd)
 		{
@@ -80,49 +73,49 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 		UpdateWindow(MainWnd);
 	}
 
-	HWD3DGame* Game = HWD3DGame::CreateGame(MainWnd);
-	if (!Game)
-	{
-		DestroyWindow(MainWnd);
-		return -1;
-	}
+	// HWD3DGame* Game = HWD3DGame::CreateGame(MainWnd);
+	// if (!Game)
+	// {
+	// 	DestroyWindow(MainWnd);
+	// 	return -1;
+	// }
 
-	bool bGameStillRunning = true;
+	BOOL bGameStillRunning = TRUE;
 
-	HWD3DTimer FrameTimer;
+	// HWD3DTimer FrameTimer;
 
 	while (bGameStillRunning)
 	{
 		// Pump Messages
-		MSG msg = {};
-		while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
+		MSG msg;
+		while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 
 			if (msg.message == WM_QUIT)
 			{
-				bGameStillRunning = false;
+				bGameStillRunning = FALSE;
 			}
 		}
 
 		if (bGameStillRunning)
 		{
-			FrameTimer.UpdateAtRate(GameUpdateRate, MaxUpatesPerFrameThreshold, [Game](float DeltaTime) -> void 
-				{
-					Game->Update(DeltaTime); 
-				} );
-
-			Game->DrawScene();
+			// FrameTimer.UpdateAtRate(GameUpdateRate, MaxUpatesPerFrameThreshold, [Game](float DeltaTime) -> void 
+			// 	{
+			// 		Game->Update(DeltaTime); 
+			// 	} );
+			// 
+			// Game->DrawScene();
 		}
 	}
 
-	HWD3D_SafeRelease(Game);
+	// HWD3D_SafeRelease(Game);
 
 	return 0;
 }
 
-static LRESULT CALLBACK HWD3DWinMain::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK HWD3DWinMain_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
@@ -136,7 +129,7 @@ static LRESULT CALLBACK HWD3DWinMain::WndProc(HWND hWnd, UINT message, WPARAM wP
 			DestroyWindow(hWnd);
 			break;
 		default:
-			return DefWindowProcW(hWnd, message, wParam, lParam);
+			return DefWindowProcA(hWnd, message, wParam, lParam);
 		}
 	}
 	break;
@@ -144,38 +137,38 @@ static LRESULT CALLBACK HWD3DWinMain::WndProc(HWND hWnd, UINT message, WPARAM wP
 		PostQuitMessage(0);
 		break;
 	default:
-		return DefWindowProcW(hWnd, message, wParam, lParam);
+		return DefWindowProcA(hWnd, message, wParam, lParam);
 	}
 	return 0;
 }
 
-static bool HWD3DWinMain::ChangeToContentDirectory()
+static BOOL HWD3DWinMain_ChangeToContentDirectory()
 {
 	static const int MAX_PARENT_DIRS = 10;
 
 	for (int i = 0; i < MAX_PARENT_DIRS; i++)
 	{
 		// Is the _Media directory in our working directory, if so we're where we want to be:
-		const DWORD Attrs = GetFileAttributesW(L"_Media");
+		const DWORD Attrs = GetFileAttributesA("_Media");
 	#ifndef INVALID_FILE_ATTRIBUTES
 		#define INVALID_FILE_ATTRIBUTES -1 // Our DX8 version of the Windows API doesn't have this defined.
 	#endif
 		if (INVALID_FILE_ATTRIBUTES != Attrs && ((Attrs&FILE_ATTRIBUTE_DIRECTORY) != 0))
 		{
-			return true;
+			return TRUE;
 		}
 
 		// If not go up one directory:
-		if (!SetCurrentDirectoryW(L".."))
+		if (!SetCurrentDirectoryA(".."))
 		{
-			return false;
+			return FALSE;
 		}
 	}
 
-	return false;
+	return FALSE;
 }
 
-static void HWD3DWinMain::SetDPIAware()
+static void HWD3DWinMain_SetDPIAware()
 {
 #define HWD3DWINMAIN_CALL_DLL_DPI_AWARENESS 1
 
@@ -183,14 +176,14 @@ static void HWD3DWinMain::SetDPIAware()
 	// Load and call SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE) directly from DLL.
 	// Since we're getting this function from the DLL, if it doesn't exist on this version of Windows, it
 	// simply won't be called.
-	HMODULE WinUserLib = LoadLibraryW(L"User32.dll");
+	HMODULE WinUserLib = LoadLibraryA("User32.dll");
 	if (WinUserLib)
 	{
 		typedef BOOL(WINAPI* FnType)(_In_ HANDLE value);
-		FnType Fn = reinterpret_cast<FnType>(GetProcAddress(WinUserLib, "SetProcessDpiAwarenessContext"));
+		FnType Fn = (FnType)(GetProcAddress(WinUserLib, "SetProcessDpiAwarenessContext"));
 		if (Fn)
 		{
-			Fn((reinterpret_cast<HANDLE>(-3)));
+			Fn(((HANDLE)(-3)));
 		}
 		FreeLibrary(WinUserLib);
 	}

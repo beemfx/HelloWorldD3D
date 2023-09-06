@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWD3D_10_DX11", "10_DX11\HW
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWD3D_11_DX12", "11_DX12\HWD3D_11_DX12.vcxproj", "{AD2AEE97-8BA6-4400-A078-F4A11258C3B8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWD3D_12_DX2_VS6", "12_DX2_VS6\HWD3D_12_DX2_VS6.vcxproj", "{DD00D86E-67DE-42B6-BB5D-6E3AC845BE6A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -111,6 +113,14 @@ Global
 		{AD2AEE97-8BA6-4400-A078-F4A11258C3B8}.Release|x64.Build.0 = Release|x64
 		{AD2AEE97-8BA6-4400-A078-F4A11258C3B8}.Release|x86.ActiveCfg = Release|Win32
 		{AD2AEE97-8BA6-4400-A078-F4A11258C3B8}.Release|x86.Build.0 = Release|Win32
+		{DD00D86E-67DE-42B6-BB5D-6E3AC845BE6A}.Debug|x64.ActiveCfg = Debug|Win32
+		{DD00D86E-67DE-42B6-BB5D-6E3AC845BE6A}.Debug|x64.Build.0 = Debug|Win32
+		{DD00D86E-67DE-42B6-BB5D-6E3AC845BE6A}.Debug|x86.ActiveCfg = Debug|Win32
+		{DD00D86E-67DE-42B6-BB5D-6E3AC845BE6A}.Debug|x86.Build.0 = Debug|Win32
+		{DD00D86E-67DE-42B6-BB5D-6E3AC845BE6A}.Release|x64.ActiveCfg = Release|Win32
+		{DD00D86E-67DE-42B6-BB5D-6E3AC845BE6A}.Release|x64.Build.0 = Release|Win32
+		{DD00D86E-67DE-42B6-BB5D-6E3AC845BE6A}.Release|x86.ActiveCfg = Release|Win32
+		{DD00D86E-67DE-42B6-BB5D-6E3AC845BE6A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
