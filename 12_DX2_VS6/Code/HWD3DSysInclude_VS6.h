@@ -6,6 +6,7 @@
 // Windows Header Files
 #include <windows.h>
 #include <timeapi.h>
+#include <d3d.h>
 // C RunTime Header Files
 #include <stdlib.h>
 #include <malloc.h>

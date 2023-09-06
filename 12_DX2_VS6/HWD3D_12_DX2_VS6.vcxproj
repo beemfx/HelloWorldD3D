@@ -11,10 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Code\HWD3DGame_VS6.c" />
+    <ClCompile Include="Code\HWD3DTypes_VS6.c" />
     <ClCompile Include="Code\HWD3DWinMain_VS6.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\HWD3DGame_VS6.h" />
     <ClInclude Include="Code\HWD3DSysInclude_VS6.h" />
+    <ClInclude Include="Code\HWD3DTypes_VS6.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\directx.ico" />

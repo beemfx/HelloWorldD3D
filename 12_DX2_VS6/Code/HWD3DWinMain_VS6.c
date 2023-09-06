@@ -1,14 +1,13 @@
 // D3D Hello World
 
 #include "HWD3DSysInclude_VS6.h"
-// #include "HWD3DGame.h"
-// #include "HWD3DTimer.h"
+#include "HWD3DGame_VS6.h"
 
 #pragma comment(lib, "Winmm.lib")
 
 #define IDM_EXIT 1
 
-static const char WinMain_Title[] = "Hello World D3D";
+static const char WinMain_Title[] = "Hello World D3D [DX2/VS6]";
 static const char WinMain_WindowClass[] = "HelloWorldD3D";
 
 static LRESULT CALLBACK HWD3DWinMain_WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -76,12 +75,12 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		UpdateWindow(MainWnd);
 	}
 
-	// HWD3DGame* Game = HWD3DGame::CreateGame(MainWnd);
-	// if (!Game)
-	// {
-	// 	DestroyWindow(MainWnd);
-	// 	return -1;
-	// }
+	HWD3DGame_VS6* Game = HWD3DGame_VS6_CreateGame(MainWnd);
+	if (!Game)
+	{
+		DestroyWindow(MainWnd);
+		return -1;
+	}
 
 	BOOL bGameStillRunning = TRUE;
 
@@ -110,7 +109,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			DWORD NumUpdatesThisFrame = 0;
 			while( TimeSinceLastUpdate >= UpdateRateMs )
 			{
-				// TODO: Game Update (GameUpdateRate)
+				HWD3DGame_VS6_Update(Game, GameUpdateRate);
 
 				LastUpdateTime += UpdateRateMs;
 				NumUpdatesThisFrame++;
@@ -122,11 +121,12 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 				}
 			}
 			
-			// TODO: Draw Scene
+			HWD3DGame_VS6_DrawScene(Game);
 		}
 	}
 
-	// HWD3D_SafeRelease(Game);
+	HWD3DGame_VS6_DestroyGame(Game);
+	Game = NULL;
 
 	return 0;
 }
