@@ -4,6 +4,8 @@
 // #include "HWD3DGame.h"
 // #include "HWD3DTimer.h"
 
+#pragma comment(lib, "Winmm.lib")
+
 #define IDM_EXIT 1
 
 static const char WinMain_Title[] = "Hello World D3D";
@@ -24,6 +26,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	const POINT DisplayRes = { 800, 600 }; // TODO: Command Line Parameter
 	const float GameUpdateRate = 1.f / 60.f;
 	const int MaxUpatesPerFrameThreshold = 10;
+	const DWORD UpdateRateMs = (DWORD)(floorf(1000 * GameUpdateRate));
 
 	HWND MainWnd = NULL;
 
@@ -82,7 +85,8 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	BOOL bGameStillRunning = TRUE;
 
-	// HWD3DTimer FrameTimer;
+	static const DWORD MaxUpdatesThreshold = 10;
+	DWORD LastUpdateTime = timeGetTime();
 
 	while (bGameStillRunning)
 	{
@@ -101,12 +105,24 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 		if (bGameStillRunning)
 		{
-			// FrameTimer.UpdateAtRate(GameUpdateRate, MaxUpatesPerFrameThreshold, [Game](float DeltaTime) -> void 
-			// 	{
-			// 		Game->Update(DeltaTime); 
-			// 	} );
-			// 
-			// Game->DrawScene();
+			const DWORD FrameStartTime = timeGetTime();
+			const DWORD TimeSinceLastUpdate = FrameStartTime - LastUpdateTime;
+			DWORD NumUpdatesThisFrame = 0;
+			while( TimeSinceLastUpdate >= UpdateRateMs )
+			{
+				// TODO: Game Update (GameUpdateRate)
+
+				LastUpdateTime += UpdateRateMs;
+				NumUpdatesThisFrame++;
+				if (NumUpdatesThisFrame >= MaxUpdatesThreshold)
+				{
+					// Too man updates this frame, catch up.
+					LastUpdateTime = FrameStartTime;
+					break;
+				}
+			}
+			
+			// TODO: Draw Scene
 		}
 	}
 
