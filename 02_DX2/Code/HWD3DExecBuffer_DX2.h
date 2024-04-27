@@ -11,23 +11,8 @@
 class HWD3DExecBuffer_DX2 : public HWD3DObject
 {
 private:
-
-	class Allocator : public std::allocator<BYTE>
-	{
-	public:
-
-		value_type* allocate(std::size_t n)
-		{
-			return static_cast<value_type*>(::operator new (n * sizeof(value_type)));
-		}
-
-		void deallocate(value_type* p, std::size_t) noexcept  // Use pointer if pointer is not a value_type*
-		{
-			::operator delete(p);
-		}
-	};
-
-	std::vector<BYTE, Allocator> m_ExecBufferData;
+	
+	std::vector<BYTE> m_ExecBufferData;
 	class HWD3DGame_DX2* const m_Game;
 	IDirect3DExecuteBuffer* m_ExecBuffer = nullptr;
 	D3DEXECUTEBUFFERDESC m_ExecBufferDesc = {};

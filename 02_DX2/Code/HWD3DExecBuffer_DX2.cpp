@@ -11,13 +11,12 @@ HWD3DExecBuffer_DX2::HWD3DExecBuffer_DX2(class HWD3DGame_DX2* InGame)
 
 void HWD3DExecBuffer_DX2::OnObjectDestruct()
 {
-	
+	HWD3D_SafeRelease(m_ExecBuffer);
 }
 
 void HWD3DExecBuffer_DX2::BeginData()
 {
 	m_ExecBufferData.resize(0);
-
 	m_DataStart = m_ExecBufferData.size();
 }
 
