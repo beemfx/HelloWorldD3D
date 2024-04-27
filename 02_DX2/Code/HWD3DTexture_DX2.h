@@ -3,6 +3,7 @@
 #pragma once
 
 #include "HWD3DTexture.h"
+#include "HWD3DExecBuffer_DX2.h"
 #include <d3d.h>
 
 class HWD3DTexture_DX2 : public HWD3DTexture

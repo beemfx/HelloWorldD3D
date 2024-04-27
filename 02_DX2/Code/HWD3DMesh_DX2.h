@@ -3,6 +3,7 @@
 #pragma once
 
 #include "HWD3DMesh.h"
+#include "HWD3DExecBuffer_DX2.h"
 #include <d3d.h>
 
 class HWD3DMesh_DX2 : public HWD3DMesh
@@ -10,7 +11,7 @@ class HWD3DMesh_DX2 : public HWD3DMesh
 private:
 	class HWD3DGame_DX2*const m_Game = nullptr;
 	D3DEXECUTEBUFFERDESC m_ExecBufferDesc = { };
-	IDirect3DExecuteBuffer* m_ExecBuffer = nullptr;
+	HWD3DExecBuffer_DX2* m_ExecBuffer = nullptr;
 
 public:
 
