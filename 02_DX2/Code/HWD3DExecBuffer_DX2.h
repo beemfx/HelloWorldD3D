@@ -143,13 +143,13 @@ public:
 	// OP_TRIANGLE_LIST size: 4 (sizeof D3DINSTRUCTION)
 	void OP_TRIANGLE_LIST(WORD cnt)
 	{
-		PUTD3DINSTRUCTION(D3DOP_TRIANGLE, sizeof(D3DTRIANGLE), cnt);
-
 		// Make sure that the triangle data (not OP) will be QWORD aligned
-		if (!QWORD_ALIGNED())
+		if (QWORD_ALIGNED())
 		{
 			OP_NOP();
 		}
+
+		PUTD3DINSTRUCTION(D3DOP_TRIANGLE, sizeof(D3DTRIANGLE), cnt);
 	}
 
 	void ADD_TRIANGLE(WORD v1, WORD v2, WORD v3, WORD Flags)
