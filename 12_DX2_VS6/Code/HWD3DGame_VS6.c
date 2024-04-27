@@ -143,16 +143,17 @@ void HWD3DGame_VS6_DrawScene(HWD3DGame_VS6* _this)
 
 	if (HWD3DGame_VS6_BeginDraw(_this))
 	{
+		// Set transforms:
 		{
-		const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), ((float)(_this->ViewSize.x)/_this->ViewSize.y), .1f , 1000.f );
-		const hwd3d_vec3 LookEye = { 0.f , 0.f , -25.f };
-		const hwd3d_vec3 LookAt = { 0.f , 0.f , 0.f };
-		const hwd3d_vec3 LookUp = { 0.f , 1.f , 0.f };
-		const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(&LookEye, &LookAt, &LookUp);
+			const hwd3d_matrix ProjMatrix = HWD3DMatrix_BuildPerspectiveFovLH(HWD3D_ToRad(90.f), ((float)(_this->ViewSize.x)/_this->ViewSize.y), .1f , 1000.f );
+			const hwd3d_vec3 LookEye = { 0.f , 0.f , -25.f };
+			const hwd3d_vec3 LookAt = { 0.f , 0.f , 0.f };
+			const hwd3d_vec3 LookUp = { 0.f , 1.f , 0.f };
+			const hwd3d_matrix ViewMatrix = HWD3DMatrix_BuildLookAtLH(&LookEye, &LookAt, &LookUp);
 
-		HWD3DGame_VS6_SetTransformMatrix(_this, hwd3d_transform_t_Proj, &ProjMatrix);
-		HWD3DGame_VS6_SetTransformMatrix(_this, hwd3d_transform_t_View, &ViewMatrix);
-		HWD3DGame_VS6_SetTransformMatrix(_this, hwd3d_transform_t_World, &HWD3DMatrix_Ident);
+			HWD3DGame_VS6_SetTransformMatrix(_this, hwd3d_transform_t_Proj, &ProjMatrix);
+			HWD3DGame_VS6_SetTransformMatrix(_this, hwd3d_transform_t_View, &ViewMatrix);
+			HWD3DGame_VS6_SetTransformMatrix(_this, hwd3d_transform_t_World, &HWD3DMatrix_Ident);
 		}
 
 		hwd3dMeshSet_Draw(&_this->Teapot, _this);
