@@ -385,21 +385,20 @@ void HWD3DGame_DX2::InitCommonStates()
 
 		D3DMATRIX I = *reinterpret_cast<const D3DMATRIX*>(&HWD3DMatrix_Ident);
 
-		m_D3DDevice->SetMatrix(m_MatrixProj, &I );
-		m_D3DDevice->SetMatrix(m_MatrixView, &I );
-		m_D3DDevice->SetMatrix(m_MatrixWorld, &I );
+		m_D3DDevice->SetMatrix(m_MatrixProj, &I);
+		m_D3DDevice->SetMatrix(m_MatrixView, &I);
+		m_D3DDevice->SetMatrix(m_MatrixWorld, &I);
 	}
 
 	// This is a one off so we don't keep any pointers.
 	if (HWD3DExecBuffer_DX2* ExecBuffer = new HWD3DExecBuffer_DX2(this))
 	{
 		// Transform setting could be handled by a one off command buffer, but to keep things simple we do it all here.
-		ExecBuffer->BeginData();
 		ExecBuffer->BeginInstructions();
-		ExecBuffer->OP_STATE_TRANSFORM(3);
-		ExecBuffer->STATE_DATA(D3DTRANSFORMSTATE_PROJECTION, GetProjMatrixHandle());
-		ExecBuffer->STATE_DATA(D3DTRANSFORMSTATE_VIEW, GetViewMatrixHandle());
-		ExecBuffer->STATE_DATA(D3DTRANSFORMSTATE_WORLD, GetWorldMatrixHandle());
+		ExecBuffer->BeginTransformStates(3);
+		ExecBuffer->SetTransformState(D3DTRANSFORMSTATE_PROJECTION, GetProjMatrixHandle());
+		ExecBuffer->SetTransformState(D3DTRANSFORMSTATE_VIEW, GetViewMatrixHandle());
+		ExecBuffer->SetTransformState(D3DTRANSFORMSTATE_WORLD, GetWorldMatrixHandle());
 		ExecBuffer->FinalizeBuffer();
 
 		m_D3DDevice->BeginScene();

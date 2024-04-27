@@ -110,14 +110,13 @@ void HWD3DTexture_DX2::InitTexture()
 	// Create Exec Buffer
 	if (m_ExecBuffer = new HWD3DExecBuffer_DX2(m_Game))
 	{		
-		m_ExecBuffer->BeginData();
 		m_ExecBuffer->BeginInstructions();
-		m_ExecBuffer->OP_STATE_RENDER(5);
-		m_ExecBuffer->STATE_DATA(D3DRENDERSTATE_TEXTUREHANDLE, m_TextureHandle);
-		m_ExecBuffer->STATE_DATA(D3DRENDERSTATE_WRAPU, FALSE);
-		m_ExecBuffer->STATE_DATA(D3DRENDERSTATE_WRAPV, FALSE);
-		m_ExecBuffer->STATE_DATA(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_LINEAR);
-		m_ExecBuffer->STATE_DATA(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_LINEAR);
+		m_ExecBuffer->BeginRenderStates(5);
+		m_ExecBuffer->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, m_TextureHandle);
+		m_ExecBuffer->SetRenderState(D3DRENDERSTATE_WRAPU, FALSE);
+		m_ExecBuffer->SetRenderState(D3DRENDERSTATE_WRAPV, FALSE);
+		m_ExecBuffer->SetRenderState(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_LINEAR);
+		m_ExecBuffer->SetRenderState(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_LINEAR);
 		m_ExecBuffer->FinalizeBuffer();
 	}
 }

@@ -3,7 +3,11 @@
 #pragma once
 
 // This is all taken form d3dmacs.h but made to allocate it's own exec buffer so one does not
-// have to worry about preallocating.
+// have to worry about preallocating. Note that various macros were renamed to look pretty
+// but some still have the original names, which look ugly, but I'm keeping them for completeness.
+//
+// You could certainly go more advanced here and not require calling BeginInstructions, BeginTransformStates,
+// or BeginRenderStates, but for a Hello World program that's maybe overkill.
 
 #include "HWD3DObject.h"
 #include <d3d.h>
@@ -19,19 +23,24 @@ private:
 	DWORD m_NumVerts = 0;
 	DWORD m_DataStart = 0;
 	DWORD m_InsStart = 0;
+	DWORD m_NumRenderStatesAdded = 0;
+	DWORD m_RenderStateCount = 0;
+	DWORD m_NumTransformStatesAdded = 0;
+	DWORD m_TransformStateCount = 0;
 
 public:
 
 	HWD3DExecBuffer_DX2(class HWD3DGame_DX2* InGame);
 	virtual void OnObjectDestruct() override;
 
-	void BeginData();
 	void BeginInstructions();
 	void FinalizeBuffer();
 
 	void ExecuteBuffer();
 
-	void PUTD3DINSTRUCTION(BYTE op, BYTE sz, WORD cnt)
+private:
+	
+	void PutD3DInstruction(BYTE op, BYTE sz, WORD cnt)
 	{
 		const size_t Start = m_ExecBufferData.size();
 		const size_t OpSize = sizeof(D3DINSTRUCTION);
@@ -43,8 +52,11 @@ public:
 		((LPD3DINSTRUCTION)ptr)->wCount = cnt;
 	}
 
-	void VERTEX_DATA(const void* loc, DWORD cnt)
+public:
+	
+	void SetVertexData(const void* loc, DWORD cnt)
 	{
+		assert(m_ExecBufferData.size() == 0); // Vertex data must be the first thing set.
 		const size_t Start = m_ExecBufferData.size();
 		const size_t OpSize = sizeof(D3DVERTEX) * cnt;
 		m_ExecBufferData.resize(Start + OpSize);
@@ -55,13 +67,13 @@ public:
 		m_NumVerts += cnt;
 	}
 
-	// OP_MATRIX_MULTIPLY size: 4 (sizeof D3DINSTRUCTION)
+private:
+	
 	void OP_MATRIX_MULTIPLY(WORD cnt)
 	{
-		PUTD3DINSTRUCTION(D3DOP_MATRIXMULTIPLY, sizeof(D3DMATRIXMULTIPLY), cnt);
+		PutD3DInstruction(D3DOP_MATRIXMULTIPLY, sizeof(D3DMATRIXMULTIPLY), cnt);
 	}
 
-	// MATRIX_MULTIPLY_DATA size: 12 (sizeof MATRIXMULTIPLY)
 	void MATRIX_MULTIPLY_DATA(D3DMATRIXHANDLE src1, D3DMATRIXHANDLE src2, D3DMATRIXHANDLE dest)
 	{
 		const size_t Start = m_ExecBufferData.size();
@@ -74,45 +86,69 @@ public:
 		((LPD3DMATRIXMULTIPLY)ptr)->hDestMatrix = dest;
 	}
 
-	// OP_STATE_LIGHT size: 4 (sizeof D3DINSTRUCTION)
 	void OP_STATE_LIGHT(WORD cnt)
 	{
-		PUTD3DINSTRUCTION(D3DOP_STATELIGHT, sizeof(D3DSTATE), cnt);
+		PutD3DInstruction(D3DOP_STATELIGHT, sizeof(D3DSTATE), cnt);
 	}
 
-	// OP_STATE_TRANSFORM size: 4 (sizeof D3DINSTRUCTION)
-	void OP_STATE_TRANSFORM(WORD cnt)
+public:
+	
+	void BeginTransformStates(WORD cnt)
 	{
-		PUTD3DINSTRUCTION(D3DOP_STATETRANSFORM, sizeof(D3DSTATE), cnt);
+		assert(m_NumTransformStatesAdded == 0 && m_TransformStateCount == 0); // Only set transform states once.
+		m_TransformStateCount = cnt;
+		PutD3DInstruction(D3DOP_STATETRANSFORM, sizeof(D3DSTATE), cnt);
 	}
 
-	// OP_STATE_RENDER size: 4 (sizeof D3DINSTRUCTION)
-	void OP_STATE_RENDER(WORD cnt)
+	void SetTransformState(D3DTRANSFORMSTATETYPE type, DWORD arg)
 	{
-		PUTD3DINSTRUCTION(D3DOP_STATERENDER, sizeof(D3DSTATE), cnt);
-	}
+		m_NumTransformStatesAdded++;
+		assert(m_NumTransformStatesAdded <= m_TransformStateCount);
 
-	// STATE_DATA size: 8 (sizeof D3DSTATE)
-	void STATE_DATA(DWORD type, DWORD arg)
-	{
 		const size_t Start = m_ExecBufferData.size();
 		const size_t OpSize = sizeof(D3DSTATE);
 		m_ExecBufferData.resize(Start + OpSize);
 		void* ptr = &m_ExecBufferData[Start];
 
-		((LPD3DSTATE)ptr)->drstRenderStateType = static_cast<D3DRENDERSTATETYPE>(type);
+		((LPD3DSTATE)ptr)->dtstTransformStateType = type;
 		((LPD3DSTATE)ptr)->dwArg[0] = arg;
 	}
 
-	// OP_PROCESS_VERTICES size: 4 (sizeof D3DINSTRUCTION)
-	void OP_PROCESS_VERTICES(WORD cnt)
+	void BeginRenderStates(WORD cnt)
 	{
-		PUTD3DINSTRUCTION(D3DOP_PROCESSVERTICES, sizeof(D3DPROCESSVERTICES), cnt);
+		assert(m_NumRenderStatesAdded == 0 && m_RenderStateCount == 0); // Only set render states once.
+
+		m_RenderStateCount = cnt;
+		PutD3DInstruction(D3DOP_STATERENDER, sizeof(D3DSTATE), cnt);
 	}
 
-	// PROCESSVERTICES_DATA size: 16 (sizeof D3DPROCESSVERTICES)
-	void PROCESSVERTICES_DATA(DWORD flgs, WORD strt, DWORD cnt)
+	void SetRenderState(D3DRENDERSTATETYPE type, DWORD arg)
 	{
+		m_NumRenderStatesAdded++;
+		assert(m_NumRenderStatesAdded <= m_RenderStateCount);
+
+		const size_t Start = m_ExecBufferData.size();
+		const size_t OpSize = sizeof(D3DSTATE);
+		m_ExecBufferData.resize(Start + OpSize);
+		void* ptr = &m_ExecBufferData[Start];
+
+		((LPD3DSTATE)ptr)->drstRenderStateType = type;
+		((LPD3DSTATE)ptr)->dwArg[0] = arg;
+	}
+
+private:
+	
+	void OP_PROCESS_VERTICES(WORD cnt)
+	{
+		PutD3DInstruction(D3DOP_PROCESSVERTICES, sizeof(D3DPROCESSVERTICES), cnt);
+	}
+
+public:
+	
+	void ProcessVertexes(DWORD flgs, WORD strt, DWORD cnt)
+	{
+		OP_PROCESS_VERTICES(1);
+
 		const size_t Start = m_ExecBufferData.size();
 		const size_t OpSize = sizeof(D3DPROCESSVERTICES);
 		m_ExecBufferData.resize(Start + OpSize);
@@ -125,8 +161,7 @@ public:
 		((LPD3DPROCESSVERTICES)ptr)->dwReserved = 0;
 	}
 
-	// OP_TRIANGLE_LIST size: 4 (sizeof D3DINSTRUCTION)
-	void OP_TRIANGLE_LIST(WORD cnt)
+	void BeginTriangleList(WORD cnt)
 	{
 		// Make sure that the triangle data (not OP) will be QWORD aligned
 		if (QWORD_ALIGNED())
@@ -134,10 +169,10 @@ public:
 			OP_NOP();
 		}
 
-		PUTD3DINSTRUCTION(D3DOP_TRIANGLE, sizeof(D3DTRIANGLE), cnt);
+		PutD3DInstruction(D3DOP_TRIANGLE, sizeof(D3DTRIANGLE), cnt);
 	}
 
-	void ADD_TRIANGLE(WORD v1, WORD v2, WORD v3, WORD Flags)
+	void AddTriangle(WORD v1, WORD v2, WORD v3, WORD Flags)
 	{
 		const size_t Start = m_ExecBufferData.size();
 		const size_t OpSize = sizeof(D3DTRIANGLE);
@@ -150,6 +185,8 @@ public:
 		((LPD3DTRIANGLE)ptr)->wFlags = Flags;
 	}
 
+private:
+
 	void TRIANGLE_LIST_DATA(const void* loc, DWORD count)
 	{
 		const size_t Start = m_ExecBufferData.size();
@@ -160,10 +197,9 @@ public:
 		memcpy(ptr, loc, OpSize);
 	}
 
-	// OP_LINE_LIST size: 4 (sizeof D3DINSTRUCTION)
 	void OP_LINE_LIST(WORD cnt)
 	{
-		PUTD3DINSTRUCTION(D3DOP_LINE, sizeof(D3DLINE), cnt);
+		PutD3DInstruction(D3DOP_LINE, sizeof(D3DLINE), cnt);
 	}
 
 	void LINE_LIST_DATA(const void* loc, DWORD count)
@@ -176,10 +212,9 @@ public:
 		memcpy(ptr, loc, OpSize);
 	}
 
-	// OP_POINT_LIST size: 8 (sizeof D3DINSTRUCTION + sizeof D3DPOINT)
 	void OP_POINT_LIST(WORD first, WORD cnt)
 	{
-		PUTD3DINSTRUCTION(D3DOP_POINT, sizeof(D3DPOINT), 1);
+		PutD3DInstruction(D3DOP_POINT, sizeof(D3DPOINT), 1);
 
 		const size_t Start = m_ExecBufferData.size();
 		const size_t OpSize = sizeof(D3DPOINT);
@@ -190,10 +225,9 @@ public:
 		((LPD3DPOINT)(ptr))->wFirst = first;
 	}
 
-	// OP_SPAN_LIST size: 8 (sizeof D3DINSTRUCTION + sizeof D3DSPAN)
 	void OP_SPAN_LIST(WORD first, WORD cnt)
 	{
-		PUTD3DINSTRUCTION(D3DOP_SPAN, sizeof(D3DSPAN), 1);
+		PutD3DInstruction(D3DOP_SPAN, sizeof(D3DSPAN), 1);
 
 		const size_t Start = m_ExecBufferData.size();
 		const size_t OpSize = sizeof(D3DSPAN);
@@ -204,10 +238,9 @@ public:
 		((LPD3DSPAN)(ptr))->wFirst = first;
 	}
 
-	// OP_BRANCH_FORWARD size: 18 (sizeof D3DINSTRUCTION + sizeof D3DBRANCH)
 	void OP_BRANCH_FORWARD(DWORD tmask, DWORD tvalue, BOOL tnegate, DWORD toffset)
 	{
-		PUTD3DINSTRUCTION(D3DOP_BRANCHFORWARD, sizeof(D3DBRANCH), 1);
+		PutD3DInstruction(D3DOP_BRANCHFORWARD, sizeof(D3DBRANCH), 1);
 
 		const size_t Start = m_ExecBufferData.size();
 		const size_t OpSize = sizeof(D3DBRANCH);
@@ -220,10 +253,9 @@ public:
 		((LPD3DBRANCH)ptr)->dwOffset = toffset;
 	}
 
-	// OP_SET_STATUS size: 20 (sizeof D3DINSTRUCTION + sizeof D3DSTATUS)
-	void OP_SET_STATUS(DWORD flags, DWORD status, LONG _x1, LONG _y1, LONG _x2, LONG _y2)
+	void SetStatus(DWORD flags, DWORD status, LONG _x1, LONG _y1, LONG _x2, LONG _y2)
 	{
-		PUTD3DINSTRUCTION(D3DOP_SETSTATUS, sizeof(D3DSTATUS), 1);
+		PutD3DInstruction(D3DOP_SETSTATUS, sizeof(D3DSTATUS), 1);
 
 		const size_t Start = m_ExecBufferData.size();
 		const size_t OpSize = sizeof(D3DSTATUS);
@@ -238,17 +270,16 @@ public:
 		((LPD3DSTATUS)(ptr))->drExtent.y2 = _y2;
 	}
 
-	// OP_NOP size: 4
+private:
+	
 	void OP_NOP()
 	{
-		PUTD3DINSTRUCTION(D3DOP_TRIANGLE, sizeof(D3DTRIANGLE), 0);
+		PutD3DInstruction(D3DOP_TRIANGLE, sizeof(D3DTRIANGLE), 0);
 	}
-
-private:
 	
 	void OP_EXIT()
 	{
-		PUTD3DINSTRUCTION(D3DOP_EXIT, 0, 0);
+		PutD3DInstruction(D3DOP_EXIT, 0, 0);
 	}
 
 	bool QWORD_ALIGNED()

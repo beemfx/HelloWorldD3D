@@ -14,12 +14,6 @@ void HWD3DExecBuffer_DX2::OnObjectDestruct()
 	HWD3D_SafeRelease(m_ExecBuffer);
 }
 
-void HWD3DExecBuffer_DX2::BeginData()
-{
-	m_ExecBufferData.resize(0);
-	m_DataStart = m_ExecBufferData.size();
-}
-
 void HWD3DExecBuffer_DX2::BeginInstructions()
 {
 	m_InsStart = m_ExecBufferData.size();
@@ -28,6 +22,9 @@ void HWD3DExecBuffer_DX2::BeginInstructions()
 void HWD3DExecBuffer_DX2::FinalizeBuffer()
 {
 	OP_EXIT();
+
+	assert(m_RenderStateCount == m_NumRenderStatesAdded);
+	assert(m_TransformStateCount == m_NumTransformStatesAdded);
 
 	m_ExecBufferDesc.dwSize = sizeof(m_ExecBufferDesc);
 	m_ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
