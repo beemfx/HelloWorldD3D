@@ -18,6 +18,7 @@
     <ClCompile Include="..\_Common\Framework\HWD3DTimer.cpp" />
     <ClCompile Include="..\_Common\Framework\HWD3DTypes.cpp" />
     <ClCompile Include="..\_Common\Shell\HWD3DWinMain.cpp" />
+    <ClCompile Include="Code\HWD3DExecBuffer_DX2.cpp" />
     <ClCompile Include="Code\HWD3DGame_DX2.cpp" />
     <ClCompile Include="Code\HWD3DMesh_DX2.cpp" />
     <ClCompile Include="Code\HWD3DTexture_DX2.cpp" />
@@ -30,6 +31,7 @@
     <ClInclude Include="..\_Common\Framework\HWD3DTexture.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTimer.h" />
     <ClInclude Include="..\_Common\Framework\HWD3DTypes.h" />
+    <ClInclude Include="Code\HWD3DExecBuffer_DX2.h" />
     <ClInclude Include="Code\HWD3DGame_DX2.h" />
     <ClInclude Include="Code\d3dmacs.h" />
     <ClInclude Include="Code\HWD3DMesh_DX2.h" />
