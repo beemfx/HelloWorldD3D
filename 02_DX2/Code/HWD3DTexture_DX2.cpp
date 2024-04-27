@@ -2,7 +2,6 @@
 
 #include "HWD3DTexture_DX2.h"
 #include "HWD3DGame_DX2.h"
-#include "d3dmacs.h"
 
 HWD3DTexture* HWD3DTexture::CreateTexture(class HWD3DGame* InGame, const char* InFilename)
 {
@@ -109,64 +108,24 @@ void HWD3DTexture_DX2::InitTexture()
 	}
 
 	// Create Exec Buffer
-	{
-		m_ExecBufferDesc.dwSize = sizeof(m_ExecBufferDesc);
-		m_ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
-		static const int NUM_INSTR = 2;
-		static const int NUM_RENDER_STATES = 5;
-		m_ExecBufferDesc.dwBufferSize = sizeof(D3DINSTRUCTION)*NUM_INSTR + sizeof(D3DSTATE)*NUM_RENDER_STATES;
-		const HRESULT CreateExecBufferRes = Dev->CreateExecuteBuffer(&m_ExecBufferDesc, &m_ExecBuffer, nullptr);
-		if (FAILED(CreateExecBufferRes) || !m_ExecBuffer)
-		{
-			return;
-		}
-
-		if (SUCCEEDED(m_ExecBuffer->Lock(&m_ExecBufferDesc)))
-		{
-			memset(m_ExecBufferDesc.lpData, 0, m_ExecBufferDesc.dwBufferSize);
-
-			LPVOID lpBufStart = m_ExecBufferDesc.lpData;
-			LPVOID lpPointer = lpBufStart;
-			LPVOID lpInsStart = lpPointer;
-
-			OP_STATE_RENDER(NUM_RENDER_STATES, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREHANDLE, m_TextureHandle, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_WRAPU, FALSE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_WRAPV, FALSE, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_LINEAR, lpPointer);
-			STATE_DATA(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_LINEAR, lpPointer);
-
-			OP_EXIT(lpPointer);
-
-			const HRESULT UnlockRes = m_ExecBuffer->Unlock();
-			if (FAILED(UnlockRes))
-			{
-				return;
-			}
-
-			D3DEXECUTEDATA ExecData = {};
-			ExecData.dwSize = sizeof(ExecData);
-			ExecData.dwInstructionOffset = (ULONG)((char*)lpInsStart - (char*)lpBufStart);
-			ExecData.dwInstructionLength = (ULONG)((char*)lpPointer - (char*)lpInsStart);
-			ExecData.dwVertexCount = 0;
-			const HRESULT SetDataRes = m_ExecBuffer->SetExecuteData(&ExecData);
-			if (FAILED(SetDataRes))
-			{
-				return;
-			}
-		}
-		else
-		{
-			return;
-		}
+	if (m_ExecBuffer = new HWD3DExecBuffer_DX2(m_Game))
+	{		
+		m_ExecBuffer->BeginData();
+		m_ExecBuffer->BeginInstructions();
+		m_ExecBuffer->OP_STATE_RENDER(5);
+		m_ExecBuffer->STATE_DATA(D3DRENDERSTATE_TEXTUREHANDLE, m_TextureHandle);
+		m_ExecBuffer->STATE_DATA(D3DRENDERSTATE_WRAPU, FALSE);
+		m_ExecBuffer->STATE_DATA(D3DRENDERSTATE_WRAPV, FALSE);
+		m_ExecBuffer->STATE_DATA(D3DRENDERSTATE_TEXTUREMAG, D3DFILTER_LINEAR);
+		m_ExecBuffer->STATE_DATA(D3DRENDERSTATE_TEXTUREMIN, D3DFILTER_LINEAR);
+		m_ExecBuffer->FinalizeBuffer();
 	}
 }
 
 void HWD3DTexture_DX2::SetTexture()
 {
-	if (m_ExecBuffer && m_Game && m_Game->GetDevice() && m_Game->GetViewport())
+	if (m_ExecBuffer)
 	{
-		const HRESULT ExecRes = m_Game->GetDevice()->Execute(m_ExecBuffer, m_Game->GetViewport(), D3DEXECUTE_CLIPPED);
-		assert(SUCCEEDED(ExecRes));
+		m_ExecBuffer->ExecuteBuffer();
 	}
 }

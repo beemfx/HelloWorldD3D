@@ -108,14 +108,14 @@ public:
 	}
 
 	// STATE_DATA size: 8 (sizeof D3DSTATE)
-	void STATE_DATA(D3DRENDERSTATETYPE type, DWORD arg)
+	void STATE_DATA(DWORD type, DWORD arg)
 	{
 		const size_t Start = m_ExecBufferData.size();
 		const size_t OpSize = sizeof(D3DSTATE);
 		m_ExecBufferData.resize(Start + OpSize);
 		void* ptr = &m_ExecBufferData[Start];
 
-		((LPD3DSTATE)ptr)->drstRenderStateType = type;
+		((LPD3DSTATE)ptr)->drstRenderStateType = static_cast<D3DRENDERSTATETYPE>(type);
 		((LPD3DSTATE)ptr)->dwArg[0] = arg;
 	}
 
@@ -259,6 +259,8 @@ public:
 		PUTD3DINSTRUCTION(D3DOP_TRIANGLE, sizeof(D3DTRIANGLE), 0);
 	}
 
+private:
+	
 	void OP_EXIT()
 	{
 		PUTD3DINSTRUCTION(D3DOP_EXIT, 0, 0);

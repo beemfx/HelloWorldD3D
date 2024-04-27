@@ -3,7 +3,7 @@
 #include "HWD3DGame_DX2.h"
 #include "HWD3DMesh.h"
 #include "HWD3DTexture.h"
-#include "d3dmacs.h"
+#include "HWD3DExecBuffer_DX2.h"
 
 // #pragma comment(lib, "ddraw.lib")
 #pragma comment(lib, "dxguid.lib")
@@ -391,60 +391,23 @@ void HWD3DGame_DX2::InitCommonStates()
 	}
 
 	// This is a one off so we don't keep any pointers.
-
-	D3DEXECUTEBUFFERDESC ExecBufferDesc = { };
-	ExecBufferDesc.dwSize = sizeof(ExecBufferDesc);
-	ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
-	static const int NUM_INSTR = 2;
-	static const int NUM_RENDER_STATES = 3;
-	ExecBufferDesc.dwBufferSize = sizeof(D3DINSTRUCTION)*NUM_INSTR + sizeof(D3DSTATE)*NUM_RENDER_STATES;
-	IDirect3DExecuteBuffer* ExecBuffer = nullptr;
-	const HRESULT CreateExecBufferRes = m_D3DDevice->CreateExecuteBuffer(&ExecBufferDesc, &ExecBuffer, nullptr);
-	if (FAILED(CreateExecBufferRes) || !ExecBuffer)
+	if (HWD3DExecBuffer_DX2* ExecBuffer = new HWD3DExecBuffer_DX2(this))
 	{
-		return;
-	}
-
-	if (SUCCEEDED(ExecBuffer->Lock(&ExecBufferDesc)))
-	{
-		memset(ExecBufferDesc.lpData, 0, ExecBufferDesc.dwBufferSize);
-
-		LPVOID lpBufStart = ExecBufferDesc.lpData;
-		LPVOID lpPointer = lpBufStart;
-		LPVOID lpInsStart = lpPointer;
-
 		// Transform setting could be handled by a one off command buffer, but to keep things simple we do it all here.
-		OP_STATE_TRANSFORM(3, lpPointer);
-		STATE_DATA(D3DTRANSFORMSTATE_PROJECTION, GetProjMatrixHandle(), lpPointer);
-		STATE_DATA(D3DTRANSFORMSTATE_VIEW, GetViewMatrixHandle(), lpPointer);
-		STATE_DATA(D3DTRANSFORMSTATE_WORLD, GetWorldMatrixHandle(), lpPointer);
-		OP_EXIT(lpPointer);
-
-		const HRESULT UnlockRes = ExecBuffer->Unlock();
-		if (FAILED(UnlockRes))
-		{
-			HWD3D_SafeRelease(ExecBuffer);
-			return;
-		}
-
-		D3DEXECUTEDATA ExecData = {};
-		ExecData.dwSize = sizeof(ExecData);
-		ExecData.dwInstructionOffset = (ULONG)((char*)lpInsStart - (char*)lpBufStart);
-		ExecData.dwInstructionLength = (ULONG)((char*)lpPointer - (char*)lpInsStart);
-		ExecData.dwVertexCount = 0;
-		const HRESULT SetDataRes = ExecBuffer->SetExecuteData(&ExecData);
-		if (FAILED(SetDataRes))
-		{
-			HWD3D_SafeRelease(ExecBuffer);
-			return;
-		}
+		ExecBuffer->BeginData();
+		ExecBuffer->BeginInstructions();
+		ExecBuffer->OP_STATE_TRANSFORM(3);
+		ExecBuffer->STATE_DATA(D3DTRANSFORMSTATE_PROJECTION, GetProjMatrixHandle());
+		ExecBuffer->STATE_DATA(D3DTRANSFORMSTATE_VIEW, GetViewMatrixHandle());
+		ExecBuffer->STATE_DATA(D3DTRANSFORMSTATE_WORLD, GetWorldMatrixHandle());
+		ExecBuffer->FinalizeBuffer();
 
 		m_D3DDevice->BeginScene();
-		m_D3DDevice->Execute(ExecBuffer, m_Viewport, D3DEXECUTE_CLIPPED);
+		ExecBuffer->ExecuteBuffer();
 		m_D3DDevice->EndScene();
-	}
 
-	HWD3D_SafeRelease(ExecBuffer);
+		HWD3D_SafeRelease(ExecBuffer);
+	}
 }
 
 HRESULT FAR PASCAL HWD3DGame_DX2::D3DCb_EnumDevices(LPGUID lpGuid, LPSTR lpDeviceDescription, LPSTR lpDeviceName, LPD3DDEVICEDESC DevDesc1, LPD3DDEVICEDESC DevDesc2, LPVOID Context)

@@ -14,7 +14,7 @@ protected:
 	IDirect3DTexture* m_Texture = nullptr;
 	D3DTEXTUREHANDLE m_TextureHandle = 0;
 	D3DEXECUTEBUFFERDESC m_ExecBufferDesc = { };
-	IDirect3DExecuteBuffer* m_ExecBuffer = nullptr;
+	HWD3DExecBuffer_DX2* m_ExecBuffer = nullptr;
 
 public:
 	HWD3DTexture_DX2(class HWD3DGame_DX2* InGame);

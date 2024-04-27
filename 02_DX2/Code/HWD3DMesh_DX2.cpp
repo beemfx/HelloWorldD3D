@@ -54,8 +54,6 @@ bool HWD3DMesh_DX2::CreateExecBuffer()
 			m_ExecBuffer->ADD_TRIANGLE(m_Triangles[i].v1, m_Triangles[i].v2, m_Triangles[i].v3, D3DTRIFLAG_EDGEENABLETRIANGLE);
 		}
 
-		m_ExecBuffer->OP_EXIT();
-
 		m_ExecBuffer->FinalizeBuffer();
 	}
 	else

@@ -28,6 +28,8 @@ void HWD3DExecBuffer_DX2::BeginInstructions()
 
 void HWD3DExecBuffer_DX2::FinalizeBuffer()
 {
+	OP_EXIT();
+
 	m_ExecBufferDesc.dwSize = sizeof(m_ExecBufferDesc);
 	m_ExecBufferDesc.dwFlags = D3DDEB_BUFSIZE;
 	m_ExecBufferDesc.dwBufferSize	= m_ExecBufferData.size();
